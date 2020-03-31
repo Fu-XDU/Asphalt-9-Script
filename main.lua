@@ -1634,10 +1634,10 @@ function chooseStageCar_i68()
 	if lowerCar == "开" then
 		virtalstage=stage - 1;
 	else virtalstage=stage;
-	end
+end
 	if virtalstage <= 0 then
 		tap(900,100);
-	elseif stage == 1 then
+	elseif virtalstage == 1 then
 		tap(980,100);
 	elseif virtalstage == 2 then
 		tap(1060,100);
@@ -2289,6 +2289,7 @@ elseif width == 750 and height == 1334 then
 	goto flag_i68;
 	::stop_i68::log4j("脚本停止");
 else
+	checkplacetimes=0;
 	::flag_SE::place=checkPlace_SE();
 	if checkplacetimes > 2 then
 		mSleep(1000);
@@ -2325,4 +2326,3 @@ end
 sendEmail(email,"[A9]脚本停止"..getDeviceName(),readFile(userPath().."/res/A9log.txt"))
 closeApp("com.Aligames.kybc9");--关闭游戏
 lockDevice();
---return 0;
