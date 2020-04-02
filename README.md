@@ -68,6 +68,34 @@
 
 在这里可以查看自己设备的UDID：http://www.pgyer.com/tools/udid
 
++ **远程控制功能**，可以访问网址
+
+```
+https://yourdomin.cn/api/a9control?command=0&udid=（等号后面为你设备的udid）
+```
+
+来远程暂停脚本的运行。如果脚本在游戏赛道中接收到了暂停指令，脚本也会进行完游戏再暂停。
+
+如果要恢复脚本的运行，可以访问
+
+```
+https://yourdomin.cn/api/a9control?command=1&udid=（等号后面为你设备的udid）
+```
+
+来远程恢复脚本的运行（前提是脚本通过上述方法处于暂停状态）。
+
+```
+例如，你的设备udid为4d5a313b1478efb4bdbd8c444b15dc3e7aa8b642
+那么你只需要访问
+https://yourdomin.cn/api/a9control?command=0&udid=4d5a313b1478efb4bdbd8c444b15dc3e7aa8b642
+后看到成功提示即可远程暂停脚本的运行。
+恢复脚本的运行只需要访问
+https://yourdomin.cn/api/a9control?command=1&udid=4d5a313b1478efb4bdbd8c444b15dc3e7aa8b642
+后看到成功提示即可。
+```
+
+
+
 ## 附录
 
 + 脚本运行之后可以在触动精灵客户端**更多-文件管理-资源**中看到名为**A9Info.txt**和**A9log.txt**两个文件，**A9Info.txt**记录了日期和日期当天脚本所运行的多人和赛事局数，请勿修改或删除此文件。**A9log.txt**是记录的是当日脚本运行记录，此记录会在每天脚本首次运行时被发送到指定邮箱后清空，请勿修改或删除此文件。

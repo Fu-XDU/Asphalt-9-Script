@@ -11,7 +11,9 @@ LoginTimes=0;
 PVPTimes=0;--多人局数,存文件
 PVETimes=0;--赛事局数,存文件
 checkplacetimes=0;--连续检测界面次数
+firstTime=false;--接收命令时log4j用
 validateGame=false;
+runningState="1";--脚本运行状态
 function httpsGet(content)
 	udid=ts.system.udid()
 	header_send = {}
@@ -490,7 +492,7 @@ function backFromLines_SE()
 		log4j("Finished_"..tostring(PVPTimes).."_PVP_games");
 	elseif mode == "赛事模式" then
 		PVETimes=PVETimes+1;
-		log4j("Finished_"..tostring(PVETimes).."_PVP_games");
+		log4j("Finished_"..tostring(PVETimes).."_PVE_games");
 	end
 	refreshTable();
 	if supermode == "赛事模式" then 
@@ -1528,13 +1530,14 @@ if savePower == "开" then
 end
 initTable();
 log4j("Starting_script");
-toast("脚本开始",10);
+toast("脚本开始",5);
 runApp("com.Aligames.kybc9");
+ts.httpsGet("https://yourdomin.cn/api/a9control?udid="..ts.system.udid().."&command=1",{},{})--将脚本暂停状态停止
 supermode=mode;
 timeout=tonumber(timeout);
 timeout2=tonumber(timeout2);
 skipcar=tonumber(skipcar);
-if width == 640 and height == 1136 then --iPhone SE,5,5S,iPod touch 5
+if (width == 640 and height == 1136) or not (width == 750 and height == 1334) then --iPhone SE,5,5S,iPod touch 5
 	::flag_SE::place=checkPlace_SE();
 	if checkplacetimes > 2 then
 		mSleep(1000);
@@ -1565,6 +1568,24 @@ if width == 640 and height == 1136 then --iPhone SE,5,5S,iPod touch 5
 	::autoMobile_SE::autoMobile_SE();
 	::backFromLines_SE::backFromLines_SE();
 	mSleep(5000);
+	--https请求获取运行指令
+	::getCommand_SE::a9getCommandcode,a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet("https://yourdomin.cn/api/a9getCommand?udid="..ts.system.udid(),{},{})
+	if a9getCommandcode==200 and a9getCommandbody_resp=="0" then
+		if runningState=="1" then
+			log4j("Stopping_command_get,script_has_terminated");
+			runningState="0";
+			toast("接收到暂停指令，脚本暂停运行",1);
+		end
+		toast("脚本已暂停运行",4);
+		mSleep(5000);
+		toast("5秒后再次发起请求",4)
+		mSleep(5000);--等5秒后再次发起请求
+		goto getCommand_SE;
+	elseif a9getCommandcode==200 and a9getCommandbody_resp=="1" and runningState=="0" then
+		toast("接收到开始指令，脚本开始运行",1)
+		log4j("Starting_command_get,script_moves_on");
+		runningState="1"
+	end
 	goto flag_SE;
 	::stop_SE::log4j("Script_has_terminated_automatically");
 elseif width == 750 and height == 1334 then
@@ -1599,42 +1620,26 @@ elseif width == 750 and height == 1334 then
 	::autoMobile_i68::autoMobile_i68();
 	::backFromLines_i68::backFromLines_i68();
 	mSleep(5000);
+	--https请求获取运行指令
+	::getCommand_i68::a9getCommandcode,a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet("https://yourdomin.cn/api/a9getCommand?udid="..ts.system.udid(),{},{})
+	if a9getCommandcode==200 and a9getCommandbody_resp=="0" then
+		if runningState=="1" then
+			log4j("Stopping_command_get,script_has_terminated");
+			runningState="0";
+			toast("接收到暂停指令，脚本暂停运行",1);
+		end
+		toast("脚本已暂停运行",4);
+		mSleep(5000);
+		toast("5秒后再次发起请求",4)
+		mSleep(5000);--等5秒后再次发起请求
+		goto getCommand_i68;
+	elseif a9getCommandcode==200 and a9getCommandbody_resp=="1" and runningState=="0" then
+		toast("接收到开始指令，脚本开始运行",1)
+		log4j("Starting_command_get,script_moves_on");
+		runningState="1"
+	end
 	goto flag_i68;
 	::stop_i68::log4j("Script_has_terminated_automatically");
-else
-	checkplacetimes=0;
-	::flag_SE::place=checkPlace_SE();
-	if checkplacetimes > 2 then
-		mSleep(1000);
-	end
-	if checkplacetimes>=25 then
-		checkplacetimes=0;
-		restartApp();
-		toast("等待30秒",1)
-		mSleep(30000);
-		place=404;
-	end
-	worker_SE();
-	if state == -1 then state=0; checkplacetimes=checkplacetimes+1; goto flag_SE;
-	elseif state == -2 then state=0; checkplacetimes=0; goto stop_SE;
-	elseif state == -3 then state=0; back_SE(); checkplacetimes=0; goto flag_SE; 
-	elseif state == -4 then state=0; checkplacetimes=0; goto backFromLines_SE;
-	elseif state == -5 then state=0; checkplacetimes=0; goto autoMobile_SE;
-	elseif state == -6 then state=0; checkplacetimes=0; goto waitBegin_SE;
-	end
-	checkplacetimes=0; 
-	state2=toCarbarn_SE();
-	if state2 == 0 then state2=0; goto flag_SE; 
-	elseif state2 == -1 then state2=0; goto stop_SE;
-	end
-	::chooseCar_SE::chooseCar_SE();
-	::waitBegin_SE::state=waitBegin_SE();
-	if state == -1 then state=0; goto flag_SE; end 
-	::autoMobile_SE::autoMobile_SE();
-	::backFromLines_SE::backFromLines_SE();
-	mSleep(5000);
-	goto flag_SE;
-	::stop_SE::log4j("Script_has_terminated_automatically");
 end
 sendEmail(email,"[A9]脚本自动停止运行"..getDeviceName(),readFile(userPath().."/res/A9log.txt"))
 closeApp("com.Aligames.kybc9");--关闭游戏
