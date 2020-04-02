@@ -490,7 +490,7 @@ function backFromLines_SE()
 		log4j("Finished_"..tostring(PVPTimes).."_PVP_games");
 	elseif mode == "赛事模式" then
 		PVETimes=PVETimes+1;
-		log4j("Finished"..tostring(PVETimes).."PVP_games");
+		log4j("Finished_"..tostring(PVETimes).."_PVP_games");
 	end
 	refreshTable();
 	if supermode == "赛事模式" then 
@@ -1139,6 +1139,7 @@ function backFromLines_i68()
 	if mode == "多人刷积分声望" then
 		PVPTimes=PVPTimes+1;
 		log4j("Finished_"..tostring(PVPTimes).."_PVP_games");
+	elseif mode == "赛事模式" then
 		PVETimes=PVETimes+1;
 		log4j("Finished_"..tostring(PVETimes).."_PVE_games");
 	end
@@ -1252,7 +1253,9 @@ function gametoCarbarn_i68()
 			elseif upordown == "中间下" then
 				tap(660,575);
 			elseif upordown == "右上（被寻车满星时）" then
-				tap(1130,320);
+				for i=1325,1000,-30 do
+					tap(i,320);
+				end
 			end
 		end
 	end
