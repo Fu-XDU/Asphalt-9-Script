@@ -11,9 +11,9 @@ LoginTimes=0;
 PVPTimes=0;--多人局数,存文件
 PVETimes=0;--赛事局数,存文件
 checkplacetimes=0;--连续检测界面次数
-firstTime=false;--接收命令时log4j用
 validateGame=false;
-runningState="1";--脚本运行状态
+runningState=true;--脚本运行状态
+receive_starting_command=false;--如果是true那么检测到账号被顶就不再等待
 function httpsGet(content)
 	udid=ts.system.udid()
 	header_send = {}
@@ -33,14 +33,12 @@ end
 function TableToStr(t)
 	if t == nil then return "" end
 	local retstr= ""
-
 	local i = 1
 	for key,value in pairs(t) do
 		local signal = "\n"
 		if i==1 then
 			signal = ""
 		end
-
 		if key == i then
 			retstr = retstr..signal..ToStringEx(value)
 		else
@@ -54,10 +52,8 @@ function TableToStr(t)
 				end
 			end
 		end
-
 		i = i+1
 	end
-
 	retstr = retstr..""
 	return retstr
 end
@@ -198,7 +194,7 @@ function keypress(key)
 	keyUp(key);
 end
 function restartApp()
-	log4j("Asphalt9_has_restarted");
+	log4j("Asphalt9_restarted");
 	closeApp("com.Aligames.kybc9");--关闭游戏
 	mSleep(5000);
 	runApp("com.Aligames.kybc9");--打开游戏
@@ -478,7 +474,7 @@ function autoMobile_SE()
 end
 function backFromLines_SE()
 	--从赛道回到多人界面
-	mSleep(4000);
+	mSleep(1000);
 	color=getColor(115,25);
 	while (color == 0xff0054) do
 		tap(1000,580);
@@ -489,10 +485,10 @@ function backFromLines_SE()
 	toast("比赛完成",1);
 	if mode == "多人刷积分声望" then
 		PVPTimes=PVPTimes+1;
-		log4j("Finished_"..tostring(PVPTimes).."_PVP_games");
+		log4j(tostring(PVPTimes).."_PVP_done");
 	elseif mode == "赛事模式" then
 		PVETimes=PVETimes+1;
-		log4j("Finished_"..tostring(PVETimes).."_PVE_games");
+		log4j(tostring(PVETimes).."_PVE_done");
 	end
 	refreshTable();
 	if supermode == "赛事模式" then 
@@ -544,7 +540,7 @@ function Login_SE()
 			return -1;
 		else
 			toast("无密码,脚本退出",1);
-			log4j("Passcode_not_found,script_will_terminate_automatically");
+			log4j("Passcode_not_found,script_terminated");
 			mSleep(1000);
 			return -2;
 		end
@@ -679,7 +675,7 @@ function gametoCarbarn_SE()
 	return -1;
 end
 function receivePrizeFromGL_SE()
-	sendEmail(email,"领取来自GameLoft的礼物",getDeviceName());
+	log4j("Receive_packets_from_GL");
 	mSleep(1000);
 	tap(1015,582);
 	mSleep(5000);
@@ -751,7 +747,6 @@ function worker_SE()
 		end
 	elseif place == 6 then
 		toast("赛事开始界面",1);
-		mSleep(1000);
 		if mode == "赛事模式" then 
 			if validateGame == false then
 				back_SE();
@@ -810,13 +805,15 @@ function worker_SE()
 		mSleep(2000);
 		state=-1;
 	elseif place == 16 then
-		sendEmail(email,"账号被顶,等待"..tostring(timeout2).."分钟",getDeviceName());
-		toast("账号被顶",1);
-		mSleep(1000);
-		toast("等待"..tostring(timeout2).."分钟",1)
-		mSleep(timeout2*60*1000);
-		sendEmail(email,"账号被顶,等待完成",getDeviceName());
-		toast("等待完成",1);
+		if receive_starting_command == false then 
+			sendEmail(email,"账号被顶,等待"..tostring(timeout2).."分钟",getDeviceName());
+			toast("账号被顶",1);
+			mSleep(1000);
+			toast("等待"..tostring(timeout2).."分钟",1)
+			mSleep(timeout2*60*1000);
+			sendEmail(email,"账号被顶,等待完成",getDeviceName());
+			toast("等待完成",1);
+		end
 		tap(970,215);--关闭
 		mSleep(2000);
 		state=-1;
@@ -860,6 +857,7 @@ function worker_SE()
 		toast("不知道在哪",1)
 		state=-1;
 	end
+	receive_starting_command=false;
 end
 function back_i68()
 	--Done
@@ -1129,7 +1127,7 @@ end
 function backFromLines_i68()
 	--done
 	--从赛道回到多人界面
-	mSleep(4000);
+	mSleep(1000);
 	color=getColor(140,20);
 	while (color == 0xff0054) do
 		tap(1100,680);
@@ -1140,10 +1138,10 @@ function backFromLines_i68()
 	toast("比赛完成",1);
 	if mode == "多人刷积分声望" then
 		PVPTimes=PVPTimes+1;
-		log4j("Finished_"..tostring(PVPTimes).."_PVP_games");
+		log4j(tostring(PVPTimes).."_PVP_done");
 	elseif mode == "赛事模式" then
 		PVETimes=PVETimes+1;
-		log4j("Finished_"..tostring(PVETimes).."_PVE_games");
+		log4j(tostring(PVETimes).."_PVE_done");
 	end
 	refreshTable();
 	if supermode == "赛事模式" then 
@@ -1191,7 +1189,7 @@ function Login_i68()
 			return -1;
 		else
 			toast("无密码,脚本退出",1);
-			log4j("Passcode_not_found,script_will_terminate_automatically");
+			log4j("Passcode_not_found,script_terminated");
 			mSleep(1000);
 			return -2;
 		end
@@ -1326,7 +1324,7 @@ mSleep(2000);
 return -1;
 end
 function receivePrizeFromGL_i68()
-	sendEmail(email,"领取来自GameLoft的礼物",getDeviceName());
+	log4j("Receive_packets_from_GL");
 	mSleep(1000);
 	tap(1015,582);
 	mSleep(5000);
@@ -1406,7 +1404,7 @@ function worker_i68()
 			elseif validateGame == true then
 				state=gametoCarbarn_i68();
 			end
-		elseif mode == "多人刷积分声望" then 
+		elseif mode == "多人刷积分声望" then
 			backHome_i68();
 			state=-1;
 		end
@@ -1458,19 +1456,21 @@ function worker_i68()
 		mSleep(2000);
 		state=-1;
 	elseif place == 16 then
-		sendEmail(email,"账号被顶,等待"..tostring(timeout2).."分钟",getDeviceName());
-		toast("账号被顶",1);
-		mSleep(1000);
-		toast("等待"..tostring(timeout2).."分钟",1)
-		--[[
+		if receive_starting_command == false then 
+			sendEmail(email,"账号被顶,等待"..tostring(timeout2).."分钟",getDeviceName());
+			toast("账号被顶",1);
+			mSleep(1000);
+			toast("等待"..tostring(timeout2).."分钟",1)
+			--[[
 		for i= 1,timeout2*1000*60,1 do
 			toast(tostring((timeout2*60-i) - ((timeout2*60-i)%0.01)).."秒后重新登录",0.7)
 			mSleep(1000);
 		end
 		]]--
-		mSleep(timeout2*60*1000);
-		sendEmail(email,"账号被顶,等待完成",getDeviceName());
-		toast("等待完成",1);
+			mSleep(timeout2*60*1000);
+			sendEmail(email,"账号被顶,等待完成",getDeviceName());
+			toast("等待完成",1);
+		end
 		tap(1140,252);--关闭
 		mSleep(2000);
 		state=-1;
@@ -1512,6 +1512,7 @@ function worker_i68()
 		toast("不知道在哪",1)
 		state=-1;
 	end
+	receive_starting_command=false;
 end
 math.randomseed(tostring(os.time()):reverse():sub(1, 7));--随机数初始化
 width,height = getScreenSize();
@@ -1571,9 +1572,9 @@ if (width == 640 and height == 1136) or not (width == 750 and height == 1334) th
 	--https请求获取运行指令
 	::getCommand_SE::a9getCommandcode,a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet("https://yourdomin.cn/api/a9getCommand?udid="..ts.system.udid(),{},{})
 	if a9getCommandcode==200 and a9getCommandbody_resp=="0" then
-		if runningState=="1" then
-			log4j("Stopping_command_get,script_has_terminated");
-			runningState="0";
+		if runningState==true then
+			log4j("Stopping_command,script_terminated");
+			runningState=false;
 			toast("接收到暂停指令，脚本暂停运行",1);
 		end
 		toast("脚本已暂停运行",4);
@@ -1581,13 +1582,14 @@ if (width == 640 and height == 1136) or not (width == 750 and height == 1334) th
 		toast("5秒后再次发起请求",4)
 		mSleep(5000);--等5秒后再次发起请求
 		goto getCommand_SE;
-	elseif a9getCommandcode==200 and a9getCommandbody_resp=="1" and runningState=="0" then
+	elseif a9getCommandcode==200 and a9getCommandbody_resp=="1" and runningState==false then
 		toast("接收到开始指令，脚本开始运行",1)
-		log4j("Starting_command_get,script_moves_on");
-		runningState="1"
+		log4j("Starting_command,script_online");
+		runningState=true;
+		receive_starting_command=true;
 	end
 	goto flag_SE;
-	::stop_SE::log4j("Script_has_terminated_automatically");
+	::stop_SE::log4j("Script_terminated");
 elseif width == 750 and height == 1334 then
 	checkplacetimes=0;
 	::flag_i68::place=checkPlace_i68();
@@ -1623,9 +1625,9 @@ elseif width == 750 and height == 1334 then
 	--https请求获取运行指令
 	::getCommand_i68::a9getCommandcode,a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet("https://yourdomin.cn/api/a9getCommand?udid="..ts.system.udid(),{},{})
 	if a9getCommandcode==200 and a9getCommandbody_resp=="0" then
-		if runningState=="1" then
-			log4j("Stopping_command_get,script_has_terminated");
-			runningState="0";
+		if runningState==true then
+			log4j("Stopping_command,script_terminated");
+			runningState=false;
 			toast("接收到暂停指令，脚本暂停运行",1);
 		end
 		toast("脚本已暂停运行",4);
@@ -1633,13 +1635,14 @@ elseif width == 750 and height == 1334 then
 		toast("5秒后再次发起请求",4)
 		mSleep(5000);--等5秒后再次发起请求
 		goto getCommand_i68;
-	elseif a9getCommandcode==200 and a9getCommandbody_resp=="1" and runningState=="0" then
+	elseif a9getCommandcode==200 and a9getCommandbody_resp=="1" and runningState==false then
 		toast("接收到开始指令，脚本开始运行",1)
-		log4j("Starting_command_get,script_moves_on");
-		runningState="1"
+		log4j("Starting_command,script_online");
+		runningState=true;
+		receive_starting_command=true;
 	end
 	goto flag_i68;
-	::stop_i68::log4j("Script_has_terminated_automatically");
+	::stop_i68::log4j("Script_terminated");
 end
 sendEmail(email,"[A9]脚本自动停止运行"..getDeviceName(),readFile(userPath().."/res/A9log.txt"))
 closeApp("com.Aligames.kybc9");--关闭游戏

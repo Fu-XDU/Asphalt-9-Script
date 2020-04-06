@@ -94,7 +94,7 @@ https://yourdomin.cn/api/a9control?command=1&udid=4d5a313b1478efb4bdbd8c444b15dc
 后看到成功提示即可。
 ```
 
-
+> 如果你使用此功能，即使检测到顶号，也不会再等待，而是立刻重新登录进入游戏。
 
 ## 附录
 
