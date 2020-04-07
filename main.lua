@@ -471,6 +471,14 @@ function autoMobile_SE()
 		tap(950,400);
 	end
 	toast("比赛结束",1);
+	if mode == "多人刷积分声望" then
+		PVPTimes=PVPTimes+1;
+		log4j(tostring(PVPTimes).."_PVP_done");
+	elseif mode == "赛事模式" then
+		PVETimes=PVETimes+1;
+		log4j(tostring(PVETimes).."_PVE_done");
+	end
+	refreshTable();
 end
 function backFromLines_SE()
 	--从赛道回到多人界面
@@ -483,15 +491,7 @@ function backFromLines_SE()
 	end
 	mSleep(2000);
 	toast("比赛完成",1);
-	if mode == "多人刷积分声望" then
-		PVPTimes=PVPTimes+1;
-		log4j(tostring(PVPTimes).."_PVP_done");
-	elseif mode == "赛事模式" then
-		PVETimes=PVETimes+1;
-		log4j(tostring(PVETimes).."_PVE_done");
-	end
-	refreshTable();
-	if supermode == "赛事模式" then 
+	if supermode == "赛事模式" and mode == "多人刷积分声望" then 
 		checkTimeOut_SE();
 	end
 end
@@ -1123,6 +1123,14 @@ function autoMobile_i68()
 		tap(1130,600);
 	end
 	toast("比赛结束",1);
+	if mode == "多人刷积分声望" then
+		PVPTimes=PVPTimes+1;
+		log4j(tostring(PVPTimes).."_PVP_done");
+	elseif mode == "赛事模式" then
+		PVETimes=PVETimes+1;
+		log4j(tostring(PVETimes).."_PVE_done");
+	end
+	refreshTable();
 end
 function backFromLines_i68()
 	--done
@@ -1136,15 +1144,7 @@ function backFromLines_i68()
 	end
 	mSleep(2000);
 	toast("比赛完成",1);
-	if mode == "多人刷积分声望" then
-		PVPTimes=PVPTimes+1;
-		log4j(tostring(PVPTimes).."_PVP_done");
-	elseif mode == "赛事模式" then
-		PVETimes=PVETimes+1;
-		log4j(tostring(PVETimes).."_PVE_done");
-	end
-	refreshTable();
-	if supermode == "赛事模式" then 
+	if supermode == "赛事模式" and mode == "多人刷积分声望" then 
 		checkTimeOut_i68();
 	end
 end
