@@ -1,19 +1,162 @@
 require "TSLib"
 local ts = require("ts");
 init(1);
-stage=-1;
-state=0;
-path=0;
-checkLvUp=0;
-time=-1;
-innerGhost=0;
-LoginTimes=0;
-PVPTimes=0;--多人局数,存文件
-PVETimes=0;--赛事局数,存文件
+stage=-1;--段位
+state=0;--中间件，声明检测界面后的下一步流程
+path=0;--道路选择
+time=-1;--时间戳，记录离开赛事的时间
+innerGhost=0;--有内鬼次数
+LoginTimes=0;--连续登陆次数
+PVPTimes,PVETimes=0,0;--多人和赛事局数,存文件
 checkplacetimes=0;--连续检测界面次数
 validateGame=false;
 runningState=true;--脚本运行状态
 receive_starting_command=false;--如果是true那么检测到账号被顶就不再等待
+width,height="","";--屏幕尺寸
+-------下面是主函数-------main()为程序主流程函数| prepare()为前置准备函数 | after()为脚本结束处理函数
+function prepare()
+	math.randomseed(tostring(os.time()):reverse():sub(1, 7));--随机数初始化
+	checkScreenSize();
+	ShowUI();
+	if savePower == "开" then
+		toast("降低屏幕亮度",2);
+		setBacklightLevel(0);--屏幕亮度调制最暗
+	end
+	initTable();
+	log4j("Starting_script");
+	toast("脚本开始",5);
+	runApp("com.Aligames.kybc9");
+	ts.httpsGet("https://yourdomin.cn/api/a9control?udid="..ts.system.udid().."&command=1",{},{})--将脚本状态置为运行
+	supermode=mode;
+	timeout=tonumber(timeout);
+	timeout2=tonumber(timeout2);
+	skipcar=tonumber(skipcar);
+end
+function main()
+	prepare();
+	if (width == 640 and height == 1136) or not (width == 750 and height == 1334) then --iPhone SE,5,5S,iPod touch 5
+		::flag_SE::place=checkPlace_SE();
+		if checkplacetimes > 2 then
+			mSleep(1000);
+		end
+		if checkplacetimes>=25 then
+			checkplacetimes=0;
+			restartApp();
+			toast("等待30秒",1)
+			mSleep(30000);
+			place=404;
+		end
+		worker_SE();
+		if state == -1 then state=0; checkplacetimes=checkplacetimes+1; goto flag_SE;
+		elseif state == -2 then state=0; checkplacetimes=0; goto stop_SE;
+		elseif state == -3 then state=0; back_SE(); checkplacetimes=0; goto flag_SE; 
+		elseif state == -4 then state=0; checkplacetimes=0; goto backFromLines_SE;
+		elseif state == -5 then state=0; checkplacetimes=0; goto autoMobile_SE;
+		elseif state == -6 then state=0; checkplacetimes=0; goto waitBegin_SE;
+		end
+		checkplacetimes=0; 
+		state2=toCarbarn_SE();
+		if state2 == 0 then state2=0; goto flag_SE; 
+		elseif state2 == -1 then state2=0; goto stop_SE;
+		end
+		::chooseCar_SE::chooseCar_SE();
+		::waitBegin_SE::state=waitBegin_SE();
+		if state == -1 then state=0; goto flag_SE; end 
+		::autoMobile_SE::autoMobile_SE();
+		::backFromLines_SE::backFromLines_SE();
+		mSleep(5000);
+		getHttpsCommand();--https请求获取运行指令
+		goto flag_SE;
+		::stop_SE::log4j("Script_terminated");
+	elseif width == 750 and height == 1334 then
+		checkplacetimes=0;
+		::flag_i68::place=checkPlace_i68();
+		if checkplacetimes > 2 then
+			mSleep(1000);
+		end
+		if checkplacetimes>=25 then
+			checkplacetimes=0;
+			restartApp();
+			toast("等待30秒",1)
+			mSleep(30000);
+			place=404;
+		end
+		worker_i68();
+		if state == -1 then state=0; checkplacetimes=checkplacetimes+1; goto flag_i68;
+		elseif state == -2 then state=0; checkplacetimes=0; goto stop_i68;
+		elseif state == -3 then state=0; back_i68(); checkplacetimes=0; goto flag_i68; 
+		elseif state == -4 then state=0; checkplacetimes=0; goto backFromLines_i68;
+		elseif state == -5 then state=0; checkplacetimes=0; goto autoMobile_i68;
+		elseif state == -6 then state=0; checkplacetimes=0; goto waitBegin_i68;
+		end
+		checkplacetimes=0; 
+		state2=toCarbarn_i68();
+		if state2 == 0 then state2=0; goto flag_i68; 
+		elseif state2 == -1 then state2=0; goto stop_i68;
+		end
+		::chooseCar_i68::chooseCar_i68();
+		::waitBegin_i68::state=waitBegin_i68();
+		if state == -1 then state=0; goto flag_i68; end 
+		::autoMobile_i68::autoMobile_i68();
+		::backFromLines_i68::backFromLines_i68();
+		mSleep(5000);
+		getHttpsCommand();--https请求获取运行指令
+		goto flag_i68;
+		::stop_i68::log4j("Script_terminated");
+	end
+	after();
+end
+function after()
+	sendEmail(email,"[A9]脚本自动停止运行"..getDeviceName(),readFile(userPath().."/res/A9log.txt"))
+	closeApp("com.Aligames.kybc9");--关闭游戏
+	lockDevice();
+end
+-------下面是通用处理函数-------
+function checkScreenSize()
+	width,height = getScreenSize();
+	if not ((width == 640 and height == 1136) or (width == 750 and height == 1334)) then         
+		ret = dialogRet("告知\n本脚本不支持您的设备分辨率，是否继续运行此脚本","是","否",0,0);
+		if ret ~= 0 then    --如果按下"否"按钮
+			toast("脚本停止",1);
+			mSleep(700);
+			luaExit();        --退出脚本
+		end
+	end
+end
+function getHttpsCommand()
+	::getCommand::a9getCommandcode,a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet("https://yourdomin.cn/api/a9getCommand?udid="..ts.system.udid(),{},{})
+	if a9getCommandcode==200 and a9getCommandbody_resp=="0" then
+		if runningState==true then
+			log4j("Stopping_command,script_terminated");
+			runningState=false;
+			toast("接收到暂停指令，脚本暂停运行",1);
+		end
+		toast("脚本已暂停运行",4);
+		mSleep(5000);
+		toast("5秒后再次发起请求",4);
+		mSleep(5000);--等5秒后再次发起请求
+		goto getCommand;
+	elseif a9getCommandcode==200 and a9getCommandbody_resp=="1" and runningState==false then
+		toast("接收到开始指令，脚本开始运行",1);
+		log4j("Starting_command,script_online");
+		runningState=true;
+		receive_starting_command=true;
+	elseif a9getCommandcode==200 and a9getCommandbody_resp=="2" then
+		toast("接收到模式转换指令，停止赛事模式",1);
+		mSleep(1000);
+		log4j("Switch_command,PVE_terminated");
+		supermode="多人刷积分声望";
+		mode="多人刷积分声望";
+		ts.httpsGet("https://yourdomin.cn/api/a9control?udid="..ts.system.udid().."&command=1",{},{})--将脚本状态置为运行
+	elseif a9getCommandcode==200 and a9getCommandbody_resp=="3" then
+		toast("接收到模式转换指令，开始赛事模式",1);
+		mSleep(1000);
+		log4j("Switch_command,PVE_started");
+		supermode="赛事模式";
+		mode="赛事模式";
+		ts.httpsGet("https://yourdomin.cn/api/a9control?udid="..ts.system.udid().."&command=1",{},{})--将脚本状态置为运行
+	end
+end
 function httpsGet(content)
 	udid=ts.system.udid()
 	header_send = {}
@@ -149,7 +292,7 @@ function ShowUI()
 	UINew(2,"第1页,第2页","确定","取消","uiconfig.dat",1,120,w,h,"255,255,255","255,255,255","","dot",1);
 	UILabel(1,"狂野飙车9国服iOS脚本",15,"center","38,38,38");
 	UILabel(1,"模式选择",15,"left","38,38,38");
-	UIRadio(1,"mode","多人刷积分声望,赛事模式","0");--记录最初设置
+	UIRadio(1,"mode","多人刷积分声望,赛事模式,特殊赛事","0");--记录最初设置
 	UILabel(1,"没油没票后动作（赛事模式）",15,"left","38,38,38");
 	UIRadio(1,"switch","去刷多人,等15分钟,等30分钟","0");
 	UILabel(1,"路线选择（所有模式）",15,"left","38,38,38");
@@ -200,6 +343,7 @@ function restartApp()
 	runApp("com.Aligames.kybc9");--打开游戏
 	mSleep(5000);
 end
+-------下面是iPhone SE 设备处理函数-------
 function back_SE()
 	toast("后退",1)
 	tap(30,30)
@@ -474,7 +618,7 @@ function autoMobile_SE()
 	if mode == "多人刷积分声望" then
 		PVPTimes=PVPTimes+1;
 		log4j(tostring(PVPTimes).."_PVP_done");
-	elseif mode == "赛事模式" then
+	elseif mode == "赛事模式" or mode == "特殊赛事" then
 		PVETimes=PVETimes+1;
 		log4j(tostring(PVETimes).."_PVE_done");
 	end
@@ -491,7 +635,7 @@ function backFromLines_SE()
 	end
 	mSleep(2000);
 	toast("比赛完成",1);
-	if supermode == "赛事模式" and mode == "多人刷积分声望" then 
+	if supermode == "赛事模式" and (mode == "多人刷积分声望" or mode == "特殊赛事" )then 
 		checkTimeOut_SE();
 	end
 end
@@ -552,7 +696,7 @@ function toDailyGame_SE()
 		tap(929,474);
 		goto DailyGame;
 	end
-	for i=1,10,1 do
+	for i=1,20,1 do
 		moveTo(860,235,225,235,20);--从右往左划
 		if (isColor(1116,  539, 0xdc014a, 85) and isColor(1116,  538, 0xda0147, 85)) then
 			break;
@@ -570,6 +714,29 @@ function toDailyGame_SE()
 	end
 	mSleep(2000);
 	return -1;
+end
+function toSpecialEvent_SE()
+	toast("进入特殊赛事",1); 
+	--[[if (isColor( 555,  537, 0xf9004b, 85) and isColor( 556,  540, 0xfe0054, 85)) then
+		tap(929,474);--在赛事就直接进入
+		goto DailyGame;
+	end]]--
+for i=1,20,1 do
+	moveTo(360,235,600,235,20);--从左往右划
+	if (isColor(  19,  537, 0xfc0051, 85) and isColor(  19,  540, 0xff0054, 85) and isColor(  19,  539, 0xff0054, 85)) then
+		break;
+	end
+end
+moveTo(600,235,360,235,20);--从右往左划一次
+mSleep(1000);
+--TODO:检查是否在特殊赛事入口
+::DailyGame::tap(207,621);
+mSleep(2000);
+for i=1,4,1 do
+	moveTo(100,500,520,500,20);--从左往右划
+end
+mSleep(2000);
+return -1;
 end
 function chooseGame_SE()
 	gamenum=tonumber(gamenum);
@@ -707,6 +874,8 @@ function worker_SE()
 			state=toPVP_SE();
 		elseif mode == "赛事模式" then
 			state=toDailyGame_SE();
+		elseif mode == "特殊赛事" then
+			state=toSpecialEvent_SE();
 		end
 	elseif place == 1 then
 		toast("在多人",1);
@@ -715,6 +884,9 @@ function worker_SE()
 		elseif mode == "赛事模式" then
 			back_SE();
 			state=toDailyGame_SE();
+		elseif mode == "特殊赛事" then
+			back_SE();
+			state=toSpecialEvent_SE();
 		end
 	elseif place == -1 then
 		toast("不在大厅，不在多人，回到大厅",1);
@@ -723,6 +895,8 @@ function worker_SE()
 			state=toPVP_SE();
 		elseif mode == "赛事模式" then
 			state=toDailyGame_SE();
+		elseif mode == "特殊赛事" then
+			state=toSpecialEvent_SE();
 		end
 	elseif place == 2 then
 		toast("在结算",1);
@@ -741,7 +915,7 @@ function worker_SE()
 		if mode == "赛事模式" then 
 			state=chooseGame_SE();
 			validateGame=true;
-		elseif mode == "多人刷积分声望" then 
+		elseif mode == "多人刷积分声望" or mode == "特殊赛事" then 
 			back_SE();
 			state=-1;
 		end
@@ -755,7 +929,7 @@ function worker_SE()
 			elseif validateGame == true then
 				state=gametoCarbarn_SE();
 			end
-		elseif mode == "多人刷积分声望" then 
+		elseif mode == "多人刷积分声望" or mode == "特殊赛事" then 
 			backHome_SE();
 			state=-1;
 		end
@@ -859,6 +1033,7 @@ function worker_SE()
 	end
 	receive_starting_command=false;
 end
+-------下面是iPhone 6 - iPhone 8 设备处理函数-------
 function back_i68()
 	--Done
 	toast("后退",1)
@@ -1514,136 +1689,4 @@ function worker_i68()
 	end
 	receive_starting_command=false;
 end
-math.randomseed(tostring(os.time()):reverse():sub(1, 7));--随机数初始化
-width,height = getScreenSize();
-if not ((width == 640 and height == 1136) or (width == 750 and height == 1334)) then         
-	ret = dialogRet("告知\n本脚本不支持您的设备分辨率，是否继续运行此脚本","是","否",0,0);
-	if ret ~= 0 then    --如果按下"否"按钮
-		toast("脚本停止",1);
-		mSleep(700);
-		luaExit();        --退出脚本
-	end
-end
-ShowUI();
-if savePower == "开" then
-	toast("降低屏幕亮度",2);
-	setBacklightLevel(0);--屏幕亮度调制最暗
-end
-initTable();
-log4j("Starting_script");
-toast("脚本开始",5);
-runApp("com.Aligames.kybc9");
-ts.httpsGet("https://yourdomin.cn/api/a9control?udid="..ts.system.udid().."&command=1",{},{})--将脚本暂停状态停止
-supermode=mode;
-timeout=tonumber(timeout);
-timeout2=tonumber(timeout2);
-skipcar=tonumber(skipcar);
-if (width == 640 and height == 1136) or not (width == 750 and height == 1334) then --iPhone SE,5,5S,iPod touch 5
-	::flag_SE::place=checkPlace_SE();
-	if checkplacetimes > 2 then
-		mSleep(1000);
-	end
-	if checkplacetimes>=25 then
-		checkplacetimes=0;
-		restartApp();
-		toast("等待30秒",1)
-		mSleep(30000);
-		place=404;
-	end
-	worker_SE();
-	if state == -1 then state=0; checkplacetimes=checkplacetimes+1; goto flag_SE;
-	elseif state == -2 then state=0; checkplacetimes=0; goto stop_SE;
-	elseif state == -3 then state=0; back_SE(); checkplacetimes=0; goto flag_SE; 
-	elseif state == -4 then state=0; checkplacetimes=0; goto backFromLines_SE;
-	elseif state == -5 then state=0; checkplacetimes=0; goto autoMobile_SE;
-	elseif state == -6 then state=0; checkplacetimes=0; goto waitBegin_SE;
-	end
-	checkplacetimes=0; 
-	state2=toCarbarn_SE();
-	if state2 == 0 then state2=0; goto flag_SE; 
-	elseif state2 == -1 then state2=0; goto stop_SE;
-	end
-	::chooseCar_SE::chooseCar_SE();
-	::waitBegin_SE::state=waitBegin_SE();
-	if state == -1 then state=0; goto flag_SE; end 
-	::autoMobile_SE::autoMobile_SE();
-	::backFromLines_SE::backFromLines_SE();
-	mSleep(5000);
-	--https请求获取运行指令
-	::getCommand_SE::a9getCommandcode,a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet("https://yourdomin.cn/api/a9getCommand?udid="..ts.system.udid(),{},{})
-	if a9getCommandcode==200 and a9getCommandbody_resp=="0" then
-		if runningState==true then
-			log4j("Stopping_command,script_terminated");
-			runningState=false;
-			toast("接收到暂停指令，脚本暂停运行",1);
-		end
-		toast("脚本已暂停运行",4);
-		mSleep(5000);
-		toast("5秒后再次发起请求",4)
-		mSleep(5000);--等5秒后再次发起请求
-		goto getCommand_SE;
-	elseif a9getCommandcode==200 and a9getCommandbody_resp=="1" and runningState==false then
-		toast("接收到开始指令，脚本开始运行",1)
-		log4j("Starting_command,script_online");
-		runningState=true;
-		receive_starting_command=true;
-	end
-	goto flag_SE;
-	::stop_SE::log4j("Script_terminated");
-elseif width == 750 and height == 1334 then
-	checkplacetimes=0;
-	::flag_i68::place=checkPlace_i68();
-	if checkplacetimes > 2 then
-		mSleep(1000);
-	end
-	if checkplacetimes>=25 then
-		checkplacetimes=0;
-		restartApp();
-		toast("等待30秒",1)
-		mSleep(30000);
-		place=404;
-	end
-	worker_i68();
-	if state == -1 then state=0; checkplacetimes=checkplacetimes+1; goto flag_i68;
-	elseif state == -2 then state=0; checkplacetimes=0; goto stop_i68;
-	elseif state == -3 then state=0; back_i68(); checkplacetimes=0; goto flag_i68; 
-	elseif state == -4 then state=0; checkplacetimes=0; goto backFromLines_i68;
-	elseif state == -5 then state=0; checkplacetimes=0; goto autoMobile_i68;
-	elseif state == -6 then state=0; checkplacetimes=0; goto waitBegin_i68;
-	end
-	checkplacetimes=0; 
-	state2=toCarbarn_i68();
-	if state2 == 0 then state2=0; goto flag_i68; 
-	elseif state2 == -1 then state2=0; goto stop_i68;
-	end
-	::chooseCar_i68::chooseCar_i68();
-	::waitBegin_i68::state=waitBegin_i68();
-	if state == -1 then state=0; goto flag_i68; end 
-	::autoMobile_i68::autoMobile_i68();
-	::backFromLines_i68::backFromLines_i68();
-	mSleep(5000);
-	--https请求获取运行指令
-	::getCommand_i68::a9getCommandcode,a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet("https://yourdomin.cn/api/a9getCommand?udid="..ts.system.udid(),{},{})
-	if a9getCommandcode==200 and a9getCommandbody_resp=="0" then
-		if runningState==true then
-			log4j("Stopping_command,script_terminated");
-			runningState=false;
-			toast("接收到暂停指令，脚本暂停运行",1);
-		end
-		toast("脚本已暂停运行",4);
-		mSleep(5000);
-		toast("5秒后再次发起请求",4)
-		mSleep(5000);--等5秒后再次发起请求
-		goto getCommand_i68;
-	elseif a9getCommandcode==200 and a9getCommandbody_resp=="1" and runningState==false then
-		toast("接收到开始指令，脚本开始运行",1)
-		log4j("Starting_command,script_online");
-		runningState=true;
-		receive_starting_command=true;
-	end
-	goto flag_i68;
-	::stop_i68::log4j("Script_terminated");
-end
-sendEmail(email,"[A9]脚本自动停止运行"..getDeviceName(),readFile(userPath().."/res/A9log.txt"))
-closeApp("com.Aligames.kybc9");--关闭游戏
-lockDevice();
+main();
