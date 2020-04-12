@@ -1280,16 +1280,16 @@ function autoMobile_i68()
 			moveTo(800,235,400,235,20);--从右往左划
 			moveTo(800,235,400,235,20);--从右往左划
 		elseif path == "右" then 
-			moveTo(400,235,800,235,20);--从左往右划
-			moveTo(400,235,800,235,20);--从左往右划
+			moveTo(600,235,800,235,20);--从左往右划
+			moveTo(600,235,800,235,20);--从左往右划
 		elseif path == "随机" then
 			rand=math.random(1,3);--rand==1 2 or 3
 			if rand == 1 then
 				moveTo(800,235,400,235,20);--从右往左划
 				moveTo(800,235,400,235,20);--从右往左划
 			elseif rand == 2 then
-				moveTo(400,235,800,235,20);--从左往右划
-				moveTo(400,235,800,235,20);--从左往右划
+				moveTo(600,235,800,235,20);--从左往右划
+				moveTo(600,235,800,235,20);--从左往右划
 			end
 		end
 		mSleep(500);
