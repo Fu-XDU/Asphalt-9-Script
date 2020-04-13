@@ -458,7 +458,7 @@ function toPVP_SE()
 	return 0;
 end
 function getStage_SE()
-	color=getColor(328,316);
+	color=getColor(328,328);
 	if color == 0xf1cb30 then
 		stage=2;--黄金段位
 		--toast("黄金段位",1);
@@ -1132,7 +1132,7 @@ function toPVP_i68()
 	return 0;
 end
 function getStage_i68()
-	color=getColor(379,362);
+	color=getColor(379,379);
 	--Undone
 	if color == 0xf1cb30 then
 		stage=2;--黄金段位
@@ -1277,19 +1277,19 @@ function autoMobile_i68()
 		tap(1130,600);
 		mSleep(500)
 		if path == "左" then 
-			moveTo(800,235,400,235,20);--从右往左划
-			moveTo(800,235,400,235,20);--从右往左划
+			moveTo(1300,235,1100,235,20);--从右往左划
+			moveTo(1300,235,1100,235,20);--从右往左划
 		elseif path == "右" then 
-			moveTo(600,235,800,235,20);--从左往右划
-			moveTo(600,235,800,235,20);--从左往右划
+			moveTo(1100,235,1300,235,20);--从左往右划
+			moveTo(1100,235,1300,235,20);--从左往右划
 		elseif path == "随机" then
 			rand=math.random(1,3);--rand==1 2 or 3
 			if rand == 1 then
-				moveTo(800,235,400,235,20);--从右往左划
-				moveTo(800,235,400,235,20);--从右往左划
+				moveTo(1300,235,1100,235,20);--从右往左划
+				moveTo(1300,235,1100,235,20);--从右往左划
 			elseif rand == 2 then
-				moveTo(600,235,800,235,20);--从左往右划
-				moveTo(600,235,800,235,20);--从左往右划
+				moveTo(1100,235,1300,235,20);--从左往右划
+				moveTo(1100,235,1300,235,20);--从左往右划
 			end
 		end
 		mSleep(500);
