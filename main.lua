@@ -799,14 +799,14 @@ isColor(1097,  569, 0xc3fb11, 85))) then
 				mSleep(200);
 				backHome_SE();
 				return -1;
-			elseif switch == "等待15分钟" then
-				toast("等待15分钟",1)
+			elseif switch == "等15分钟" then
+				toast("等15分钟",1)
 				mSleep(15*60*1000);
 				toast("15分钟到",1)
 				mSleep(1000);
 				goto beginAtGame;
-			elseif switch == "等待30分钟" then
-				toast("等待30分钟",1)
+			elseif switch == "等30分钟" then
+				toast("等30分钟",1)
 				mSleep(30*60*1000);
 				toast("30分钟到",1)
 				goto beginAtGame;
@@ -1459,14 +1459,14 @@ function gametoCarbarn_i68()
 			mode="多人刷积分声望"
 			backHome_i68();
 			return -1;
-		elseif switch == "等待15分钟" then
-			toast("等待15分钟",1)
+		elseif switch == "等15分钟" then
+			toast("等15分钟",1)
 			mSleep(15*60*1000);
 			toast("15分钟到",1)
 			mSleep(1000);
 			goto beginAtGame;
-		elseif switch == "等待30分钟" then
-			toast("等待30分钟",1)
+		elseif switch == "等30分钟" then
+			toast("等30分钟",1)
 			mSleep(30*60*1000);
 			toast("30分钟到",1)
 			goto beginAtGame;
