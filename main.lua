@@ -418,6 +418,8 @@ function checkPlace_SE()
 		return 21;--段位降低
 	elseif (isColor(  19,   21, 0xff0054, 85) and isColor( 223,   17, 0xff0054, 85) and isColor(  18,  235, 0xff0054, 85) and isColor( 231,  241, 0xff0054, 85) and isColor( 178,  155, 0xffffff, 85) and isColor( 409,  157, 0xffffff, 85) and isColor( 454,  131, 0xffffff, 85) and isColor(1017,  562, 0xc3fb12, 85) and isColor(1074,  593, 0xc3fb11, 85) and isColor(1085,  607, 0x000b1f, 85)) then
 		return 22;--失去资格
+	elseif (isColor( 961,   97, 0xff0054, 85) and isColor( 967,   91, 0xfd0054, 85) and isColor( 955,   89, 0xf60252, 85) and isColor( 955,  103, 0xfd0155, 85) and isColor( 971,  105, 0xf80151, 85) and isColor( 961,   97, 0xff0054, 85)) then
+		return 23;--弹窗广告
 	end
 	mSleep(1000);
 end
@@ -458,17 +460,16 @@ function toPVP_SE()
 	return 0;
 end
 function getStage_SE()
-	color=getColor(328,328);
-	if color == 0xf1cb30 then
+	if isColor(328,328,0xf1cb30, 85) then
 		stage=2;--黄金段位
 		--toast("黄金段位",1);
-	elseif color == 0x96b2d4 then
+	elseif isColor(328,328,0x96b2d4, 85) then
 		stage=1;--白银段位
 		--toast("白银段位",1);
-	elseif color == 0xd88560 then
+	elseif isColor(328,328,0xd88560, 85) then
 		stage=0;--青铜段位
 		--toast("青铜段位",1);
-	elseif color == 0x9365f8 then
+	elseif isColor(328,328,0x9365f8, 85) then
 		stage=3;--白金段位
 		--toast("白金段位",1);
 	elseif (isColor( 320,  309, 0xf5e2a4, 85) and isColor( 334,  309, 0xf5e2a4, 85) and isColor( 323,  324, 0xf4e1a4, 85) and isColor( 334,  323, 0xf5e2a4, 85) and isColor( 328,  327, 0xf5e2a4, 85)) then
@@ -1026,6 +1027,10 @@ function worker_SE()
 		tap(945,579);--确定
 		mSleep(2000);
 		state=-1;
+	elseif place == 23 then
+		tap(963,97);--关闭弹窗广告
+		mSleep(500);
+		state=-1;
 	else
 		toast("不知道在哪",1)
 		state=-1;
@@ -1096,6 +1101,8 @@ function checkPlace_i68()
 		return 19;--登录延时,undone
 	elseif (isColor( 591,  187, 0xfcfcfc, 85) and isColor( 605,  187, 0xdfe0e3, 85) and isColor( 623,  190, 0xffffff, 85) and isColor( 632,  190, 0xfafafb, 85) and isColor( 641,  191, 0xffffff, 85) and isColor( 651,  191, 0xf5f6f6, 85) and isColor( 707,  191, 0xe6e7e9, 85) and isColor( 730,  552, 0xffffff, 85) and isColor( 761,  569, 0x010722, 85)) then
 		return 21;--段位降级
+	elseif (isColor(1117,  103, 0xf0075a, 85) and isColor(1127,  113, 0xfb004c, 85) and isColor(1137,  103, 0xed0457, 85) and isColor(1119,  121, 0xf3005a, 85)) then
+		return 22;--广告弹窗
 	end
 	mSleep(1000);
 end
@@ -1132,18 +1139,17 @@ function toPVP_i68()
 	return 0;
 end
 function getStage_i68()
-	color=getColor(379,379);
 	--Undone
-	if color == 0xf1cb30 then
+	if isColor(385,379, 0xf1cb30, 85) then
 		stage=2;--黄金段位
 		--toast("黄金段位",1);
-	elseif color == 0x96b2d4 then
+	elseif isColor(385,379, 0x96b3d3, 85) then
 		stage=1;--白银段位
 		--toast("白银段位",1);
-	elseif color == 0xd88560 then
+	elseif isColor(385,379, 0xd88560, 85) then
 		stage=0;--青铜段位
 		--toast("青铜段位",1);
-	elseif color == 0x9365f8 then
+	elseif isColor(385,379, 0x9365f8, 85) then
 		stage=3;--白金段位
 		--toast("白金段位",1);
 	elseif (isColor( 320,  309, 0xf5e2a4, 85) and isColor( 334,  309, 0xf5e2a4, 85) and isColor( 323,  324, 0xf4e1a4, 85) and isColor( 334,  323, 0xf5e2a4, 85) and isColor( 328,  327, 0xf5e2a4, 85)) then
@@ -1681,6 +1687,10 @@ function worker_i68()
 		log4j("League_down");
 		tap(660,550);--稍后查看
 		mSleep(1000);
+		state=-1;
+	elseif place == 22 then
+		tap(1127,113);
+		mSleep(500);
 		state=-1;
 	else
 		toast("不知道在哪",1)
