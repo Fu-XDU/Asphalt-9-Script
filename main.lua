@@ -353,6 +353,7 @@ function checkPlace_SE()
 		toast("检测界面,"..tostring(checkplacetimes).."/25",1);
 	end
 	if (isColor( 688,  391, 0xfe8b40, 85) and  isColor( 395,  392, 0xfe8b40, 85) and isColor( 479,  399, 0xfe8b40, 85) and isColor( 494,  371, 0xfe8b40, 85) and isColor( 787,  420, 0xfe8b40, 85) and isColor( 819,  366, 0xfe8b40, 85)) then
+		checkplacetimes=0;
 		return -2;--在登录界面
 	elseif (isColor( 419,  137, 0xffffff, 85) and isColor( 455,  134, 0xffffff, 85) and isColor( 573,  137, 0xffffff, 85) and isColor( 573,  158, 0xffffff, 85) and isColor( 602,  136, 0xffffff, 85) and isColor( 636,  133, 0xffffff, 85) and isColor( 659,  134, 0xffffff, 85) and isColor( 683,  140, 0xffffff, 85) and isColor( 442,  515, 0x000721, 85) and isColor( 190,  518, 0xffffff, 85)) then
 		return 20;--俱乐部新人
@@ -364,61 +365,84 @@ function checkPlace_SE()
 		return 3.1;--在多人车库
 	end
 	if getColor(5, 5) == 0x101f3b then
+		checkplacetimes=0;
 		return 0;--在大厅
 	end
 	if multiColor({{100,560,0xffffff},{270,570,0xffffff},{860,560,0xffffff},{1060,560,0xffffff}},90,false) == true then
+		checkplacetimes=0;
 		return 1;--在多人
 	end
 	if (isColor( 115,  625, 0xc3fb12, 85) or isColor( 301,  625, 0xc3fb12, 85) or isColor( 469,  625, 0xc3fb12, 85)) then
+		checkplacetimes=0;
 		return 5;--在赛事
 	end
 	if (isColor( 216,   96, 0xe6004d, 85) and isColor( 139,   96, 0xfc0053, 85) and isColor(  60,   95, 0xf00251, 85) and isColor( 221,  176, 0xffffff, 85) and isColor(  60,  161, 0xff0054, 85)) then
+		checkplacetimes=0;
 		return 6;--在赛事开始界面
 	end
 	if (isColor( 540,  312, 0x01b9e3, 85) and isColor( 635,  307, 0x01b8e3, 85) and isColor( 596,  273, 0x01718b, 85) and isColor( 581,  350, 0x03b9e3, 85) and isColor( 564,  308, 0xffffff, 85) and isColor( 609,  310, 0xffffff, 85) and isColor( 658,  314, 0xffffff, 85) and isColor( 682,  291, 0xdfdfdf, 85)) then
+		checkplacetimes=0;
 		return 17;--多人匹配中
 	end
 	if getColor(5, 5) == 0xffffff then
 		return -1;--不在大厅，不在多人
 	end
 	if getColor(115,25) == 0xff0054 then
+		checkplacetimes=0;
 		return 2;--游戏结算界面
 	end
 	if getColor(170,100) == 0x14bde9 then
+		checkplacetimes=0;
 		return 3;--游戏中
 	end
 	if (isColor(  60,   26, 0xff0052, 85) and isColor( 153,   29, 0xfe0052, 85) and isColor( 209,   59, 0xffffff, 85) and isColor( 282,   57, 0xffffff, 85) and isColor( 355,   65, 0xffffff, 85) and isColor( 454,   63, 0xffffff, 85) and isColor( 515,   61, 0xffffff, 85) and isColor( 629,   45, 0xffffff, 85)) then
+		checkplacetimes=0;
 		return 4;--来自Gameloft的礼物
 	end
 	if (isColor( 525,   33, 0xff0054, 85) and isColor( 536,   33, 0xff0054, 85) and isColor( 531,   41, 0xff0054, 85) and isColor( 529,   52, 0xff0054, 85) and isColor( 568,   33, 0xff0054, 85) and isColor( 568,   44, 0xbe064c, 85) and isColor( 567,   53, 0xc6054c, 85) and isColor( 490,   81, 0xdadce0, 85) and isColor( 556,   87, 0xe4e6e8, 85) and isColor( 631,   85, 0xe6e8ea, 85)) then
+		checkplacetimes=0;
 		return 7;--领奖开包
 	elseif (isColor( 211,  328, 0xe77423, 85) and isColor( 366,  321, 0x4299e1, 85) and isColor( 511,  310, 0xd8a200, 85) and isColor( 657,  303, 0x5c17db, 85) and isColor( 825,  289, 0x545454, 85) and isColor( 960,  123, 0xfffeff, 85)) then
+		checkplacetimes=0;
 		return 8;--多人联赛奖励界面
 	elseif (isColor( 597,   52, 0xff0054, 85) and isColor( 596,   63, 0xff0054, 85) and isColor( 523,   55, 0xff0054, 85) and isColor( 535,   55, 0xff0054, 85) and isColor( 567,   54, 0xff0054, 85) and isColor( 557,   70, 0xff0054, 85) and isColor( 254,  552, 0xffffff, 85) and isColor( 522,  557, 0xffffff, 85) and isColor( 250,  592, 0xffffff, 85) and isColor( 526,  591, 0xffffff, 85)) then
+		checkplacetimes=0;
 		return 9;--赛车解锁或升星
 	elseif (isColor( 523,  350, 0xcb0042, 85) and isColor( 610,  350, 0xcc0042, 85) and isColor( 610,  435, 0xcc0042, 85) and isColor( 568,  460, 0xcd0042, 85) and isColor( 525,  436, 0xcc0042, 85) and isColor( 544,  422, 0xd9d9d9, 85) and isColor( 568,  439, 0xcecece, 85) and isColor( 591,  426, 0xd6d6d6, 85) and isColor( 592,  396, 0xececec, 85) and isColor( 592,  371, 0xfafafa, 85)) then
+		checkplacetimes=0;
 		return 10;--开始的开始
 	elseif (isColor(  35,  555, 0xfb1264, 85) and isColor(  35,  602, 0xfb1264, 85) and isColor( 223,  136, 0xfa0153, 85) and isColor( 349,  137, 0xfe0055, 85) and isColor( 938,  569, 0xffffff, 85) and isColor(1070,  569, 0xffffff, 85) and isColor( 935,  602, 0xffffff, 85) and isColor(1076,  601, 0xffffff, 85)) then
+		checkplacetimes=0;
 		return 11;--段位升级
 	elseif (isColor( 222,   50, 0xffffff, 85) and isColor( 301,   53, 0xffffff, 85) and isColor( 196,   85, 0xffffff, 85) and isColor( 277,   84, 0xffffff, 85) and isColor( 333,  298, 0xffffff, 85) and isColor( 392,  297, 0xffffff, 85) and isColor( 456,  300, 0xffffff, 85) and isColor( 394,  212, 0xffffff, 85) and isColor( 293,  237, 0xffffff, 85) and isColor( 494,  235, 0xffffff, 85)) then
+		checkplacetimes=0;
 		return 12;--声望升级
 	elseif (isColor( 184,  218, 0xffffff, 85) and isColor( 218,  229, 0xd8d9dc, 85) and isColor( 245,  224, 0xe6e7e9, 85) and isColor( 266,  225, 0xf9f9f9, 85) and isColor( 342,  225, 0xe9e9e9, 85) and isColor( 408,  221, 0xcfcfcf, 85) and isColor( 935,  228, 0xf2004f, 85) and isColor( 991,  225, 0xff0054, 85) and isColor( 976,  243, 0xfb0052, 85)) then
+		checkplacetimes=0;
 		return 13;--未能连接到服务器
 	elseif (isColor(  26,   24, 0xff0054, 85) and isColor( 234,   20, 0xff0054, 85) and isColor(  29,  212, 0xff0054, 85) and isColor( 195,  120, 0xffffff, 85) and isColor( 441,  127, 0xffffff, 85) and isColor(  15,  103, 0x061724, 85) and isColor( 845,  559, 0xc3fb13, 85) and isColor(1035,  559, 0xc2fb12, 85) and isColor( 945,  603, 0xc3fb13, 85)) then
+		checkplacetimes=0;
 		return 14;--多人断开连接
 	elseif (isColor( 525,  185, 0xffffff, 85) and isColor( 546,  182, 0xffffff, 85) and isColor( 574,  189, 0xffffff, 85) and isColor( 591,  190, 0xffffff, 85) and isColor( 729,  329, 0xeceef1, 85) and isColor( 742,  336, 0xd2d6dd, 85) and isColor( 759,  334, 0xffffff, 85) and isColor( 788,  336, 0xe4e7eb, 85) and isColor( 798,  329, 0xcdd1d9, 85) and isColor( 569,  437, 0xffffff, 85)) then
+		checkplacetimes=0;
 		return 15;--连接错误
 	elseif (isColor( 176,  214, 0xffffff, 85) and isColor( 269,  217, 0xecedee, 85) and isColor( 326,  217, 0x999da4, 85) and isColor( 342,  211, 0xbdc0c4, 85) and isColor( 352,  221, 0xe7e7e7, 85) and isColor( 395,  221, 0xd7d7d7, 85) and isColor( 409,  221, 0xcececf, 85) and isColor( 555,  352, 0xe5eaf0, 85) and isColor( 951,  217, 0xff0054, 85) and isColor( 993,  221, 0xff0054, 85)) then
+		checkplacetimes=0;
 		return 16;--顶号行为
 	elseif (isColor( 495,  147, 0xff0054, 85) and isColor( 525,  149, 0xd4044d, 85) and isColor( 538,  148, 0xfd0054, 85) and isColor( 564,  145, 0xfd0054, 85) and isColor( 585,  150, 0xfd0054, 85) and isColor( 604,  146, 0xfd0054, 85) and isColor( 608,  145, 0xe80250, 85) and isColor( 861,  158, 0xf90052, 85) and isColor( 567,  453, 0xc3fb11, 85)) then
+		checkplacetimes=0;
 		return 18;--VIP到期
 	elseif (isColor(  67,   23, 0x664944, 85) and isColor( 183,   26, 0x7b4542, 85) and isColor( 346,   22, 0x8f7a81, 85) and isColor( 495,   27, 0x587bad, 85) and isColor( 632,   25, 0x90bee2, 85) and isColor( 764,   27, 0x8c7b94, 85) and isColor( 892,   29, 0x9c7d84, 85)) then
+		checkplacetimes=0;
 		return 19;--登录延时
 	elseif (isColor( 506,  152, 0xf3f4f5, 85) and isColor( 542,  162, 0xfbfbfb, 85) and isColor( 560,  162, 0xe8eaec, 85) and isColor( 573,  161, 0xffffff, 85) and isColor( 612,  162, 0xffffff, 85) and isColor( 508,  464, 0xffffff, 85) and isColor( 619,  457, 0xffffff, 85) and isColor( 647,  486, 0x020922, 85)) then
+		checkplacetimes=0;
 		return 21;--段位降低
 	elseif (isColor(  19,   21, 0xff0054, 85) and isColor( 223,   17, 0xff0054, 85) and isColor(  18,  235, 0xff0054, 85) and isColor( 231,  241, 0xff0054, 85) and isColor( 178,  155, 0xffffff, 85) and isColor( 409,  157, 0xffffff, 85) and isColor( 454,  131, 0xffffff, 85) and isColor(1017,  562, 0xc3fb12, 85) and isColor(1074,  593, 0xc3fb11, 85) and isColor(1085,  607, 0x000b1f, 85)) then
+		checkplacetimes=0;
 		return 22;--失去资格
 	elseif (isColor( 961,   97, 0xff0054, 85) and isColor( 967,   91, 0xfd0054, 85) and isColor( 955,   89, 0xf60252, 85) and isColor( 955,  103, 0xfd0155, 85) and isColor( 971,  105, 0xf80151, 85) and isColor( 961,   97, 0xff0054, 85)) then
+		checkplacetimes=0;
 		return 23;--弹窗广告
 	end
 	mSleep(1000);
@@ -505,8 +529,8 @@ function checkTimeOut_SE()
 			mode=supermode;
 			backHome_SE();
 		else 
-			toast(tostring(timeout-(os.time()-time)/60 -((timeout-(os.time()-time)/60)%0.01)).."分钟后返回",1);
-			mSleep(1000);
+			--toast(tostring(timeout-(os.time()-time)/60 -((timeout-(os.time()-time)/60)%0.01)).."分钟后返回",1);
+			--mSleep(1000);
 		end
 	end
 end
@@ -631,7 +655,7 @@ function backFromLines_SE()
 		mSleep(1000);
 		color=getColor(115,25);
 	end
-	mSleep(3000);
+	mSleep(5000);
 	--toast("比赛完成",1);
 	if supermode == "赛事模式" and (mode == "多人刷积分声望" or mode == "特殊赛事" )then 
 		checkTimeOut_SE();
@@ -1050,58 +1074,83 @@ function checkPlace_i68()
 	end
 	if (((isColor(1305,   14, 0xfcffff, 85) and isColor(1312,   22, 0xfefefe, 85) and isColor(1314,   37, 0xcdd3db, 85) and isColor(1293,   32, 0xfefeff, 85) and isColor(1294,   21, 0xffffff, 85) and isColor(1304,   17, 0xfeffff, 85)) and not (isColor(  12,   16, 0xffffff, 85) and 
 				isColor(  10,   45, 0xffffff, 85)))) or ((isColor(1111,   11, 0xfbffff, 85) and isColor(1120,   16, 0xf8faf9, 85) and isColor(1126,   26, 0xe2e4e8, 85) and isColor(1095,   26, 0xfdfdfd, 85))) then
+		checkplacetimes=0;
 		return 0;--在大厅
 	elseif (isColor( 513,  668, 0xff0054, 85) and isColor( 521,  676, 0xff0054, 85) and isColor( 529,  685, 0xff0054, 85) and isColor( 530,  668, 0xfc0053, 85) and isColor( 513,  684, 0xfe0054, 85) and isColor( 587,  665, 0xe4e5e8, 85) and isColor( 588,  717, 0xfb1264, 85) and isColor( 615,  717, 0xfb1264, 85) and isColor( 640,  717, 0xfb1264, 85) and isColor( 660,  717, 0xfb1264, 85)) then
+		checkplacetimes=0;
 		return -3;--网络未同步
 	elseif (isColor( 498,  429, 0xfe8b40, 85) and isColor( 500,  472, 0xfe8b40, 85) and isColor( 845,  434, 0xfe8b40, 85) and isColor( 846,  467, 0xfe8b40, 85)) then
+		checkplacetimes=0;
 		return -2;--在登录界面
 	elseif (isColor( 419,  137, 0xffffff, 85) and isColor( 455,  134, 0xffffff, 85) and isColor( 573,  137, 0xffffff, 85) and isColor( 573,  158, 0xffffff, 85) and isColor( 602,  136, 0xffffff, 85) and isColor( 636,  133, 0xffffff, 85) and isColor( 659,  134, 0xffffff, 85) and isColor( 683,  140, 0xffffff, 85) and isColor( 442,  515, 0x000721, 85) and isColor( 190,  518, 0xffffff, 85)) then
+		checkplacetimes=0;
 		return 20;--俱乐部新人,undone
 	elseif (isColor( 896,  112, 0xce7345, 85) and isColor( 985,  113, 0x6c7889, 85) and isColor(1059,  119, 0xbd9158, 85) and isColor(1144,  118, 0xbcb3d5, 85) and isColor(1230,  116, 0x6d6c63, 85)) then
+		checkplacetimes=0;
 		return 3.1;--在多人车库
 	elseif (isColor(  89,  643, 0xffffff, 85) and isColor( 335,  645, 0xffffff, 85) and isColor( 362,  708, 0x000822, 85) and isColor(1021,  648, 0xffffff, 85) and isColor(1234,  646, 0xffffff, 85) and isColor(1260,  704, 0x000821, 85)) then
+		checkplacetimes=0;
 		return 1;--在多人
 	elseif (isColor(  89,  679, 0xc5fb12, 85) and isColor( 246,  680, 0xc3fb12, 85) and isColor(  81,  703, 0xc2fb0f, 85) and isColor( 253,  700, 0xc3fa12, 85)) then
+		checkplacetimes=0;
 		return 5;--在赛事
 	elseif (isColor(  70,  112, 0xfa0152, 85) and isColor(  82,  112, 0xfa0052, 85) and isColor( 101,  112, 0xfb0052, 85) and isColor( 143,  113, 0xfd0053, 85) and isColor( 189,  113, 0xfe0053, 85) and isColor( 228,  113, 0xfd0053, 85) and isColor( 258,  113, 0xf60051, 85)) then
+		checkplacetimes=0;
 		return 6;--在赛事开始界面
-	elseif (isColor( 628,  370, 0x03b9e4, 85) and isColor( 660,  353, 0xfefefe, 85) and isColor( 682,  360, 0xffffff, 85) and isColor( 712,  364, 0xffffff, 85) and isColor( 738,  389, 0xffffff, 85) and isColor( 678,  423, 0x02b9e2, 85) and isColor( 621,  385, 0x00b9e2, 85)) then		
+	elseif (isColor( 628,  370, 0x03b9e4, 85) and isColor( 660,  353, 0xfefefe, 85) and isColor( 682,  360, 0xffffff, 85) and isColor( 712,  364, 0xffffff, 85) and isColor( 738,  389, 0xffffff, 85) and isColor( 678,  423, 0x02b9e2, 85) and isColor( 621,  385, 0x00b9e2, 85)) then
+		checkplacetimes=0;		
 		return 17;--多人匹配中
 	elseif getColor(5, 5) == 0xffffff then
 		return -1;--不在大厅，不在多人
 	elseif (isColor(160,4, 0xff0054, 85) and isColor(147,18, 0xff0054, 85)) then
+		checkplacetimes=0;
 		return 2;--游戏结算界面
 	elseif (isColor(204,120,0x14bde9, 85)) then
+		checkplacetimes=0;
 		return 3;--游戏中
 	elseif (isColor(  60,   26, 0xff0052, 85) and isColor( 153,   29, 0xfe0052, 85) and isColor( 209,   59, 0xffffff, 85) and isColor( 282,   57, 0xffffff, 85) and isColor( 355,   65, 0xffffff, 85) and isColor( 454,   63, 0xffffff, 85) and isColor( 515,   61, 0xffffff, 85) and isColor( 629,   45, 0xffffff, 85)) then
+		checkplacetimes=0;
 		return 4;--来自Gameloft的礼物,undone
 	elseif (isColor( 614,   38, 0xf00252, 85) and isColor( 636,   39, 0xfa0053, 85) and isColor( 682,   36, 0xe30351, 85) and isColor( 667,   36, 0xff0054, 85) and isColor( 667,   42, 0xff0054, 85) and isColor( 698,   41, 0xff0054, 85) and isColor( 698,   66, 0xff0054, 85)) then
+		checkplacetimes=0;
 		return 7;--领奖开包
 	elseif (isColor(1101,  119, 0xff0053, 85) and isColor(1123,  117, 0xff0053, 85) and isColor(1147,  147, 0xff0053, 85) and isColor(1160,  166, 0xff0054, 85) and isColor(1129,  170, 0xfa0052, 85) and isColor(1127,  143, 0xfffeff, 85)) then
+		checkplacetimes=0;
 		return 8;--多人联赛奖励界面
 	elseif (isColor( 616,  208, 0xfbde23, 85) and isColor( 625,  224, 0xfec002, 85) and isColor( 643,  226, 0xfee53d, 85) and isColor( 629,  204, 0xfffef5, 85)) then
+		checkplacetimes=0;
 		return 9;--赛车解锁或升星
 	elseif (isColor( 584,  582, 0xc3fb12, 85) and isColor( 774,  587, 0xc3fb11, 85) and isColor( 547,  638, 0xc3fb13, 85) and isColor( 785,  638, 0xc5fb12, 85) and isColor( 806,  650, 0x000b21, 85)) then
+		checkplacetimes=0;
 		return 10;--开始的开始
 	elseif (isColor( 252,  161, 0xfd0055, 85) and isColor( 290,  159, 0xfa0051, 85) and isColor( 316,  161, 0xfe0055, 85) and isColor( 375,  162, 0xf60154, 85) and isColor( 414,  161, 0xfc0156, 85) and isColor(  42,  652, 0xfb1264, 85) and isColor(  43,  696, 0xf91263, 85) and isColor(1111,  663, 0xffffff, 85) and isColor(1260,  668, 0xffffff, 85) and isColor(1284,  712, 0x000521, 85)) then
+		checkplacetimes=0;
 		return 11;--段位升级
 	elseif (isColor( 265,   59, 0xfffefd, 85) and isColor( 287,   59, 0xfffffd, 85) and isColor( 347,   68, 0xffffff, 85) and isColor( 334,   88, 0xffffff, 85) and isColor( 337,  268, 0xfefffd, 85) and isColor( 459,  245, 0xffffff, 85) and isColor( 462,  178, 0xf4feff, 85) and isColor( 323,  540, 0xfcffff, 85) and isColor( 591,  644, 0xffffff, 85) and isColor( 820,  687, 0x030625, 85)) then
+		checkplacetimes=0;
 		return 12;--声望升级
 	elseif (isColor( 184,  218, 0xffffff, 85) and isColor( 218,  229, 0xd8d9dc, 85) and isColor( 245,  224, 0xe6e7e9, 85) and isColor( 266,  225, 0xf9f9f9, 85) and isColor( 342,  225, 0xe9e9e9, 85) and isColor( 408,  221, 0xcfcfcf, 85) and isColor( 935,  228, 0xf2004f, 85) and isColor( 991,  225, 0xff0054, 85) and isColor( 976,  243, 0xfb0052, 85)) then
+		checkplacetimes=0;
 		return 13;--未能连接到服务器,undone
 	elseif (isColor(  36,   45, 0xff0054, 85) and isColor(  26,  260, 0xff0054, 85) and isColor( 148,  139, 0xff0054, 85) and isColor( 243,   37, 0xff0054, 85) and isColor( 269,  272, 0xff0054, 85) and isColor( 521,  140, 0xffffff, 85) and isColor( 992,  650, 0xc3fb12, 85) and isColor(1114,  705, 0xc2fb13, 85) and isColor(1221,  658, 0xc3fb13, 85) and isColor(1272,  713, 0x000a21, 85)) then
+		checkplacetimes=0;
 		return 14;--多人断开连接
 	elseif (isColor( 525,  185, 0xffffff, 85) and isColor( 546,  182, 0xffffff, 85) and isColor( 574,  189, 0xffffff, 85) and isColor( 591,  190, 0xffffff, 85) and isColor( 729,  329, 0xeceef1, 85) and isColor( 742,  336, 0xd2d6dd, 85) and isColor( 759,  334, 0xffffff, 85) and isColor( 788,  336, 0xe4e7eb, 85) and isColor( 798,  329, 0xcdd1d9, 85) and isColor( 569,  437, 0xffffff, 85)) then
+		checkplacetimes=0;
 		return 15;--连接错误,undone
-	elseif (isColor( 207,  250, 0xffffff, 85) and isColor( 222,  250, 0xf3f3f4, 85) and isColor( 243,  250, 0xeeeff0, 85) and isColor( 252,  250, 0xbbc0c5, 85) and isColor( 261,  254, 0xb2b6bc, 85) and isColor( 274,  255, 0xe8e9ea, 85) and isColor( 291,  255, 0xf3f3f4, 85) and isColor( 317,  257, 0xf9f9f9, 85) and isColor(1136,  253, 0xfffafd, 85) and isColor(1138,  253, 0xffffff, 85)) then		
+	elseif (isColor( 207,  250, 0xffffff, 85) and isColor( 222,  250, 0xf3f3f4, 85) and isColor( 243,  250, 0xeeeff0, 85) and isColor( 252,  250, 0xbbc0c5, 85) and isColor( 261,  254, 0xb2b6bc, 85) and isColor( 274,  255, 0xe8e9ea, 85) and isColor( 291,  255, 0xf3f3f4, 85) and isColor( 317,  257, 0xf9f9f9, 85) and isColor(1136,  253, 0xfffafd, 85) and isColor(1138,  253, 0xffffff, 85)) then
+		checkplacetimes=0;		
 		return 16;--顶号行为
 	elseif (isColor( 495,  147, 0xff0054, 85) and isColor( 525,  149, 0xd4044d, 85) and isColor( 538,  148, 0xfd0054, 85) and isColor( 564,  145, 0xfd0054, 85) and isColor( 585,  150, 0xfd0054, 85) and isColor( 604,  146, 0xfd0054, 85) and isColor( 608,  145, 0xe80250, 85) and isColor( 861,  158, 0xf90052, 85) and isColor( 567,  453, 0xc3fb11, 85)) then
+		checkplacetimes=0;
 		return 18;--VIP到期,undone
 	elseif (isColor(  67,   23, 0x664944, 85) and isColor( 183,   26, 0x7b4542, 85) and isColor( 346,   22, 0x8f7a81, 85) and isColor( 495,   27, 0x587bad, 85) and isColor( 632,   25, 0x90bee2, 85) and isColor( 764,   27, 0x8c7b94, 85) and isColor( 892,   29, 0x9c7d84, 85)) then
 		return 19;--登录延时,undone
 	elseif (isColor( 591,  187, 0xfcfcfc, 85) and isColor( 605,  187, 0xdfe0e3, 85) and isColor( 623,  190, 0xffffff, 85) and isColor( 632,  190, 0xfafafb, 85) and isColor( 641,  191, 0xffffff, 85) and isColor( 651,  191, 0xf5f6f6, 85) and isColor( 707,  191, 0xe6e7e9, 85) and isColor( 730,  552, 0xffffff, 85) and isColor( 761,  569, 0x010722, 85)) then
+		checkplacetimes=0;
 		return 21;--段位降级
 	elseif (isColor(1117,  103, 0xf0075a, 85) and isColor(1127,  113, 0xfb004c, 85) and isColor(1137,  103, 0xed0457, 85) and isColor(1119,  121, 0xf3005a, 85)) then
+		checkplacetimes=0;
 		return 22;--广告弹窗
 	end
 	mSleep(1000);
@@ -1187,8 +1236,8 @@ function checkTimeOut_i68()
 			mode=supermode;
 			backHome_i68();
 		else 
-			toast(tostring(timeout-(os.time()-time)/60 -((timeout-(os.time()-time)/60)%0.01)).."分钟后返回",1);
-			mSleep(1000);
+			--toast(tostring(timeout-(os.time()-time)/60 -((timeout-(os.time()-time)/60)%0.01)).."分钟后返回",1);
+			--mSleep(1000);
 		end
 	end
 end
@@ -1321,7 +1370,7 @@ function backFromLines_i68()
 		mSleep(1000);
 		color=getColor(115,25);
 	end
-	mSleep(3000);
+	mSleep(5000);
 	--toast("比赛完成",1);
 	if supermode == "赛事模式" and mode == "多人刷积分声望" then 
 		checkTimeOut_i68();
