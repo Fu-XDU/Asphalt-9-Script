@@ -9,6 +9,7 @@ innerGhost=0;--有内鬼次数
 LoginTimes=0;--连续登陆次数
 PVPTimes,PVETimes=0,0;--多人和赛事局数,存文件
 checkplacetimes=0;--连续检测界面次数
+checkplacetimesout=35;--连续检测界面超时次数
 validateGame=false;
 runningState=true;--脚本运行状态
 receive_starting_command=false;--如果是true那么检测到账号被顶就不再等待
@@ -39,7 +40,7 @@ function main()
 		if checkplacetimes > 2 then
 			mSleep(1000);
 		end
-		if checkplacetimes>=25 then
+		if checkplacetimes>checkplacetimesout then
 			checkplacetimes=0;
 			restartApp();
 			toast("等待30秒",1)
@@ -73,7 +74,7 @@ function main()
 		if checkplacetimes > 2 then
 			mSleep(1000);
 		end
-		if checkplacetimes>=25 then
+		if checkplacetimes>checkplacetimesout then
 			checkplacetimes=0;
 			restartApp();
 			toast("等待30秒",1)
@@ -350,7 +351,7 @@ function back_SE()
 end
 function checkPlace_SE()
 	if checkplacetimes > 2 then
-		toast("检测界面,"..tostring(checkplacetimes).."/25",1);
+		toast("检测界面,"..tostring(checkplacetimes).."/"..tostring(checkplacetimesout),1);
 	end
 	if (isColor( 688,  391, 0xfe8b40, 85) and  isColor( 395,  392, 0xfe8b40, 85) and isColor( 479,  399, 0xfe8b40, 85) and isColor( 494,  371, 0xfe8b40, 85) and isColor( 787,  420, 0xfe8b40, 85) and isColor( 819,  366, 0xfe8b40, 85)) then
 		checkplacetimes=0;
@@ -1070,7 +1071,7 @@ function back_i68()
 end
 function checkPlace_i68()
 	if checkplacetimes > 2 then
-		toast("检测界面,"..tostring(checkplacetimes).."/25",1);
+		toast("检测界面,"..tostring(checkplacetimes).."/"..tostring(checkplacetimesout),1);
 	end
 	if (((isColor(1305,   14, 0xfcffff, 85) and isColor(1312,   22, 0xfefefe, 85) and isColor(1314,   37, 0xcdd3db, 85) and isColor(1293,   32, 0xfefeff, 85) and isColor(1294,   21, 0xffffff, 85) and isColor(1304,   17, 0xfeffff, 85)) and not (isColor(  12,   16, 0xffffff, 85) and 
 				isColor(  10,   45, 0xffffff, 85)))) or ((isColor(1111,   11, 0xfbffff, 85) and isColor(1120,   16, 0xf8faf9, 85) and isColor(1126,   26, 0xe2e4e8, 85) and isColor(1095,   26, 0xfdfdfd, 85))) then
