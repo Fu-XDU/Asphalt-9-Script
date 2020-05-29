@@ -545,13 +545,13 @@ function toPVP_SE()
     if (isColor(741, 538, 0xfc0050, 85) and isColor(742, 541, 0xed0150, 85)) then
         goto PVP;
     end
-    for i = 1, 10, 1 do
+    for _ = 1, 10, 1 do
         moveTo(860, 235, 225, 235, 20);--从右往左划
         if (isColor(1116, 539, 0xdc014a, 85) and isColor(1116, 538, 0xda0147, 85)) then
             break ;
         end
     end
-    for i = 1, 2, 1 do
+    for _ = 1, 2, 1 do
         moveTo(225, 235, 860, 235, 20);--从左往右划
     end
     mSleep(2000);
@@ -628,7 +628,7 @@ function toCarbarn_SE()
             return -1;
         elseif supermode == "赛事模式" then
             toast("等待" .. tostring(timeout - (os.time() - time) / 60) .. "分钟后返回", 5);
-            for i = 1, timeout * 60 - (os.time() - time), 1 do
+            for _ = 1, timeout * 60 - (os.time() - time), 1 do
                 toast(tostring((timeout * 60 - (os.time() - time)) - ((timeout * 60 - (os.time() - time)) % 0.01)) .. "秒后返回赛事", 0.7)
                 mSleep(1000);
             end
@@ -803,13 +803,13 @@ function toDailyGame_SE()
         tap(929, 474);
         goto DailyGame;
     end
-    for i = 1, 20, 1 do
+    for _ = 1, 20, 1 do
         moveTo(860, 235, 225, 235, 20);--从右往左划
         if (isColor(1116, 539, 0xdc014a, 85) and isColor(1116, 538, 0xda0147, 85)) then
             break ;
         end
     end
-    for i = 1, 4, 1 do
+    for _ = 1, 4, 1 do
         moveTo(225, 235, 860, 235, 20);--从左往右划
     end
     mSleep(1000);
@@ -817,7 +817,7 @@ function toDailyGame_SE()
     :: DailyGame ::
     tap(469, 589);
     mSleep(2000);
-    for i = 1, 4, 1 do
+    for _ = 1, 4, 1 do
         moveTo(100, 500, 520, 500, 20);--从左往右划
     end
     mSleep(2000);
@@ -829,7 +829,7 @@ function toSpecialEvent_SE()
 		tap(929,474);--在赛事就直接进入
 		goto DailyGame;
 	end]]--
-    for i = 1, 20, 1 do
+    for _ = 1, 20, 1 do
         moveTo(360, 235, 600, 235, 20);--从左往右划
         if (isColor(19, 537, 0xfc0051, 85) and isColor(19, 540, 0xff0054, 85) and isColor(19, 539, 0xff0054, 85)) then
             break ;
@@ -841,7 +841,7 @@ function toSpecialEvent_SE()
     :: DailyGame ::
     tap(207, 621);
     mSleep(2000);
-    for i = 1, 4, 1 do
+    for _ = 1, 4, 1 do
         moveTo(100, 500, 520, 500, 20);--从左往右划
     end
     mSleep(2000);
@@ -856,7 +856,7 @@ function chooseGame_SE()
         mSleep(2000);
         return -1;
     else
-        for i = 1, gamenum - 7, 1 do
+        for _ = 1, gamenum - 7, 1 do
             moveTo(610, 500, 470, 500, 20)
             mSleep(500)
         end
@@ -1280,10 +1280,10 @@ end
 function toPVP_i68()
     toast("进入多人", 1);
     mSleep(4000);
-    for i = 1, 10, 1 do
+    for _ = 1, 10, 1 do
         moveTo(860, 235, 225, 235, 20);--从右往左划
     end
-    for i = 1, 3, 1 do
+    for _ = 1, 3, 1 do
         moveTo(225, 235, 860, 235, 20);--从左往右划
     end
     mSleep(2000);
@@ -1364,7 +1364,7 @@ function toCarbarn_i68()
             return -1;
         elseif supermode == "赛事模式" then
             toast("等待" .. tostring(timeout - (os.time() - time) / 60) .. "分钟后返回", 5);
-            for i = 1, timeout * 60 - (os.time() - time), 1 do
+            for _ = 1, timeout * 60 - (os.time() - time), 1 do
                 toast(tostring((timeout * 60 - (os.time() - time)) - ((timeout * 60 - (os.time() - time)) % 0.01)) .. "秒后返回赛事", 0.7)
                 mSleep(1000);
             end
@@ -1537,17 +1537,17 @@ end
 function toDailyGame_i68()
     --done partly
     toast("进入赛事", 1);
-    for i = 1, 10, 1 do
+    for _ = 1, 10, 1 do
         moveTo(860, 235, 225, 235, 20);--从左往右划
     end
-    for i = 1, 4, 1 do
+    for _ = 1, 4, 1 do
         moveTo(225, 235, 950, 235, 20);--从右往左划，需要改
     end
     mSleep(2000);
     --TODO:检查是否在赛事入口
     tap(547, 686);
     mSleep(2000);
-    for i = 1, 4, 1 do
+    for _ = 1, 4, 1 do
         moveTo(100, 500, 520, 500, 20);--从左往右划
     end
     mSleep(2000);
@@ -1563,7 +1563,7 @@ function chooseGame_i68()
         mSleep(2000);
         return -1;
     else
-        for i = 1, gamenum - 7, 1 do
+        for _ = 1, gamenum - 7, 1 do
             moveTo(1250, 500, 1095, 500, 20)
             mSleep(500)
         end
