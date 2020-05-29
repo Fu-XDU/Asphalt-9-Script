@@ -2,7 +2,7 @@ require "TSLib"
 local ts = require("ts");
 init(1);
 stage = -1;--段位
-state = 0;--中间件，声明检测界面后的下一步流程
+state = 0;--中间变量，声明检测界面后的下一步流程
 path = 0;--道路选择
 time = -1;--时间戳，记录离开赛事的时间
 innerGhost = 0;--有内鬼次数
@@ -14,7 +14,10 @@ validateGame = false;
 runningState = true;--脚本运行状态
 receive_starting_command = false;--如果是true那么检测到账号被顶就不再等待
 width, height = "", "";--屏幕尺寸
--------下面是主函数-------main()为程序主流程函数| prepare()为前置准备函数 | after()为脚本结束处理函数
+-------下面是主函数-------
+---main()为程序主流程函数
+---prepare()为前置准备函数
+---after()为脚本结束处理函数
 function prepare()
     math.randomseed(tostring(os.time()):reverse():sub(1, 7));--随机数初始化
     checkScreenSize();
@@ -173,7 +176,7 @@ function after()
     closeApp("com.Aligames.kybc9");--关闭游戏
     lockDevice();
 end
--------下面是通用处理函数-------
+---下面是通用处理函数---
 function savePowerF()
     if savePower == "开" then
         toast("降低屏幕亮度", 2);
@@ -422,11 +425,11 @@ function restartApp()
     runApp("com.Aligames.kybc9");--打开游戏
     mSleep(5000);
 end
--------下面是iPhone SE 设备处理函数-------
+---下面是iPhone SE 设备处理函数---
 function back_SE()
-    toast("后退", 1)
-    tap(30, 30)
-    mSleep(1500)
+    toast("后退", 1);
+    tap(30, 30);
+    mSleep(1500);
 end
 function checkPlace_SE()
     if checkplacetimes > 2 then
@@ -672,7 +675,7 @@ function waitBegin_SE()
         timer = timer + 1;
         toast("开局中," .. tostring(timer) .. "/35", 0.5);
         if (isColor(959, 206, 0xfff8fb, 85) and isColor(980, 228, 0xfffbff, 85) and isColor(959, 226, 0xffffff, 85) and isColor(981, 205, 0xfffeff, 85) and isColor(969, 216, 0xfffeff, 85) and isColor(938, 213, 0xff0053, 85) and isColor(993, 207, 0xff0054, 85) and isColor(981, 238, 0xff0054, 85)) then
-            tap(970, 220)
+            tap(970, 220);
             mSleep(2000);
             return -1;
         end
@@ -698,7 +701,7 @@ function autoMobile_SE()
     while (getColor(170, 100) == 0x14bde9) do
         mSleep(500);
         tap(950, 400);
-        mSleep(500)
+        mSleep(500);
         if path == "左" then
             moveTo(800, 235, 400, 235, 20);--从右往左划
             moveTo(800, 235, 400, 235, 20);--从右往左划
@@ -765,7 +768,7 @@ function Login_SE()
     if (isColor(521, 298, 0x333333, 85) and isColor(502, 298, 0x333333, 85) and isColor(487, 298, 0x333333, 85) and isColor(469, 297, 0x333333, 85) and isColor(452, 298, 0x333333, 85) and isColor(435, 297, 0x333333, 85) and isColor(418, 297, 0x333333, 85) and isColor(399, 296, 0x333333, 85) and isColor(385, 296, 0x333333, 85)) then
         log4j("Login");
         tap(559, 397);
-        mSleep(2000)
+        mSleep(2000);
         return -1;
     else
         if ts.system.udid() == "yourudid" then
@@ -866,8 +869,8 @@ function chooseGame_SE()
 
 end
 function gametoCarbarn_SE()
-    upwithoutoil = false
-    downwithoutoil = false
+    upwithoutoil = false;
+    downwithoutoil = false;
     tap(1065, 590);
     mSleep(2000);
     if chooseCarorNot == "是" then
@@ -1134,6 +1137,7 @@ function worker_SE()
             state = -1;
         else
             toast("登陆中", 1);
+            mSleep(2000);
             state = -1;
         end
     elseif place == 20 then
@@ -1162,7 +1166,7 @@ function worker_SE()
     end
     receive_starting_command = false;
 end
--------下面是iPhone 6 - iPhone 8 设备处理函数-------
+---下面是iPhone 6 - iPhone 8 设备处理函数---
 function back_i68()
     --Done
     toast("后退", 1)
@@ -1334,7 +1338,7 @@ function checkTimeOut_i68()
     --done
     if time ~= -1 then
         if (os.time() - time >= timeout * 60) then
-            toast("时间到", 1)
+            toast("时间到", 1);
             mode = supermode;
             backHome_i68();
         else
@@ -1501,7 +1505,6 @@ function Login_i68()
         return -1;
     else
         if ts.system.udid() == "649a76c95b6e2f89f0eebbb0d5f5621e" then
-            dialog(string, time)
             toast("无密码,自动输入", 1);
             log4j("Input_passcode_automatically");
             mSleep(1000);
@@ -1604,7 +1607,7 @@ function gametoCarbarn_i68()
         mSleep(2000);
         --检查是不是有票
         if (isColor(546, 169, 0xf4f5f6, 85) and isColor(561, 180, 0xffffff, 85) and isColor(561, 192, 0xffffff, 85) and isColor(601, 189, 0xffffff, 85) and isColor(669, 169, 0xfcfcfc, 85) and isColor(1112, 187, 0xff0053, 85) and isColor(1168, 186, 0xff0054, 85) and isColor(1139, 160, 0xff0054, 85) and isColor(1139, 206, 0xfe0054, 85) and isColor(1139, 183, 0xffffff, 85)) then
-            toast("没票", 1)
+            toast("没票", 1);
             tap(1140, 180);
             --去多人or生涯
             time = os.time();--记录当前时间
@@ -1614,15 +1617,15 @@ function gametoCarbarn_i68()
                 backHome_i68();
                 return -1;
             elseif switch == "等15分钟" then
-                toast("等15分钟", 1)
+                toast("等15分钟", 1);
                 mSleep(15 * 60 * 1000);
                 toast("15分钟到", 1)
                 mSleep(1000);
                 goto beginAtGame;
             elseif switch == "等30分钟" then
-                toast("等30分钟", 1)
+                toast("等30分钟", 1);
                 mSleep(30 * 60 * 1000);
-                toast("30分钟到", 1)
+                toast("30分钟到", 1);
                 goto beginAtGame;
             end
         end
@@ -1646,20 +1649,20 @@ function gametoCarbarn_i68()
         --去多人or生涯
         time = os.time();--记录当前时间
         if switch == "去刷多人" then
-            toast(tostring(timeout) .. "分钟后返回", 1)
+            toast(tostring(timeout) .. "分钟后返回", 1);
             mode = "多人刷积分声望"
             backHome_i68();
             return -1;
         elseif switch == "等待15分钟" then
-            toast("等待15分钟", 1)
+            toast("等待15分钟", 1);
             mSleep(15 * 60 * 1000);
             toast("15分钟到", 1)
             mSleep(1000);
             goto beginAtGame;
         elseif switch == "等待30分钟" then
-            toast("等待30分钟", 1)
+            toast("等待30分钟", 1);
             mSleep(30 * 60 * 1000);
-            toast("30分钟到", 1)
+            toast("30分钟到", 1);
             goto beginAtGame;
         end
     end
@@ -1843,6 +1846,7 @@ function worker_i68()
             state = -1;
         else
             toast("登陆中", 1);
+            mSleep(2000);
             state = -1;
         end
     elseif place == 20 then
