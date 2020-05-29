@@ -934,9 +934,7 @@ function gametoCarbarn_SE()
                 if upordown == "中间下" then
                     tap(440, 320);--向左选车
                 else
-                    back_SE();
-                    mSleep(2000);
-                    tap(580, 420);--选中间下
+                    tap(1070, 320);--向右选车
                 end
                 goto beginAtGame;
             end
@@ -1636,13 +1634,10 @@ function gametoCarbarn_i68()
                 upwithoutoil = true
             end
             if not (upwithoutoil and downwithoutoil) then
-
                 if upordown == "中间下" then
                     tap(510, 380);--向左选车
                 else
-                    back_i68();
-                    mSleep(2000);
-                    tap(660, 462);--选中间下
+                    tap(1250, 380);--向右选车
                 end
                 goto beginAtGame;
             end
