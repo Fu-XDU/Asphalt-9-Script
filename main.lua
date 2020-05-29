@@ -871,6 +871,7 @@ end
 function gametoCarbarn_SE()
     upwithoutoil = false;
     downwithoutoil = false;
+    changecar=false;
     tap(1065, 590);
     mSleep(2000);
     if chooseCarorNot == "是" then
@@ -913,21 +914,23 @@ function gametoCarbarn_SE()
                 backHome_SE();
                 return -1;
             elseif switch == "等15分钟" then
-                toast("等15分钟", 1)
+                toast("等15分钟", 1);
                 mSleep(15 * 60 * 1000);
-                toast("15分钟到", 1)
+                toast("15分钟到", 1);
                 mSleep(1000);
+                changecar=false;
                 goto beginAtGame;
             elseif switch == "等30分钟" then
                 toast("等30分钟", 1)
                 mSleep(30 * 60 * 1000);
-                toast("30分钟到", 1)
+                toast("30分钟到", 1);
+                changecar=false;
                 goto beginAtGame;
             end
         end
     else
         toast("没油了", 1);
-        if changeCar == "开" then
+        if changeCar == "开" and not changecar then
             if upordown == "中间下" then
                 downwithoutoil = true
             else
@@ -939,7 +942,8 @@ function gametoCarbarn_SE()
                 else
                     tap(1070, 320);--向右选车
                 end
-                goto beginAtGame;
+                changecar=true;
+                goto beginAtGame;--只能goto一次
             end
         end
         --去多人or生涯
@@ -950,15 +954,17 @@ function gametoCarbarn_SE()
             backHome_SE();
             return -1;
         elseif switch == "等待15分钟" then
-            toast("等待15分钟", 1)
+            toast("等待15分钟", 1);
             mSleep(15 * 60 * 1000);
-            toast("15分钟到", 1)
+            toast("15分钟到", 1);
             mSleep(1000);
+            changecar=false;
             goto beginAtGame;
         elseif switch == "等待30分钟" then
-            toast("等待30分钟", 1)
+            toast("等待30分钟", 1);
             mSleep(30 * 60 * 1000);
-            toast("30分钟到", 1)
+            toast("30分钟到", 1);
+            changecar=false;
             goto beginAtGame;
         end
     end
@@ -1573,6 +1579,7 @@ function gametoCarbarn_i68()
     --done
     downwithoutoil = false
     upwithoutoil = false
+    changecar=false;
     tap(1260, 690);
     mSleep(2000);
     if chooseCarorNot == "是" then
@@ -1619,18 +1626,20 @@ function gametoCarbarn_i68()
             elseif switch == "等15分钟" then
                 toast("等15分钟", 1);
                 mSleep(15 * 60 * 1000);
-                toast("15分钟到", 1)
+                toast("15分钟到", 1);
                 mSleep(1000);
+                changecar=false;
                 goto beginAtGame;
             elseif switch == "等30分钟" then
                 toast("等30分钟", 1);
                 mSleep(30 * 60 * 1000);
                 toast("30分钟到", 1);
+                changecar=false;
                 goto beginAtGame;
             end
         end
     else
-        if changeCar == "开" then
+        if changeCar == "开" and not changecar then
             if upordown == "中间下" then
                 downwithoutoil = true
             else
@@ -1642,6 +1651,7 @@ function gametoCarbarn_i68()
                 else
                     tap(1250, 380);--向右选车
                 end
+                changecar=false;
                 goto beginAtGame;
             end
         end
@@ -1656,13 +1666,15 @@ function gametoCarbarn_i68()
         elseif switch == "等待15分钟" then
             toast("等待15分钟", 1);
             mSleep(15 * 60 * 1000);
-            toast("15分钟到", 1)
+            toast("15分钟到", 1);
             mSleep(1000);
+            changecar=false;
             goto beginAtGame;
         elseif switch == "等待30分钟" then
             toast("等待30分钟", 1);
             mSleep(30 * 60 * 1000);
             toast("30分钟到", 1);
+            changecar=false;
             goto beginAtGame;
         end
     end
