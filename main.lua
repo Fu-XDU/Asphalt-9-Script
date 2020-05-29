@@ -388,7 +388,7 @@ function ShowUI()
     UIRadio(1, "savePower", "开,关", "0");
     UILabel(1, "多人选低一段车辆（白金及以上）", 15, "left", "38,38,38");
     UIRadio(1, "lowerCar", "开,关", "0");
-    UILabel(1, "赛事没油是否向左选车", 15, "left", "38,38,38");
+    UILabel(1, "赛事没油是否换车", 15, "left", "38,38,38");
     UIRadio(1, "changeCar", "开,关", "0");
     UILabel(1, "需要过多久返回赛事模式或寻车模式（分钟）", 15, "left", "38,38,38");
     UIEdit(1, "timeout", "内容", "60", 15, "center", "38,38,38", "number");
@@ -866,6 +866,8 @@ function chooseGame_SE()
 
 end
 function gametoCarbarn_SE()
+    upwithoutoil = false
+    downwithoutoil = false
     tap(1065, 590);
     mSleep(2000);
     if chooseCarorNot == "是" then
@@ -923,8 +925,21 @@ function gametoCarbarn_SE()
     else
         toast("没油了", 1);
         if changeCar == "开" then
-            tap(440, 320);--向左选车
-            goto beginAtGame;
+            if upordown == "中间下" then
+                downwithoutoil = true
+            else
+                upwithoutoil = true
+            end
+            if not (upwithoutoil and downwithoutoil) then
+                if upordown == "中间下" then
+                    tap(440, 320);--向左选车
+                else
+                    back_SE();
+                    mSleep(2000);
+                    tap(580, 420);--选中间下
+                end
+                goto beginAtGame;
+            end
         end
         --去多人or生涯
         time = os.time();--记录当前时间
@@ -1555,6 +1570,8 @@ function chooseGame_i68()
 end
 function gametoCarbarn_i68()
     --done
+    downwithoutoil = false
+    upwithoutoil = false
     tap(1260, 690);
     mSleep(2000);
     if chooseCarorNot == "是" then
@@ -1613,8 +1630,22 @@ function gametoCarbarn_i68()
         end
     else
         if changeCar == "开" then
-            tap(510, 380);--向左选车
-            goto beginAtGame;
+            if upordown == "中间下" then
+                downwithoutoil = true
+            else
+                upwithoutoil = true
+            end
+            if not (upwithoutoil and downwithoutoil) then
+
+                if upordown == "中间下" then
+                    tap(510, 380);--向左选车
+                else
+                    back_i68();
+                    mSleep(2000);
+                    tap(660, 462);--选中间下
+                end
+                goto beginAtGame;
+            end
         end
         toast("没油了", 1);
         --去多人or生涯
