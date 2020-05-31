@@ -374,7 +374,7 @@ function ShowUI()
     UILabel(1, "模式选择", 15, "left", "38,38,38");
     UIRadio(1, "mode", "多人刷积分声望,赛事模式", "0");--记录最初设置 | 特殊赛事保留
     UILabel(1, "没油没票后动作（赛事模式）", 15, "left", "38,38,38");
-    UIRadio(1, "switch", "去刷多人,等15分钟,等30分钟", "0");
+    UIRadio(1, "switch", "去刷多人,等30分钟,等60分钟", "0");
     UILabel(1, "路线选择（所有模式）", 15, "left", "38,38,38");
     UIRadio(1, "path", "左,中,右,随机", "0");
     UILabel(1, "赛事位置选择", 15, "left", "38,38,38");
@@ -913,17 +913,17 @@ function gametoCarbarn_SE()
                 mSleep(200);
                 backHome_SE();
                 return -1;
-            elseif switch == "等15分钟" then
-                toast("等15分钟", 1);
-                mSleep(15 * 60 * 1000);
-                toast("15分钟到", 1);
+            elseif switch == "等30分钟" then
+                toast("等30分钟", 1);
+                mSleep(30 * 60 * 1000);
+                toast("30分钟到", 1);
                 mSleep(1000);
                 changecar=false;
                 goto beginAtGame;
-            elseif switch == "等30分钟" then
-                toast("等30分钟", 1)
-                mSleep(30 * 60 * 1000);
-                toast("30分钟到", 1);
+            elseif switch == "等60分钟" then
+                toast("等60分钟", 1)
+                mSleep(60 * 60 * 1000);
+                toast("60分钟到", 1);
                 changecar=false;
                 goto beginAtGame;
             end
@@ -1623,17 +1623,17 @@ function gametoCarbarn_i68()
                 mode = "多人刷积分声望"
                 backHome_i68();
                 return -1;
-            elseif switch == "等15分钟" then
-                toast("等15分钟", 1);
-                mSleep(15 * 60 * 1000);
-                toast("15分钟到", 1);
-                mSleep(1000);
-                changecar=false;
-                goto beginAtGame;
             elseif switch == "等30分钟" then
                 toast("等30分钟", 1);
                 mSleep(30 * 60 * 1000);
                 toast("30分钟到", 1);
+                mSleep(1000);
+                changecar=false;
+                goto beginAtGame;
+            elseif switch == "等60分钟" then
+                toast("等60分钟", 1)
+                mSleep(60 * 60 * 1000);
+                toast("60分钟到", 1);
                 changecar=false;
                 goto beginAtGame;
             end
