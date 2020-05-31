@@ -10,13 +10,14 @@ LoginTimes = 0;--连续登陆次数
 PVPTimes, PVETimes = 0, 0;--多人和赛事局数,存文件
 checkplacetimes = 0;--连续检测界面次数
 checkplacetimesout = 35;--连续检测界面超时次数
-validateGame = false;
+validateGame = false;--是否已知处在正确的赛事位置
 runningState = true;--脚本运行状态
 receive_starting_command = false;--如果是true那么检测到账号被顶就不再等待
 width, height = "", "";--屏幕尺寸
+changecar = false;--PVE是否已经换车
 -------下面是主函数-------
----main()为程序主流程函数
 ---prepare()为前置准备函数
+---main()为程序主函数
 ---after()为脚本结束处理函数
 function prepare()
     math.randomseed(tostring(os.time()):reverse():sub(1, 7));--随机数初始化
@@ -60,7 +61,7 @@ function main()
             goto stop_SE;
         elseif state == -3 then
             state = 0;
-            back_SE();
+            back();
             checkplacetimes = 0;
             goto flag_SE;
         elseif state == -4 then
@@ -126,7 +127,7 @@ function main()
             goto stop_i68;
         elseif state == -3 then
             state = 0;
-            back_i68();
+            back();
             checkplacetimes = 0;
             goto flag_i68;
         elseif state == -4 then
@@ -425,12 +426,35 @@ function restartApp()
     runApp("com.Aligames.kybc9");--打开游戏
     mSleep(5000);
 end
----下面是iPhone SE 设备处理函数---
-function back_SE()
+function wait_topped()
+    if receive_starting_command == false then
+        --sendEmail(email,"账号被顶,等待"..tostring(timeout2).."分钟",getDeviceName());
+        log4j("Parallel_read_detected,waiting " .. tostring(timeout2) .. " minutes");
+        toast("账号被顶", 1);
+        mSleep(1000);
+        toast("等待" .. tostring(timeout2) .. "分钟", 1)
+        wait_time(timeout2);
+        --sendEmail(email,"账号被顶,等待完成",getDeviceName());
+        log4j("Waiting_time_over");
+        toast("等待完成", 1);
+    end
+end
+function wait_time(minutes)
+    --minutes是数字型
+    toast("等" .. tostring(minutes) .. "分钟", 1);
+    --循环minutes * 6次，每次等10秒，共minutes * 60秒也就是minutes分钟
+    for _ = 1, minutes * 6 do
+        getHttpsCommand();--https请求获取运行指令
+        mSleep(10 * 1000);--等10秒
+    end
+    toast(tostring(minutes) .. "分钟到", 1);
+end
+function back()
     toast("后退", 1);
     tap(30, 30);
-    mSleep(1500);
+    mSleep(2000);
 end
+---下面是iPhone SE 设备处理函数---
 function checkPlace_SE()
     if checkplacetimes > 2 then
         toast("检测界面," .. tostring(checkplacetimes) .. "/" .. tostring(checkplacetimesout), 1);
@@ -683,7 +707,7 @@ function waitBegin_SE()
     if timer >= 45 then
         toast("开局异常", 1);
         if (isColor(540, 312, 0x01b9e3, 85) and isColor(635, 307, 0x01b8e3, 85) and isColor(596, 273, 0x01718b, 85) and isColor(581, 350, 0x03b9e3, 85) and isColor(564, 308, 0xffffff, 85) and isColor(658, 314, 0xffffff, 85) and isColor(682, 291, 0xdfdfdf, 85) and isColor(17, 50, 0xffffff, 85) and isColor(70, 14, 0xffffff, 85)) then
-            back_SE();
+            back();
             return -1;
         else
             innerGhost = innerGhost + 1;
@@ -871,14 +895,14 @@ end
 function gametoCarbarn_SE()
     upwithoutoil = false;
     downwithoutoil = false;
-    changecar=false;
+    changecar = false;
     tap(1065, 590);
     mSleep(2000);
     if chooseCarorNot == "是" then
         if backifallstar == "是" then
             tap(580, 270);
             mSleep(2000);
-            back_SE();
+            back();
             mSleep(1000);
         end
         if upordown == "中间上" then
@@ -913,18 +937,13 @@ function gametoCarbarn_SE()
                 mSleep(200);
                 backHome_SE();
                 return -1;
-            elseif switch == "等30分钟" then
-                toast("等30分钟", 1);
-                mSleep(30 * 60 * 1000);
-                toast("30分钟到", 1);
-                mSleep(1000);
-                changecar=false;
-                goto beginAtGame;
-            elseif switch == "等60分钟" then
-                toast("等60分钟", 1)
-                mSleep(60 * 60 * 1000);
-                toast("60分钟到", 1);
-                changecar=false;
+            elseif switch == "等30分钟" or switch == "等60分钟" then
+                if switch == "等30分钟" then
+                    wait_time(30);
+                elseif switch == "等60分钟" then
+                    wait_time(60);
+                end
+                changecar = false;
                 goto beginAtGame;
             end
         end
@@ -942,7 +961,7 @@ function gametoCarbarn_SE()
                 else
                     tap(1070, 320);--向右选车
                 end
-                changecar=true;
+                changecar = true;
                 goto beginAtGame;--只能goto一次
             end
         end
@@ -953,22 +972,17 @@ function gametoCarbarn_SE()
             mode = "多人刷积分声望"
             backHome_SE();
             return -1;
-        elseif switch == "等待15分钟" then
-            toast("等待15分钟", 1);
-            mSleep(15 * 60 * 1000);
-            toast("15分钟到", 1);
-            mSleep(1000);
-            changecar=false;
-            goto beginAtGame;
-        elseif switch == "等待30分钟" then
-            toast("等待30分钟", 1);
-            mSleep(30 * 60 * 1000);
-            toast("30分钟到", 1);
-            changecar=false;
+        elseif switch == "等30分钟" or switch == "等60分钟" then
+            if switch == "等30分钟" then
+                wait_time(30);
+            elseif switch == "等60分钟" then
+                wait_time(60);
+            end
+            changecar = false;
             goto beginAtGame;
         end
     end
-    mSleep(3000)
+    mSleep(3000);
     if waitBegin_SE() == -1 then
         return -1;
     end
@@ -1015,10 +1029,10 @@ function worker_SE()
         if mode == "多人刷积分声望" then
             state = 0;
         elseif mode == "赛事模式" then
-            back_SE();
+            back();
             state = toDailyGame_SE();
         elseif mode == "特殊赛事" then
-            back_SE();
+            back();
             state = toSpecialEvent_SE();
         end
     elseif place == -1 then
@@ -1049,14 +1063,14 @@ function worker_SE()
             state = chooseGame_SE();
             validateGame = true;
         elseif mode == "多人刷积分声望" or mode == "特殊赛事" then
-            back_SE();
+            back();
             state = -1;
         end
     elseif place == 6 then
         toast("赛事开始界面", 1);
         if mode == "赛事模式" then
             if validateGame == false then
-                back_SE();
+                back();
                 state = -1;
             elseif validateGame == true then
                 state = gametoCarbarn_SE();
@@ -1111,17 +1125,7 @@ function worker_SE()
         mSleep(2000);
         state = -1;
     elseif place == 16 then
-        if receive_starting_command == false then
-            --sendEmail(email,"账号被顶,等待"..tostring(timeout2).."分钟",getDeviceName());
-            log4j("Parallel_read_detected,waiting " .. tostring(timeout2) .. " minutes");
-            toast("账号被顶", 1);
-            mSleep(1000);
-            toast("等待" .. tostring(timeout2) .. "分钟", 1)
-            mSleep(timeout2 * 60 * 1000);
-            --sendEmail(email,"账号被顶,等待完成",getDeviceName());
-            log4j("Waiting time over");
-            toast("等待完成", 1);
-        end
+        wait_topped();
         tap(970, 215);--关闭
         mSleep(2000);
         state = -1;
@@ -1173,12 +1177,6 @@ function worker_SE()
     receive_starting_command = false;
 end
 ---下面是iPhone 6 - iPhone 8 设备处理函数---
-function back_i68()
-    --Done
-    toast("后退", 1)
-    tap(30, 30)
-    mSleep(2500)
-end
 function checkPlace_i68()
     if checkplacetimes > 2 then
         toast("检测界面," .. tostring(checkplacetimes) .. "/" .. tostring(checkplacetimesout), 1);
@@ -1349,7 +1347,7 @@ function checkTimeOut_i68()
             backHome_i68();
         else
             --toast(tostring(timeout-(os.time()-time)/60 -((timeout-(os.time()-time)/60)%0.01)).."分钟后返回",1);
-            --mSleep(1000);
+            mSleep(1000);
         end
     end
 end
@@ -1423,7 +1421,7 @@ function waitBegin_i68()
         --如果还在匹配界面且左上有返回
         toast("开局异常", 1);
         if (isColor(632, 383, 0x02b9e3, 85) and isColor(663, 366, 0xffffff, 85) and isColor(678, 367, 0xfeffff, 85) and isColor(699, 360, 0xffffff, 85) and isColor(722, 374, 0xffffff, 85) and isColor(23, 47, 0xffffff, 85) and isColor(87, 15, 0xffffff, 85)) then
-            back_i68();
+            back();
             return -1;
         else
             innerGhost = innerGhost + 1;
@@ -1577,16 +1575,16 @@ function chooseGame_i68()
 end
 function gametoCarbarn_i68()
     --done
-    downwithoutoil = false
-    upwithoutoil = false
-    changecar=false;
+    downwithoutoil = false;
+    upwithoutoil = false;
+    changecar = false;
     tap(1260, 690);
     mSleep(2000);
     if chooseCarorNot == "是" then
         if backifallstar == "是" then
             tap(660, 320);
             mSleep(2500);
-            back_i68();
+            back();
             mSleep(1000);
         end
         if chooseCarorNot == "是" then
@@ -1623,18 +1621,13 @@ function gametoCarbarn_i68()
                 mode = "多人刷积分声望"
                 backHome_i68();
                 return -1;
-            elseif switch == "等30分钟" then
-                toast("等30分钟", 1);
-                mSleep(30 * 60 * 1000);
-                toast("30分钟到", 1);
-                mSleep(1000);
-                changecar=false;
-                goto beginAtGame;
-            elseif switch == "等60分钟" then
-                toast("等60分钟", 1)
-                mSleep(60 * 60 * 1000);
-                toast("60分钟到", 1);
-                changecar=false;
+            elseif switch == "等30分钟" or switch == "等60分钟" then
+                if switch == "等30分钟" then
+                    wait_time(30);
+                elseif switch == "等60分钟" then
+                    wait_time(60);
+                end
+                changecar = false;
                 goto beginAtGame;
             end
         end
@@ -1651,7 +1644,7 @@ function gametoCarbarn_i68()
                 else
                     tap(1250, 380);--向右选车
                 end
-                changecar=false;
+                changecar = false;
                 goto beginAtGame;
             end
         end
@@ -1663,18 +1656,13 @@ function gametoCarbarn_i68()
             mode = "多人刷积分声望"
             backHome_i68();
             return -1;
-        elseif switch == "等待15分钟" then
-            toast("等待15分钟", 1);
-            mSleep(15 * 60 * 1000);
-            toast("15分钟到", 1);
-            mSleep(1000);
-            changecar=false;
-            goto beginAtGame;
-        elseif switch == "等待30分钟" then
-            toast("等待30分钟", 1);
-            mSleep(30 * 60 * 1000);
-            toast("30分钟到", 1);
-            changecar=false;
+        elseif switch == "等30分钟" or switch == "等60分钟" then
+            if switch == "等30分钟" then
+                wait_time(30);
+            elseif switch == "等60分钟" then
+                wait_time(60);
+            end
+            changecar = false;
             goto beginAtGame;
         end
     end
@@ -1724,7 +1712,7 @@ function worker_i68()
         if mode == "多人刷积分声望" then
             state = 0;
         elseif mode == "赛事模式" then
-            back_i68();
+            back();
             state = toDailyGame_i68();
         end
     elseif place == -1 then
@@ -1754,14 +1742,14 @@ function worker_i68()
             state = chooseGame_i68();
             validateGame = true;
         elseif mode == "多人刷积分声望" then
-            back_i68();
+            back();
             state = -1;
         end
     elseif place == 6 then
         toast("赛事开始界面", 1);
         if mode == "赛事模式" then
             if validateGame == false then
-                back_i68();
+                back();
                 state = -1;
             elseif validateGame == true then
                 state = gametoCarbarn_i68();
@@ -1818,23 +1806,7 @@ function worker_i68()
         mSleep(2000);
         state = -1;
     elseif place == 16 then
-        if receive_starting_command == false then
-            --sendEmail(email,"账号被顶,等待"..tostring(timeout2).."分钟",getDeviceName());
-            log4j("Parallel_read_detected,waiting " .. tostring(timeout2) .. " minutes");
-            toast("账号被顶", 1);
-            mSleep(1000);
-            toast("等待" .. tostring(timeout2) .. "分钟", 1)
-            --[[
-		for i= 1,timeout2*1000*60,1 do
-			toast(tostring((timeout2*60-i) - ((timeout2*60-i)%0.01)).."秒后重新登录",0.7)
-			mSleep(1000);
-		end
-		]]--
-            mSleep(timeout2 * 60 * 1000);
-            --sendEmail(email,"账号被顶,等待完成",getDeviceName());
-            log4j("Waiting time over");
-            toast("等待完成", 1);
-        end
+        wait_topped();
         tap(1140, 252);--关闭
         mSleep(2000);
         state = -1;
