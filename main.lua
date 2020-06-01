@@ -443,7 +443,7 @@ function wait_time(minutes)
     --minutes是数字型
     toast("等" .. tostring(minutes) .. "分钟", 1);
     --循环minutes * 6次，每次等10秒，共minutes * 60秒也就是minutes分钟
-    for i = 1, minutes * 6 do
+    for _ = 1, minutes * 6 do
         getHttpsCommand();--https请求获取运行指令
         mSleep(10 * 1000);--等10秒
     end
@@ -944,7 +944,7 @@ function gametoCarbarn_SE()
                     wait_time(60);
                 end
                 changecar = false;
-                goto beginAtGame;
+                return -1;
             end
         end
     else
@@ -962,7 +962,7 @@ function gametoCarbarn_SE()
                     tap(1070, 320);--向右选车
                 end
                 changecar = true;
-                goto beginAtGame;--只能goto一次
+                goto beginAtGame;--此行只能运行一次
             end
         end
         --去多人or生涯
@@ -979,7 +979,7 @@ function gametoCarbarn_SE()
                 wait_time(60);
             end
             changecar = false;
-            goto beginAtGame;
+            return -1;
         end
     end
     mSleep(3000);
@@ -1623,12 +1623,12 @@ function gametoCarbarn_i68()
                 return -1;
             elseif switch == "等30分钟" or switch == "等60分钟" then
                 if switch == "等30分钟" then
-                    wait_time(0.5);
+                    wait_time(30);
                 elseif switch == "等60分钟" then
                     wait_time(60);
                 end
                 changecar = false;
-                goto beginAtGame;
+                return -1;
             end
         end
     else
@@ -1644,8 +1644,8 @@ function gametoCarbarn_i68()
                 else
                     tap(1250, 380);--向右选车
                 end
-                changecar = false;
-                goto beginAtGame;
+                changecar = true;
+                goto beginAtGame;--此行只能运行一次
             end
         end
         toast("没油了", 1);
@@ -1663,7 +1663,7 @@ function gametoCarbarn_i68()
                 wait_time(60);
             end
             changecar = false;
-            goto beginAtGame;
+            return -1;
         end
     end
     mSleep(3000)
