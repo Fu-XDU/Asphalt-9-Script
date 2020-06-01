@@ -443,7 +443,7 @@ function wait_time(minutes)
     --minutes是数字型
     toast("等" .. tostring(minutes) .. "分钟", 1);
     --循环minutes * 6次，每次等10秒，共minutes * 60秒也就是minutes分钟
-    for _ = 1, minutes * 6 do
+    for i = 1, minutes * 6 do
         getHttpsCommand();--https请求获取运行指令
         mSleep(10 * 1000);--等10秒
     end
@@ -1623,7 +1623,7 @@ function gametoCarbarn_i68()
                 return -1;
             elseif switch == "等30分钟" or switch == "等60分钟" then
                 if switch == "等30分钟" then
-                    wait_time(30);
+                    wait_time(0.5);
                 elseif switch == "等60分钟" then
                     wait_time(60);
                 end
