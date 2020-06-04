@@ -1,6 +1,7 @@
 require "TSLib"
 local ts = require("ts");
 init(1);
+apiUrl="https://yourdomin.cn/api/";
 stage = -1;--段位
 state = 0;--中间变量，声明检测界面后的下一步流程
 path = 0;--道路选择
@@ -15,7 +16,7 @@ runningState = true;--脚本运行状态
 receive_starting_command = false;--如果是true那么检测到账号被顶就不再等待
 width, height = "", "";--屏幕尺寸
 changecar = false;--PVE是否已经换车
-model = ""
+model = "";--设备型号
 -------下面是主函数-------
 ---prepare()为前置准备函数
 ---main()为程序主函数
@@ -29,7 +30,7 @@ function prepare()
     log4j("Starting_script");
     toast("脚本开始", 3);
     runApp("com.Aligames.kybc9");
-    ts.httpsGet("https://yourdomin.cn/api/a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
+    ts.httpsGet(apiUrl.."a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
     supermode = mode;
     timeout = tonumber(timeout);
     timeout2 = tonumber(timeout2);
@@ -207,48 +208,62 @@ function checkScreenSize()
 end
 function getHttpsCommand()
     :: getCommand ::
-    a9getCommandcode, a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet("https://yourdomin.cn/api/a9getCommand?udid=" .. ts.system.udid(), {}, {})
-    if a9getCommandcode == 200 and a9getCommandbody_resp == "0" then
-        if runningState == true then
-            log4j("Stopping_command,script_suspended");
-            runningState = false;
-            toast("接收到暂停指令，脚本暂停运行", 1);
+    a9getCommandcode, a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet(apiUrl.."a9getCommand?udid=" .. ts.system.udid(), {}, {})
+    if a9getCommandcode == 200 then
+        if a9getCommandbody_resp == "0" then
+            if runningState == true then
+                log4j("Stopping_command,script_suspended");
+                runningState = false;
+                toast("接收到暂停指令，脚本暂停运行", 1);
+                savePowerF();
+            end
+            toast("脚本已暂停运行", 4);
+            mSleep(5000);
+            toast("5秒后再次发起请求", 4);
+            mSleep(5000);--等5秒后再次发起请求
+            goto getCommand;
+        elseif a9getCommandbody_resp == "1" and runningState == false then
+            toast("接收到开始指令，脚本开始运行", 1);
+            log4j("Starting_command,script_online");
+            runningState = true;
+            receive_starting_command = true;
             savePowerF();
+            return 1;
+        elseif a9getCommandbody_resp == "2" then
+            toast("接收到模式转换指令，停止赛事模式", 1);
+            mSleep(1000);
+            log4j("Switch_command,PVE_suspended");
+            supermode = "多人刷积分声望";
+            mode = "多人刷积分声望";
+            savePowerF();
+            ts.httpsGet(apiUrl.."a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
+            return 2;
+        elseif a9getCommandbody_resp == "3" then
+            toast("接收到模式转换指令，开始赛事模式", 1);
+            log4j("Switch_command,PVE_started");
+            supermode = "赛事模式";
+            mode = "赛事模式";
+            savePowerF();
+            ts.httpsGet(apiUrl.."a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
+            return 3;
+        elseif a9getCommandbody_resp == "4" then
+            toast("接收到脚本停止指令，脚本停止", 1);
+            log4j("Stopping_command,script_terminated");
+            ts.httpsGet(apiUrl.."a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
+            return 4;
+        elseif a9getCommandbody_resp == "5" then
+            toast("赛事没油没票后改为等待60分钟", 1);
+            switch = "等60分钟";
+            log4j("SwitchChange_command,to_60min");
+            ts.httpsGet(apiUrl.."a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
+            return 5;
+        elseif a9getCommandbody_resp == "6" then
+            toast("赛事没油没票后改为去刷多人", 1);
+            switch = "去刷多人";
+            log4j("SwitchChange_command,to_PVP");
+            ts.httpsGet(apiUrl.."a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
+            return 6;
         end
-        toast("脚本已暂停运行", 4);
-        mSleep(5000);
-        toast("5秒后再次发起请求", 4);
-        mSleep(5000);--等5秒后再次发起请求
-        goto getCommand;
-    elseif a9getCommandcode == 200 and a9getCommandbody_resp == "1" and runningState == false then
-        toast("接收到开始指令，脚本开始运行", 1);
-        log4j("Starting_command,script_online");
-        runningState = true;
-        receive_starting_command = true;
-        savePowerF();
-        return 1;
-    elseif a9getCommandcode == 200 and a9getCommandbody_resp == "2" then
-        toast("接收到模式转换指令，停止赛事模式", 1);
-        mSleep(1000);
-        log4j("Switch_command,PVE_suspended");
-        supermode = "多人刷积分声望";
-        mode = "多人刷积分声望";
-        savePowerF();
-        ts.httpsGet("https://yourdomin.cn/api/a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
-        return 2;
-    elseif a9getCommandcode == 200 and a9getCommandbody_resp == "3" then
-        toast("接收到模式转换指令，开始赛事模式", 1);
-        log4j("Switch_command,PVE_started");
-        supermode = "赛事模式";
-        mode = "赛事模式";
-        savePowerF();
-        ts.httpsGet("https://yourdomin.cn/api/a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
-        return 3;
-    elseif a9getCommandcode == 200 and a9getCommandbody_resp == "4" then
-        toast("接收到脚本停止指令，脚本停止", 1);
-        log4j("Stopping_command,script_terminated");
-        ts.httpsGet("https://yourdomin.cn/api/a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
-        return 4;
     end
 end
 function httpsGet(content)
@@ -256,7 +271,7 @@ function httpsGet(content)
     header_send = {}
     body_send = {}
     ts.setHttpsTimeOut(5) --安卓不支持设置超时时间
-    code, header_resp, body_resp = ts.httpsGet("https://yourdomin.cn/api/a9?content=" .. content .. "&udid=" .. udid, header_send, body_send)
+    code, header_resp, body_resp = ts.httpsGet(apiUrl.."a9?content=" .. content .. "&udid=" .. udid, header_send, body_send)
 end
 function ToStringEx(value)
     if type(value) == 'table' then
