@@ -841,6 +841,10 @@ function checkPlace_SE()
         checkplacetimes = 0;
         return 23;--弹窗广告
     end
+    if (isColor(  76,   51, 0xf8004c, 85) and isColor(  76,   69, 0xf40153, 85) and isColor( 282,   54, 0xff0054, 85) and isColor( 282,   62, 0xf00253, 85) and isColor( 282,   68, 0xff0054, 85) and isColor( 125,  552, 0x828786, 85) and isColor(  67,  584, 0x000921, 85) and isColor(1099,  611, 0x000d21, 85) and isColor(1099,  568, 0xc4fb11, 85)) then
+        checkplacetimes = 0;
+        return 24;--获得了新红币界面
+    end
     mSleep(1000);
 end
 function toPVP_SE()
@@ -1053,7 +1057,6 @@ function toSpecialEvent_SE()
     mSleep(2000);
     return -1;
 end
-
 function gametoCarbarn_SE()
     upwithoutoil = false;
     downwithoutoil = false;
@@ -1284,6 +1287,12 @@ function worker_SE()
     elseif place == 23 then
         tap(963, 97);--关闭弹窗广告
         mSleep(500);
+        state = -1;
+    elseif place == 24 then
+        --获得了新红币界面
+        tap(65,  585);--不再提示
+        mSleep(500);
+        tap(980,580);--确定
         state = -1;
     else
         toast("不知道在哪", 1)
