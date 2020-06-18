@@ -58,7 +58,7 @@
 + **远程日志功能**，可以访问网址
 
   ```
-  https://yourdomin.cn/api/a9log?udid=YYY（XYYY为你设备的udid）
+  https://yourdomin.cn/api/a9log?udid=YYY（YYY为你设备的udid）
   ```
 
   查看本日脚本日志，远程监控脚本运行情况。
