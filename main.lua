@@ -1,7 +1,7 @@
 require "TSLib"
 local ts = require("ts");
 init(1);
-apiUrl="https://yourdomin.cn/api/";
+apiUrl = "https://yourdomin.cn/api/";
 stage = -1;--段位
 state = 0;--中间变量，声明检测界面后的下一步流程
 path = 0;--道路选择
@@ -17,6 +17,7 @@ receive_starting_command = false;--如果是true那么检测到账号被顶就�
 width, height = "", "";--屏幕尺寸
 changecar = false;--PVE是否已经换车
 model = "";--设备型号
+chooseHighStageCarClass = 1;--改成1的话，使用新多人选车方案
 -------下面是主函数-------
 ---prepare()为前置准备函数
 ---main()为程序主函数
@@ -30,7 +31,7 @@ function prepare()
     log4j("Starting_script");
     toast("脚本开始", 3);
     runApp("com.Aligames.kybc9");
-    ts.httpsGet(apiUrl.."a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
+    ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
     supermode = mode;
     timeout = tonumber(timeout);
     timeout2 = tonumber(timeout2);
@@ -208,7 +209,7 @@ function checkScreenSize()
 end
 function getHttpsCommand()
     :: getCommand ::
-    a9getCommandcode, a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet(apiUrl.."a9getCommand?udid=" .. ts.system.udid(), {}, {})
+    a9getCommandcode, a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet(apiUrl .. "a9getCommand?udid=" .. ts.system.udid(), {}, {})
     if a9getCommandcode == 200 then
         if a9getCommandbody_resp == "0" then
             if runningState == true then
@@ -236,7 +237,7 @@ function getHttpsCommand()
             supermode = "多人刷积分声望";
             mode = "多人刷积分声望";
             savePowerF();
-            ts.httpsGet(apiUrl.."a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
+            ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
             return 2;
         elseif a9getCommandbody_resp == "3" then
             toast("接收到模式转换指令，开始赛事模式", 1);
@@ -244,24 +245,24 @@ function getHttpsCommand()
             supermode = "赛事模式";
             mode = "赛事模式";
             savePowerF();
-            ts.httpsGet(apiUrl.."a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
+            ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
             return 3;
         elseif a9getCommandbody_resp == "4" then
             toast("接收到脚本停止指令，脚本停止", 1);
             log4j("Stopping_command,script_terminated");
-            ts.httpsGet(apiUrl.."a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
+            ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
             return 4;
         elseif a9getCommandbody_resp == "5" then
             toast("赛事没油没票后改为等待60分钟", 1);
             switch = "等60分钟";
             log4j("SwitchChange_command,to_60min");
-            ts.httpsGet(apiUrl.."a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
+            ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
             return 5;
         elseif a9getCommandbody_resp == "6" then
             toast("赛事没油没票后改为去刷多人", 1);
             switch = "去刷多人";
             log4j("SwitchChange_command,to_PVP");
-            ts.httpsGet(apiUrl.."a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
+            ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
             return 6;
         end
     end
@@ -271,7 +272,7 @@ function httpsGet(content)
     header_send = {}
     body_send = {}
     ts.setHttpsTimeOut(5) --安卓不支持设置超时时间
-    code, header_resp, body_resp = ts.httpsGet(apiUrl.."a9?content=" .. content .. "&udid=" .. udid, header_send, body_send)
+    code, header_resp, body_resp = ts.httpsGet(apiUrl .. "a9?content=" .. content .. "&udid=" .. udid, header_send, body_send)
 end
 function ToStringEx(value)
     if type(value) == 'table' then
@@ -554,25 +555,25 @@ function chooseCarStage()
     end
     if model == "SE" then
         if virtalstage <= 0 then
-            tap(760, 100);
+            tap(760 + chooseHighStageCarClass * 70, 100);
         elseif virtalstage == 1 then
-            tap(830, 100);
+            tap(830 + chooseHighStageCarClass * 70, 100);
         elseif virtalstage == 2 then
-            tap(900, 100);
+            tap(900 + chooseHighStageCarClass * 75, 100);
         elseif virtalstage == 3 then
-            tap(975, 100);
+            tap(975 + chooseHighStageCarClass * 75, 100);
         elseif virtalstage == 4 then
             tap(1050, 100);
         end
     elseif model == "i68" or true then
         if virtalstage <= 0 then
-            tap(900, 100);
+            tap(900 + chooseHighStageCarClass * 80, 100);
         elseif virtalstage == 1 then
-            tap(980, 100);
+            tap(980 + chooseHighStageCarClass * 80, 100);
         elseif virtalstage == 2 then
-            tap(1060, 100);
+            tap(1060 + chooseHighStageCarClass * 80, 100);
         elseif virtalstage == 3 then
-            tap(1140, 100);
+            tap(1140 + chooseHighStageCarClass * 100, 100);
         elseif virtalstage == 4 then
             tap(1240, 100);
         end
@@ -841,7 +842,7 @@ function checkPlace_SE()
         checkplacetimes = 0;
         return 23;--弹窗广告
     end
-    if (isColor(  76,   51, 0xf8004c, 85) and isColor(  76,   69, 0xf40153, 85) and isColor( 282,   54, 0xff0054, 85) and isColor( 282,   62, 0xf00253, 85) and isColor( 282,   68, 0xff0054, 85) and isColor( 125,  552, 0x828786, 85) and isColor(  67,  584, 0x000921, 85) and isColor(1099,  611, 0x000d21, 85) and isColor(1099,  568, 0xc4fb11, 85)) then
+    if (isColor(76, 51, 0xf8004c, 85) and isColor(76, 69, 0xf40153, 85) and isColor(282, 54, 0xff0054, 85) and isColor(282, 62, 0xf00253, 85) and isColor(282, 68, 0xff0054, 85) and isColor(125, 552, 0x828786, 85) and isColor(67, 584, 0x000921, 85) and isColor(1099, 611, 0x000d21, 85) and isColor(1099, 568, 0xc4fb11, 85)) then
         checkplacetimes = 0;
         return 24;--获得了新红币界面
     end
@@ -878,13 +879,31 @@ function chooseCar_SE()
     mSleep(2500);
     chooseCarStage();
     mSleep(1500);
-    if stage == -2 or stage == 0 or stage == -1 then
-        for i = 800, 450, -30 do
-            tap(i, 270);
+    --旧多人选车方案
+    if chooseHighStageCarClass == 0 then
+        -- 没有段位 青铜段位 未知段位
+        if stage == -2 or stage == 0 or stage == -1 then
+            for i = 800, 450, -30 do
+                tap(i, 270);
+            end
+        else
+            for i = 1100, 900, -30 do
+                tap(i, 270);
+            end
         end
-    else
-        for i = 1100, 900, -30 do
-            tap(i, 270);
+    elseif chooseHighStageCarClass == 1 then
+        --新多人选车方案
+        --如果不是传奇
+        if stage < 4 or (stage == 4 and lowerCar == "开") then
+            moveTo(120, 230, 260, 230, 20);--从左往右划
+            mSleep(200);
+            tap(30, 470);
+            tap(24, 250);
+        elseif lowerCar == "关" then
+            --当是传奇段位且未开启选低一段车辆时
+            for i = 1100, 900, -30 do
+                tap(i, 270);
+            end
         end
     end
     mSleep(3000);
@@ -1036,9 +1055,9 @@ end
 function toSpecialEvent_SE()
     toast("进入特殊赛事", 1);
     --[[if (isColor( 555,  537, 0xf9004b, 85) and isColor( 556,  540, 0xfe0054, 85)) then
-		tap(929,474);--在赛事就直接进入
-		goto DailyGame;
-	end]]--
+        tap(929,474);--在赛事就直接进入
+        goto DailyGame;
+    end]]--
     for _ = 1, 20, 1 do
         moveTo(360, 235, 600, 235, 20);--从左往右划
         if (isColor(19, 537, 0xfc0051, 85) and isColor(19, 540, 0xff0054, 85) and isColor(19, 539, 0xff0054, 85)) then
@@ -1290,9 +1309,9 @@ function worker_SE()
         state = -1;
     elseif place == 24 then
         --获得了新红币界面
-        tap(65,  585);--不再提示
+        tap(65, 585);--不再提示
         mSleep(500);
-        tap(980,580);--确定
+        tap(980, 580);--确定
         state = -1;
     else
         toast("不知道在哪", 1)
@@ -1414,13 +1433,31 @@ function chooseCar_i68()
     mSleep(2500);
     chooseCarStage();
     mSleep(1500);
-    if stage == -2 or stage == 0 or stage == -1 then
-        for i = 600, 300, -30 do
-            tap(i, 270);
+    --旧多人选车方案
+    if chooseHighStageCarClass == 0 then
+        -- 没有段位 青铜段位 未知段位
+        if stage == -2 or stage == 0 or stage == -1 then
+            for i = 600, 300, -30 do
+                tap(i, 270);
+            end
+        else
+            for i = 1325, 1025, -30 do
+                tap(i, 270);
+            end
         end
-    else
-        for i = 1325, 1025, -30 do
-            tap(i, 270);
+    elseif chooseHighStageCarClass == 1 then
+        --新多人选车方案
+        --如果不是传奇
+        if stage < 4 or (stage == 4 and lowerCar == "开") then
+            moveTo(120, 230, 300, 230, 20);--从左往右划
+            mSleep(200);
+            tap(40, 560);
+            tap(40, 290);
+        elseif lowerCar == "关" then
+            --当是传奇段位且未开启选低一段车辆时，使用旧多人选车方案
+            for i = 1325, 1025, -30 do
+                tap(i, 270);
+            end
         end
     end
     mSleep(3000);
@@ -1433,10 +1470,10 @@ function chooseCar_i68()
     end
     --检查自动驾驶
     --[[if not ((isColor(1251,  604, 0xa7d056, 85) or isColor(1239,  592, 0xbff613, 85))) then
-		toast("开启自动驾驶",1);
-		tap(1240,600);
-		mSleep(1000);
-	end]]--
+        toast("开启自动驾驶",1);
+        tap(1240,600);
+        mSleep(1000);
+    end]]--
     tap(1280, 700);
 end
 function waitBegin_i68()
@@ -1596,10 +1633,10 @@ function gametoCarbarn_i68()
     if (not isColor(1207, 687, 0xffffff, 85)) and (isColor(199, 189, 0xffea3f, 85) or isColor(193, 175, 0xf80555, 85)) then
         --检查自动驾驶
         --[[if not ((isColor(1251,  604, 0xa7d056, 85) or isColor(1239,  592, 0xbff613, 85))) then
-			toast("开启自动驾驶",1);
-			tap(1240,600);
-			mSleep(1000);
-		end]]--
+            toast("开启自动驾驶",1);
+            tap(1240,600);
+            mSleep(1000);
+        end]]--
         tap(1280, 700);
         mSleep(2000);
         --检查是不是有票
