@@ -756,6 +756,166 @@ function actAfterNoFuelNTicket()
         return -1;
     end
 end
+function beginGame()
+    if model == "SE" then
+        tap(1090, 570);
+    elseif model == "i68" or true then
+        tap(1280, 700);
+    end
+end
+function slideToPVP()
+    if model == "SE" then
+        for _ = 1, 10, 1 do
+            moveTo(860, 235, 225, 235, 20);--从右往左划
+            if (isColor(1116, 539, 0xdc014a, 85) and isColor(1116, 538, 0xda0147, 85)) then
+                break ;
+            end
+        end
+        for _ = 1, 2, 1 do
+            moveTo(225, 235, 860, 235, 20);--从左往右划
+        end
+    elseif model == "i68" or true then
+        for _ = 1, 10, 1 do
+            moveTo(860, 235, 225, 235, 20);--从右往左划
+        end
+        for _ = 1, 3, 1 do
+            moveTo(225, 235, 860, 235, 20);--从左往右划
+        end
+    end
+    mSleep(2000);
+end
+function selectCarAtGame()
+    if model == "SE" then
+        if chooseCarorNot == "是" then
+            if backifallstar == "是" then
+                tap(580, 270);
+                mSleep(2000);
+                back();
+                mSleep(1000);
+            end
+            if upordown == "中间上" then
+                tap(580, 270);
+            elseif upordown == "中间下" then
+                tap(580, 420);
+            elseif upordown == "右上（被寻车满星时）" then
+                tap(900, 270);
+            end
+        end
+    elseif model == "i68" or true then
+        if chooseCarorNot == "是" then
+            if backifallstar == "是" then
+                tap(660, 320);
+                mSleep(2500);
+                back();
+                mSleep(1000);
+            end
+            if chooseCarorNot == "是" then
+                if upordown == "中间上" then
+                    tap(660, 320);
+                elseif upordown == "中间下" then
+                    tap(660, 462);
+                elseif upordown == "右上（被寻车满星时）" then
+                    for i = 1325, 1000, -30 do
+                        tap(i, 320);
+                    end
+                end
+            end
+        end
+        mSleep(2500);
+    end
+end
+function carCanUse()
+    if model == "SE" then
+        unlocked = isColor(160, 90, 0xfff078, 85);--已解锁为true
+        has_fuel = isColor(1090, 590, 0xc4fb11, 85);--有油为true
+    elseif model == "i68" or true then
+        unlocked = isColor(188, 106, 0xffee65, 85);--已解锁为true
+        has_fuel = isColor(1278, 671, 0xc3fb12, 85);--有油为true
+    end
+    return unlocked and has_fuel;
+end
+function checkAutoMobile()
+    if model == "SE" then
+        if (isColor(1058, 508, 0xfc0001, 85) and isColor(1053, 508, 0xef0103, 85) and isColor(1065, 508, 0xef0103, 85) and isColor(1057, 515, 0xff0000, 85) and isColor(1047, 523, 0xf00103, 85) and isColor(1062, 521, 0xe60205, 85)) then
+            --toast("开启自动驾驶",1);
+            tap(1060, 510);
+        end
+    elseif model == "i68" or true then
+        if (isColor(1237, 595, 0xf20102, 85) and isColor(1250, 595, 0xf20102, 85) and isColor(1242, 602, 0xfe0000, 85) and isColor(1250, 612, 0xf80101, 85)) then
+            --toast("开启自动驾驶",1);
+            tap(1242, 602);
+        end
+    end
+    mSleep(500);
+end
+function switchToSuitableCar()
+    skip = 1;
+    --当车没油、没解锁（不能买），需跳过，没解锁能买时，总是找下一辆车
+    should_skip = skip == skipcar;
+    while (not carCanUse()) or should_skip do
+        if model == "SE" then
+            tap(440, 320);--向左选车
+        elseif model == "i68" or true then
+            tap(510, 380);
+        end
+        mSleep(500);
+        skip = skip + 1;
+        should_skip = skip == skipcar;
+    end
+end
+function chooseClassCar()
+    if model == "SE" then
+        --旧多人选车方案
+        if chooseHighStageCarClass == 0 then
+            -- 没有段位 青铜段位 未知段位
+            if stage == -2 or stage == 0 or stage == -1 then
+                for i = 800, 450, -30 do
+                    tap(i, 270);
+                end
+            else
+                for i = 1100, 900, -30 do
+                    tap(i, 270);
+                end
+            end
+        elseif chooseHighStageCarClass == 1 then
+            --新多人选车方案
+            --如果不是传奇
+            if stage < 4 or (stage == 4 and lowerCar == "开") then
+                tap(294, 282);
+            elseif lowerCar == "关" then
+                --当是传奇段位且未开启选低一段车辆时
+                for i = 1100, 900, -30 do
+                    tap(i, 270);
+                end
+            end
+        end
+    elseif model == "i68" or true then
+        --旧多人选车方案
+        if chooseHighStageCarClass == 0 then
+            -- 没有段位 青铜段位 未知段位
+            if stage == -2 or stage == 0 or stage == -1 then
+                for i = 600, 300, -30 do
+                    tap(i, 270);
+                end
+            else
+                for i = 1325, 1025, -30 do
+                    tap(i, 270);
+                end
+            end
+        elseif chooseHighStageCarClass == 1 then
+            --新多人选车方案
+            --如果不是传奇
+            if stage < 4 or (stage == 4 and lowerCar == "开") then
+                tap(348, 329);
+            elseif lowerCar == "关" then
+                --当是传奇段位且未开启选低一段车辆时，使用旧多人选车方案
+                for i = 1325, 1025, -30 do
+                    tap(i, 270);
+                end
+            end
+        end
+    end
+end
 ---下面是iPhone SE 设备处理函数---
 function checkPlace_SE()
     if checkplacetimes > 2 then
@@ -865,16 +1025,7 @@ function toPVP_SE()
     if (isColor(741, 538, 0xfc0050, 85) and isColor(742, 541, 0xed0150, 85)) then
         goto PVP;
     end
-    for _ = 1, 10, 1 do
-        moveTo(860, 235, 225, 235, 20);--从右往左划
-        if (isColor(1116, 539, 0xdc014a, 85) and isColor(1116, 538, 0xda0147, 85)) then
-            break ;
-        end
-    end
-    for _ = 1, 2, 1 do
-        moveTo(225, 235, 860, 235, 20);--从左往右划
-    end
-    mSleep(2000);
+    slideToPVP();
     --TODO:检查是否在多人入口
     :: PVP ::
     checkAndGetPackage();
@@ -891,47 +1042,11 @@ function chooseCar_SE()
     mSleep(2500);
     chooseCarStage();
     mSleep(1500);
-    --旧多人选车方案
-    if chooseHighStageCarClass == 0 then
-        -- 没有段位 青铜段位 未知段位
-        if stage == -2 or stage == 0 or stage == -1 then
-            for i = 800, 450, -30 do
-                tap(i, 270);
-            end
-        else
-            for i = 1100, 900, -30 do
-                tap(i, 270);
-            end
-        end
-    elseif chooseHighStageCarClass == 1 then
-        --新多人选车方案
-        --如果不是传奇
-        if stage < 4 or (stage == 4 and lowerCar == "开") then
-            moveTo(120, 230, 260, 230, 20);--从左往右划
-            mSleep(200);
-            tap(30, 470);
-            tap(24, 250);
-        elseif lowerCar == "关" then
-            --当是传奇段位且未开启选低一段车辆时
-            for i = 1100, 900, -30 do
-                tap(i, 270);
-            end
-        end
-    end
+    chooseClassCar();
     mSleep(3000);
-    skip = 1;
-    while getColor(1090, 570) == 0xffffff or skip == skipcar or (isColor(167, 160, 0x797979, 85) and isColor(172, 161, 0x797979, 85) and isColor(169, 156, 0x797979, 85)) do
-        tap(440, 320);--向左选车
-        mSleep(500);
-        skip = skip + 1;
-    end
-    --检查自动驾驶
-    if (isColor(1058, 508, 0xfc0001, 85) and isColor(1053, 508, 0xef0103, 85) and isColor(1065, 508, 0xef0103, 85) and isColor(1057, 515, 0xff0000, 85) and isColor(1047, 523, 0xf00103, 85) and isColor(1062, 521, 0xe60205, 85)) then
-        --toast("开启自动驾驶",1);
-        tap(1060, 510);
-        mSleep(500);
-    end
-    tap(1090, 570);
+    switchToSuitableCar();
+    checkAutoMobile();
+    beginGame();
 end
 function waitBegin_SE()
     timer = 0;
@@ -989,6 +1104,7 @@ function autoMobile_SE()
     --toast("比赛结束",1);
     recordPVPE();
     refreshTable();
+    mSleep(2000);
 end
 function backFromLines_SE()
     --从赛道回到多人界面
@@ -1094,31 +1210,11 @@ function gametoCarbarn_SE()
     changecar = false;
     tap(1065, 590);
     mSleep(2000);
-    if chooseCarorNot == "是" then
-        if backifallstar == "是" then
-            tap(580, 270);
-            mSleep(2000);
-            back();
-            mSleep(1000);
-        end
-        if upordown == "中间上" then
-            tap(580, 270);
-        elseif upordown == "中间下" then
-            tap(580, 420);
-        elseif upordown == "右上（被寻车满星时）" then
-            tap(900, 270);
-        end
-    end
+    selectCarAtGame();
     :: beginAtGame ::
     mSleep(4000);
-    if (((((isColor(1041, 557, 0xc7fb24, 85) and isColor(849, 561, 0xc8fb25, 85) and isColor(849, 598, 0xc8fb25, 85) and isColor(1074, 601, 0xc7fb23, 85))) or (isColor(938, 551, 0xc4fb11, 85) and isColor(1093, 555, 0xc2fb12, 85) and isColor(1086, 603, 0xc2fb11, 85) and isColor(928, 605, 0xc4fb16, 85)))) and not (isColor(167, 160, 0x797979, 85) and isColor(172, 161, 0x797979, 85) and isColor(169, 156, 0x797979, 85))) or ((isColor(1097, 553, 0xc3fb12, 85) and
-            isColor(1097, 569, 0xc3fb11, 85))) then
-        --检查自动驾驶
-        if (isColor(1058, 508, 0xfc0001, 85) and isColor(1053, 508, 0xef0103, 85) and isColor(1065, 508, 0xef0103, 85) and isColor(1057, 515, 0xff0000, 85) and isColor(1047, 523, 0xf00103, 85) and isColor(1062, 521, 0xe60205, 85)) then
-            toast("开启自动驾驶", 1);
-            tap(1060, 510);
-            mSleep(1000);
-        end
+    if carCanUse() then
+        checkAutoMobile();
         tap(1095, 548);
         mSleep(2000);
         --检查是不是有票
@@ -1154,7 +1250,7 @@ function gametoCarbarn_SE()
         return -1;
     end
     autoMobile_SE();--接管比赛
-    mSleep(2000);
+
     return -1;
 end
 function worker_SE()
@@ -1422,13 +1518,7 @@ end
 function toPVP_i68()
     toast("进入多人", 1);
     mSleep(4000);
-    for _ = 1, 10, 1 do
-        moveTo(860, 235, 225, 235, 20);--从右往左划
-    end
-    for _ = 1, 3, 1 do
-        moveTo(225, 235, 860, 235, 20);--从左往右划
-    end
-    mSleep(2000);
+    slideToPVP();
     --TODO:检查是否在多人入口
     checkAndGetPackage();
     tap(758, 688);
@@ -1441,52 +1531,14 @@ function toPVP_i68()
     return 0;
 end
 function chooseCar_i68()
-    --done
     mSleep(2500);
     chooseCarStage();
     mSleep(1500);
-    --旧多人选车方案
-    if chooseHighStageCarClass == 0 then
-        -- 没有段位 青铜段位 未知段位
-        if stage == -2 or stage == 0 or stage == -1 then
-            for i = 600, 300, -30 do
-                tap(i, 270);
-            end
-        else
-            for i = 1325, 1025, -30 do
-                tap(i, 270);
-            end
-        end
-    elseif chooseHighStageCarClass == 1 then
-        --新多人选车方案
-        --如果不是传奇
-        if stage < 4 or (stage == 4 and lowerCar == "开") then
-            moveTo(120, 230, 300, 230, 20);--从左往右划
-            mSleep(200);
-            tap(40, 560);
-            tap(40, 290);
-        elseif lowerCar == "关" then
-            --当是传奇段位且未开启选低一段车辆时，使用旧多人选车方案
-            for i = 1325, 1025, -30 do
-                tap(i, 270);
-            end
-        end
-    end
+    chooseClassCar();
     mSleep(3000);
-    skip = 1;
-    --当车没油、没解锁（不能买），需跳过，没解锁能买时，总是找下一辆车
-    while not ((not isColor(1207, 687, 0xffffff, 85)) and (isColor(199, 189, 0xffea3f, 85) or isColor(193, 175, 0xf80555, 85))) or skip == skipcar do
-        tap(510, 380);
-        mSleep(500);
-        skip = skip + 1;
-    end
-    --检查自动驾驶
-    --[[if not ((isColor(1251,  604, 0xa7d056, 85) or isColor(1239,  592, 0xbff613, 85))) then
-        toast("开启自动驾驶",1);
-        tap(1240,600);
-        mSleep(1000);
-    end]]--
-    tap(1280, 700);
+    switchToSuitableCar();
+    checkAutoMobile();
+    beginGame();
 end
 function waitBegin_i68()
     --done
@@ -1547,6 +1599,7 @@ function autoMobile_i68()
     end
     recordPVPE();
     refreshTable();
+    mSleep(2000);
 end
 function backFromLines_i68()
     --done
@@ -1621,35 +1674,12 @@ function gametoCarbarn_i68()
     changecar = false;
     tap(1260, 690);
     mSleep(2000);
-    if chooseCarorNot == "是" then
-        if backifallstar == "是" then
-            tap(660, 320);
-            mSleep(2500);
-            back();
-            mSleep(1000);
-        end
-        if chooseCarorNot == "是" then
-            if upordown == "中间上" then
-                tap(660, 320);
-            elseif upordown == "中间下" then
-                tap(660, 462);
-            elseif upordown == "右上（被寻车满星时）" then
-                for i = 1325, 1000, -30 do
-                    tap(i, 320);
-                end
-            end
-        end
-    end
-    mSleep(2500);
+    selectCarAtGame();
     :: beginAtGame ::
-    if (not isColor(1207, 687, 0xffffff, 85)) and (isColor(199, 189, 0xffea3f, 85) or isColor(193, 175, 0xf80555, 85)) then
+    if carCanUse() then
         --检查自动驾驶
-        --[[if not ((isColor(1251,  604, 0xa7d056, 85) or isColor(1239,  592, 0xbff613, 85))) then
-            toast("开启自动驾驶",1);
-            tap(1240,600);
-            mSleep(1000);
-        end]]--
-        tap(1280, 700);
+        checkAutoMobile();
+        beginGame();
         mSleep(2000);
         --检查是不是有票
         if (isColor(546, 169, 0xf4f5f6, 85) and isColor(561, 180, 0xffffff, 85) and isColor(561, 192, 0xffffff, 85) and isColor(601, 189, 0xffffff, 85) and isColor(669, 169, 0xfcfcfc, 85) and isColor(1112, 187, 0xff0053, 85) and isColor(1168, 186, 0xff0054, 85) and isColor(1139, 160, 0xff0054, 85) and isColor(1139, 206, 0xfe0054, 85) and isColor(1139, 183, 0xffffff, 85)) then
@@ -1684,7 +1714,6 @@ function gametoCarbarn_i68()
         return -1;
     end
     autoMobile_i68();--接管比赛
-    mSleep(2000);
     return -1;
 end
 function worker_i68()
