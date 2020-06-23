@@ -107,7 +107,7 @@ function main()
         goto flag_SE;
         :: stop_SE ::
         log4j("Script_terminated");
-    elseif model == "i68" or true then
+    elseif model == "i68" then
         checkplacetimes = 0;
         :: flag_i68 ::
         place = checkPlace_i68();
@@ -195,7 +195,7 @@ function checkScreenSize()
     width, height = getScreenSize();
     if width == 640 and height == 1136 then
         model = "SE";
-    elseif width == 750 and height == 1334 then
+    elseif true or (width == 750 and height == 1334) then
         model = "i68";
     else
         ret = dialogRet("告知\n本脚本不支持您的设备分辨率，是否继续运行此脚本", "是", "否", 0, 0);
@@ -503,7 +503,7 @@ function backHome()
         tap(1100, 20);--返回大厅
         mSleep(2000);
         place = checkPlace_SE();
-    elseif model == "i68" or true then
+    elseif model == "i68" then
         tap(1300, 30);--返回大厅
         mSleep(2000);
         place = checkPlace_i68();
@@ -518,24 +518,19 @@ function getStage()
     if model == "SE" then
         if isColor(328, 328, 0xf1cb30, 85) then
             stage = 2;--黄金段位
-            --toast("黄金段位",1);
         elseif isColor(328, 328, 0x96b2d4, 85) then
             stage = 1;--白银段位
-            --toast("白银段位",1);
         elseif isColor(328, 328, 0xd88560, 85) then
             stage = 0;--青铜段位
-            --toast("青铜段位",1);
         elseif isColor(328, 328, 0x9365f8, 85) then
             stage = 3;--白金段位
-            --toast("白金段位",1);
         elseif (isColor(320, 309, 0xf5e2a4, 85) and isColor(334, 309, 0xf5e2a4, 85) and isColor(323, 324, 0xf4e1a4, 85) and isColor(334, 323, 0xf5e2a4, 85) and isColor(328, 327, 0xf5e2a4, 85)) then
             stage = 4;--传奇段位
-            --toast("传奇段位",1);
         elseif (isColor(322, 308, 0x00bbe8, 85) and isColor(335, 308, 0x00bbe8, 85) and isColor(334, 323, 0x00bbe8, 85) and isColor(320, 321, 0x00bbe8, 85)) then
             stage = -2;--没有段位
             --toast("没有段位",1);
         end
-    elseif model == "i68" or true then
+    elseif model == "i68" then
         --Undone
         if isColor(385, 379, 0xf1cb30, 85) then
             stage = 2;--黄金段位
@@ -577,7 +572,7 @@ function chooseCarStage()
         elseif virtalstage == 4 then
             tap(1050, 100);
         end
-    elseif model == "i68" or true then
+    elseif model == "i68" then
         if virtalstage <= 0 then
             tap(900 + chooseHighStageCarClass * 80, 100);
         elseif virtalstage == 1 then
@@ -623,7 +618,7 @@ function toCarbarn()
     end
     if model == "SE" then
         tap(500, 580);--进入车库
-    elseif model == "i68" or true then
+    elseif model == "i68" then
         tap(883, 691);--进入车库
     end
 end
@@ -643,7 +638,7 @@ function chooseGame()
             mSleep(1000);
             tap(138 + 160 * 6, 500);
         end
-    elseif model == "i68" or true then
+    elseif model == "i68" then
         --done
         if gamenum <= 7 then
             tap(170 + 200 * (gamenum - 1), 500);
@@ -680,17 +675,13 @@ function checkAndGetPackage()
             tap(153, 462);
             mSleep(1000);
         end
-    elseif model == "i68" or true then
-        --done
-        if (isColor( 611,  111, 0xfcfff4, 85) and isColor( 667,  115, 0xfcfff2, 85) and isColor( 709,  117, 0xfcfff2, 85)) then
-            toast("领取多人包", 1);
-            log4j("Open_PVP_pack");
-            mSleep(700);
-            tap(670, 560);
+    elseif model == "i68" then
+        tap(668, 576);
+        mSleep(2000);
+        if checkPlace_i68() == 7 then
+            log4j("Open_multiplayer_pack");
             receivePrizeAtGame();
             mSleep(10000);
-        else
-            toast("没有多人包", 1);
         end
         tap(176, 545);--尝试补充多人包
     end
@@ -703,7 +694,7 @@ function receivePrizeFromGL()
         tap(569, 582);
         mSleep(2000);
         tap(1015, 582);
-    elseif model == "i68" or true then
+    elseif model == "i68" then
         tap(1015, 582);
         mSleep(5000);
         tap(569, 582);
@@ -719,7 +710,7 @@ function receivePrizeAtGame()
         mSleep(1000);
         tap(1020, 585);
         mSleep(1500);
-    elseif model == "i68" or true then
+    elseif model == "i68" then
         --done
         mSleep(1000);
         tap(670, 700);
@@ -759,7 +750,7 @@ end
 function beginGame()
     if model == "SE" then
         tap(1090, 570);
-    elseif model == "i68" or true then
+    elseif model == "i68" then
         tap(1280, 700);
     end
 end
@@ -774,7 +765,7 @@ function slideToPVP()
         for _ = 1, 2, 1 do
             moveTo(225, 235, 860, 235, 20);--从左往右划
         end
-    elseif model == "i68" or true then
+    elseif model == "i68" then
         for _ = 1, 10, 1 do
             moveTo(860, 235, 225, 235, 20);--从右往左划
         end
@@ -801,7 +792,7 @@ function selectCarAtGame()
                 tap(900, 270);
             end
         end
-    elseif model == "i68" or true then
+    elseif model == "i68" then
         if chooseCarorNot == "是" then
             if backifallstar == "是" then
                 tap(660, 320);
@@ -828,7 +819,7 @@ function carCanUse()
     if model == "SE" then
         unlocked = isColor(160, 90, 0xfff078, 85);--已解锁为true
         has_fuel = isColor(1090, 590, 0xc4fb11, 85);--有油为true
-    elseif model == "i68" or true then
+    elseif model == "i68" then
         unlocked = isColor(188, 106, 0xffee65, 85);--已解锁为true
         has_fuel = isColor(1278, 671, 0xc3fb12, 85);--有油为true
     end
@@ -840,7 +831,7 @@ function checkAutoMobile()
             --toast("开启自动驾驶",1);
             tap(1060, 510);
         end
-    elseif model == "i68" or true then
+    elseif model == "i68" then
         if (isColor(1237, 595, 0xf20102, 85) and isColor(1250, 595, 0xf20102, 85) and isColor(1242, 602, 0xfe0000, 85) and isColor(1250, 612, 0xf80101, 85)) then
             --toast("开启自动驾驶",1);
             tap(1242, 602);
@@ -855,7 +846,7 @@ function switchToSuitableCar()
     while (not carCanUse()) or should_skip do
         if model == "SE" then
             tap(440, 320);--向左选车
-        elseif model == "i68" or true then
+        elseif model == "i68" then
             tap(510, 380);
         end
         mSleep(500);
@@ -889,7 +880,7 @@ function chooseClassCar()
                 end
             end
         end
-    elseif model == "i68" or true then
+    elseif model == "i68" then
         --旧多人选车方案
         if chooseHighStageCarClass == 0 then
             -- 没有段位 青铜段位 未知段位
@@ -1471,7 +1462,7 @@ function checkPlace_i68()
     elseif (isColor(60, 26, 0xff0052, 85) and isColor(153, 29, 0xfe0052, 85) and isColor(209, 59, 0xffffff, 85) and isColor(282, 57, 0xffffff, 85) and isColor(355, 65, 0xffffff, 85) and isColor(454, 63, 0xffffff, 85) and isColor(515, 61, 0xffffff, 85) and isColor(629, 45, 0xffffff, 85)) then
         checkplacetimes = 0;
         return 4;--来自Gameloft的礼物,undone
-    elseif (isColor(614, 38, 0xf00252, 85) and isColor(636, 39, 0xfa0053, 85) and isColor(682, 36, 0xe30351, 85) and isColor(667, 36, 0xff0054, 85) and isColor(667, 42, 0xff0054, 85) and isColor(698, 41, 0xff0054, 85) and isColor(698, 66, 0xff0054, 85)) then
+    elseif (isColor( 617,   34, 0xea3358, 85) and isColor( 699,   39, 0xea3358, 85) and isColor( 701,   66, 0xe83258, 85) and isColor(1291,  716, 0x01061f, 85) and isColor(1264,  702, 0xffffff, 85)) then
         checkplacetimes = 0;
         return 7;--领奖开包
     elseif (isColor(1101, 119, 0xff0053, 85) and isColor(1123, 117, 0xff0053, 85) and isColor(1147, 147, 0xff0053, 85) and isColor(1160, 166, 0xff0054, 85) and isColor(1129, 170, 0xfa0052, 85) and isColor(1127, 143, 0xfffeff, 85)) then
@@ -1873,7 +1864,8 @@ function worker_i68()
         mSleep(500);
         state = -1;
     else
-        toast("不知道在哪", 1)
+        toast("不知道在哪", 1);
+        tap(1199,  685);
         state = -1;
     end
     receive_starting_command = false;
