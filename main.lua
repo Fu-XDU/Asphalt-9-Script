@@ -682,7 +682,7 @@ function checkAndGetPackage()
         end
     elseif model == "i68" or true then
         --done
-        if (isColor(608, 113, 0xf8fbf2, 85) and isColor(623, 118, 0xfcfff4, 85) and isColor(666, 118, 0xfcfff4, 85) and isColor(660, 142, 0xfaffef, 85) and isColor(679, 148, 0xf9feed, 85) and isColor(714, 141, 0xfbfff1, 85) and isColor(736, 157, 0xfaffef, 85)) then
+        if (isColor( 611,  111, 0xfcfff4, 85) and isColor( 667,  115, 0xfcfff2, 85) and isColor( 709,  117, 0xfcfff2, 85)) then
             toast("领取多人包", 1);
             log4j("Open_PVP_pack");
             mSleep(700);
