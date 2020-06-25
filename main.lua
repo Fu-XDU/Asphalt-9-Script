@@ -14,14 +14,11 @@ checkplacetimesout = 35;--连续检测界面超时次数
 validateGame = false;--是否已知处在正确的赛事位置
 runningState = true;--脚本运行状态
 receive_starting_command = false;--如果是true那么检测到账号被顶就不再等待
-width, height = "", "";--屏幕尺寸
 changecar = false;--PVE是否已经换车
 model = "";--设备型号
 chooseHighStageCarClass = 1;--改成1的话，使用新多人选车方案
 -------下面是主函数-------
----prepare()为前置准备函数
----main()为程序主函数
----after()为脚本结束处理函数
+---前置准备函数---
 function prepare()
     math.randomseed(tostring(os.time()):reverse():sub(1, 7));--随机数初始化
     checkScreenSize();
@@ -37,154 +34,58 @@ function prepare()
     timeout2 = tonumber(timeout2);
     skipcar = tonumber(skipcar);
 end
+---为程序主函数---
 function main()
     prepare();
-    if model == "SE" then
-        --iPhone SE,5,5S,iPod touch 5
-        :: flag_SE ::
-        place = checkPlace_SE();
-        if checkplacetimes > 2 then
-            mSleep(1000);
-        end
-        if checkplacetimes > checkplacetimesout then
-            checkplacetimes = 0;
-            restartApp();
-            toast("等待30秒", 1)
-            mSleep(30000);
-            place = 404;
-        end
-        worker_SE();
-        if state == -1 then
-            state = 0;
-            checkplacetimes = checkplacetimes + 1;
-            goto flag_SE;
-        elseif state == -2 then
-            state = 0;
-            checkplacetimes = 0;
-            goto stop_SE;
-        elseif state == -3 then
-            state = 0;
-            back();
-            checkplacetimes = 0;
-            goto flag_SE;
-        elseif state == -4 then
-            state = 0;
-            checkplacetimes = 0;
-            goto backFromLines_SE;
-        elseif state == -5 then
-            state = 0;
-            checkplacetimes = 0;
-            goto autoMobile_SE;
-        elseif state == -6 then
-            state = 0;
-            checkplacetimes = 0;
-            goto waitBegin_SE;
-        end
+    :: flag ::
+    worker(checkPlace());
+    if state ~= -1 then
         checkplacetimes = 0;
-        state2 = toCarbarn();
-        if state2 == 0 then
-            state2 = 0;
-            goto flag_SE;
-        elseif state2 == -1 then
-            state2 = 0;
-            goto stop_SE;
-        end
-        :: chooseCar_SE ::
-        chooseCar_SE();
-        :: waitBegin_SE ::
-        state = waitBegin_SE();
-        if state == -1 then
-            state = 0;
-            goto flag_SE;
-        end
-        :: autoMobile_SE ::
-        autoMobile_SE();
-        :: backFromLines_SE ::
-        backFromLines_SE();
-        if getHttpsCommand() == 4 then
-            goto stop_SE;
-        end
-        goto flag_SE;
-        :: stop_SE ::
-        log4j("Script_terminated");
-    elseif model == "i68" then
-        checkplacetimes = 0;
-        :: flag_i68 ::
-        place = checkPlace_i68();
-        if checkplacetimes > 2 then
-            mSleep(1000);
-        end
-        if checkplacetimes > checkplacetimesout then
-            checkplacetimes = 0;
-            restartApp();
-            toast("等待30秒", 1)
-            mSleep(30000);
-            place = 404;
-        end
-        worker_i68();
-        if state == -1 then
-            state = 0;
-            checkplacetimes = checkplacetimes + 1;
-            goto flag_i68;
-        elseif state == -2 then
-            state = 0;
-            checkplacetimes = 0;
-            goto stop_i68;
-        elseif state == -3 then
-            state = 0;
-            back();
-            checkplacetimes = 0;
-            goto flag_i68;
-        elseif state == -4 then
-            state = 0;
-            checkplacetimes = 0;
-            goto backFromLines_i68;
-        elseif state == -5 then
-            state = 0;
-            checkplacetimes = 0;
-            goto autoMobile_i68;
-        elseif state == -6 then
-            state = 0;
-            checkplacetimes = 0;
-            goto waitBegin_i68;
-        end
-        checkplacetimes = 0;
-        state2 = toCarbarn();
-        if state2 == 0 then
-            state2 = 0;
-            goto flag_i68;
-        elseif state2 == -1 then
-            state2 = 0;
-            goto stop_i68;
-        end
-        :: chooseCar_i68 ::
-        chooseCar_i68();
-        :: waitBegin_i68 ::
-        state = waitBegin_i68();
-        if state == -1 then
-            state = 0;
-            goto flag_i68;
-        end
-        :: autoMobile_i68 ::
-        autoMobile_i68();
-        :: backFromLines_i68 ::
-        backFromLines_i68();
-        mSleep(5000);
-        if getHttpsCommand() == 4 then
-            goto stop_i68;
-        end
-        goto flag_i68;
-        :: stop_i68 ::
-        log4j("Script_terminated");
     end
+    if state == -1 then
+        checkplacetimes = checkplacetimes + 1;
+        goto flag;
+    elseif state == -2 then
+        goto stop;
+    elseif state == -3 then
+        goto flag;
+    elseif state == -4 then
+        goto backFromLines;
+    elseif state == -5 then
+        goto autoMobile;
+    elseif state == -6 then
+        goto waitBegin;
+    end
+    if toCarbarn() == 0 then
+        goto flag;
+    else
+        goto stop;
+    end
+    :: chooseCar ::
+    chooseCar();
+    :: waitBegin ::
+    if waitBegin() == -1 then
+        goto flag;
+    end
+    :: autoMobile ::
+    autoMobile();
+    :: backFromLines ::
+    backFromLines();
+    if getHttpsCommand() == 4 then
+        goto stop;
+    end
+    goto flag;
+    :: stop ::
     after();
 end
+---结束处理函数---
 function after()
-    sendEmail(email, "[A9]脚本停止运行" .. getDeviceName(), readFile(userPath() .. "/res/A9log.txt"))
+    log4j("Script_terminated");
+    --sendEmail(email, "[A9]脚本停止运行" .. getDeviceName(), readFile(userPath() .. "/res/A9log.txt"))
     closeApp("com.Aligames.kybc9");--关闭游戏
     lockDevice();
 end
----下面是通用处理函数---
+---通用处理函数[不区分设备型号]---
 function savePowerF()
     if savePower == "开" then
         toast("降低屏幕亮度", 2);
@@ -470,15 +371,13 @@ function restartApp()
     runApp("com.Aligames.kybc9");--打开游戏
     mSleep(5000);
 end
-function wait_topped()
+function wait_when_Parallel_read_detected()
     if receive_starting_command == false then
-        --sendEmail(email,"账号被顶,等待"..tostring(timeout2).."分钟",getDeviceName());
         log4j("Parallel_read_detected,waiting " .. tostring(timeout2) .. " minutes");
         toast("账号被顶", 1);
         mSleep(1000);
-        toast("等待" .. tostring(timeout2) .. "分钟", 1)
+        toast("等待" .. tostring(timeout2) .. "分钟", 1);
         wait_time(timeout2);
-        --sendEmail(email,"账号被顶,等待完成",getDeviceName());
         log4j("Waiting_time_over");
         toast("等待完成", 1);
     end
@@ -498,16 +397,54 @@ function back()
     tap(30, 30);
     mSleep(2000);
 end
+function checkTimeOut()
+    if time ~= -1 then
+        if (os.time() - time >= timeout * 60) then
+            toast("时间到", 1)
+            mode = supermode;
+            backHome();
+        else
+            --toast(tostring(timeout-(os.time()-time)/60 -((timeout-(os.time()-time)/60)%0.01)).."分钟后返回",1);
+            --mSleep(1000);
+        end
+    end
+end
+function recordPVPnPVE()
+    if mode == "多人刷积分声望" then
+        PVPTimes = PVPTimes + 1;
+        log4j(tostring(PVPTimes) .. "_PVP_done");
+    elseif mode == "赛事模式" then
+        PVETimes = PVETimes + 1;
+        log4j(tostring(PVETimes) .. "_PVE_done");
+    end
+end
+function actAfterNoFuelNTicket()
+    time = os.time();--记录当前时间
+    if switch == "去刷多人" then
+        toast(tostring(timeout) .. "分钟后返回", 1)
+        mode = "多人刷积分声望"
+        mSleep(200);
+        backHome();
+        return -1;
+    elseif switch == "等30分钟" or switch == "等60分钟" then
+        if switch == "等30分钟" then
+            wait_time(30);
+        elseif switch == "等60分钟" then
+            wait_time(60);
+        end
+        changecar = false;
+        return -1;
+    end
+end
+---通用处理函数[区分设备型号]---
 function backHome()
     if model == "SE" then
         tap(1100, 20);--返回大厅
-        mSleep(2000);
-        place = checkPlace_SE();
     elseif model == "i68" then
         tap(1300, 30);--返回大厅
-        mSleep(2000);
-        place = checkPlace_i68();
     end
+    mSleep(2000);
+    place = checkPlace();
     if place ~= 0 then
         toast("有内鬼，停止交易", 1)
         return -1;
@@ -583,18 +520,6 @@ function chooseCarStage()
             tap(1140 + chooseHighStageCarClass * 100, 100);
         elseif virtalstage == 4 then
             tap(1240, 100);
-        end
-    end
-end
-function checkTimeOut()
-    if time ~= -1 then
-        if (os.time() - time >= timeout * 60) then
-            toast("时间到", 1)
-            mode = supermode;
-            backHome();
-        else
-            --toast(tostring(timeout-(os.time()-time)/60 -((timeout-(os.time()-time)/60)%0.01)).."分钟后返回",1);
-            --mSleep(1000);
         end
     end
 end
@@ -678,7 +603,7 @@ function checkAndGetPackage()
     elseif model == "i68" then
         tap(668, 576);
         mSleep(2000);
-        if checkPlace_i68() == 7 then
+        if checkPlace() == 7 then
             log4j("Open_multiplayer_pack");
             receivePrizeAtGame();
             mSleep(10000);
@@ -719,33 +644,6 @@ function receivePrizeAtGame()
         mSleep(1500);
     end
     return -1;
-end
-function recordPVPE()
-    if mode == "多人刷积分声望" then
-        PVPTimes = PVPTimes + 1;
-        log4j(tostring(PVPTimes) .. "_PVP_done");
-    elseif mode == "赛事模式" then
-        PVETimes = PVETimes + 1;
-        log4j(tostring(PVETimes) .. "_PVE_done");
-    end
-end
-function actAfterNoFuelNTicket()
-    time = os.time();--记录当前时间
-    if switch == "去刷多人" then
-        toast(tostring(timeout) .. "分钟后返回", 1)
-        mode = "多人刷积分声望"
-        mSleep(200);
-        backHome();
-        return -1;
-    elseif switch == "等30分钟" or switch == "等60分钟" then
-        if switch == "等30分钟" then
-            wait_time(30);
-        elseif switch == "等60分钟" then
-            wait_time(60);
-        end
-        changecar = false;
-        return -1;
-    end
 end
 function beginGame()
     if model == "SE" then
@@ -907,7 +805,7 @@ function chooseClassCar()
         end
     end
 end
----下面是iPhone SE 设备处理函数---
+---iPhone 5S/SE 设备处理函数---
 function checkPlace_SE()
     if checkplacetimes > 2 then
         toast("检测界面," .. tostring(checkplacetimes) .. "/" .. tostring(checkplacetimesout), 1);
@@ -1022,7 +920,7 @@ function toPVP_SE()
     checkAndGetPackage();
     tap(660, 600);
     mSleep(1500);
-    place = checkPlace_SE();
+    place = checkPlace();
     if place ~= 1 then
         toast("有内鬼，停止交易", 1)
         return -1;
@@ -1093,7 +991,7 @@ function autoMobile_SE()
         tap(950, 400);
     end
     --toast("比赛结束",1);
-    recordPVPE();
+    recordPVPnPVE();
     refreshTable();
     mSleep(2000);
 end
@@ -1237,26 +1135,37 @@ function gametoCarbarn_SE()
         return actAfterNoFuelNTicket();
     end
     mSleep(3000);
-    if waitBegin_SE() == -1 then
+    if waitBegin() == -1 then
         return -1;
     end
-    autoMobile_SE();--接管比赛
+    autoMobile();--接管比赛
 
     return -1;
 end
-function worker_SE()
+function worker_SE(place)
+    if checkplacetimes > 2 then
+        mSleep(1000);
+    end
+    if checkplacetimes > checkplacetimesout then
+        checkplacetimes = 0;
+        restartApp();
+        toast("等待30秒", 1)
+        mSleep(30000);
+        place = 404;
+    end
     if place == -3 then
         toast("网络未同步", 1);
         state = -1;
     elseif place == 3.1 then
         toast("在多人车库", 1)
+        back();
         state = -3;
     elseif place == 0 then
         toast("在大厅", 1);
         if mode == "多人刷积分声望" then
-            state = toPVP_SE();
+            state = toPVP();
         elseif mode == "赛事模式" then
-            state = toDailyGame_SE();
+            state = toDailyGame();
         elseif mode == "特殊赛事" then
             state = toSpecialEvent_SE();
         end
@@ -1266,7 +1175,7 @@ function worker_SE()
             state = 0;
         elseif mode == "赛事模式" then
             back();
-            state = toDailyGame_SE();
+            state = toDailyGame();
         elseif mode == "特殊赛事" then
             back();
             state = toSpecialEvent_SE();
@@ -1275,9 +1184,9 @@ function worker_SE()
         toast("不在大厅，不在多人，回到大厅", 1);
         state = backHome();
         if mode == "多人刷积分声望" then
-            state = toPVP_SE();
+            state = toPVP();
         elseif mode == "赛事模式" then
-            state = toDailyGame_SE();
+            state = toDailyGame();
         elseif mode == "特殊赛事" then
             state = toSpecialEvent_SE();
         end
@@ -1289,7 +1198,7 @@ function worker_SE()
         state = -5;
     elseif place == -2 then
         toast("登录界面", 1);
-        state = Login_SE();
+        state = Login();
     elseif place == 4 then
         toast("奖励界面", 1);
         receivePrizeFromGL();
@@ -1309,7 +1218,7 @@ function worker_SE()
                 back();
                 state = -1;
             elseif validateGame == true then
-                state = gametoCarbarn_SE();
+                state = gametoCarbarn();
             end
         elseif mode == "多人刷积分声望" or mode == "特殊赛事" then
             backHome();
@@ -1361,7 +1270,7 @@ function worker_SE()
         mSleep(2000);
         state = -1;
     elseif place == 16 then
-        wait_topped();
+        wait_when_Parallel_read_detected();
         tap(970, 215);--关闭
         mSleep(2000);
         state = -1;
@@ -1413,12 +1322,12 @@ function worker_SE()
         tap(980, 580);--确定
         state = -1;
     else
-        toast("不知道在哪", 1)
+        toast("不知道在哪:"..tostring(place), 1)
         state = -1;
     end
     receive_starting_command = false;
 end
----下面是iPhone 6 - iPhone 8 设备处理函数---
+---iPhone 6/6S/7/8 设备处理函数---
 function checkPlace_i68()
     if checkplacetimes > 2 then
         toast("检测界面," .. tostring(checkplacetimes) .. "/" .. tostring(checkplacetimesout), 1);
@@ -1462,7 +1371,7 @@ function checkPlace_i68()
     elseif (isColor(60, 26, 0xff0052, 85) and isColor(153, 29, 0xfe0052, 85) and isColor(209, 59, 0xffffff, 85) and isColor(282, 57, 0xffffff, 85) and isColor(355, 65, 0xffffff, 85) and isColor(454, 63, 0xffffff, 85) and isColor(515, 61, 0xffffff, 85) and isColor(629, 45, 0xffffff, 85)) then
         checkplacetimes = 0;
         return 4;--来自Gameloft的礼物,undone
-    elseif (isColor( 617,   34, 0xea3358, 85) and isColor( 699,   39, 0xea3358, 85) and isColor( 701,   66, 0xe83258, 85) and isColor(1291,  716, 0x01061f, 85) and isColor(1264,  702, 0xffffff, 85)) then
+    elseif (isColor(617, 34, 0xea3358, 85) and isColor(699, 39, 0xea3358, 85) and isColor(701, 66, 0xe83258, 85) and isColor(1291, 716, 0x01061f, 85) and isColor(1264, 702, 0xffffff, 85)) then
         checkplacetimes = 0;
         return 7;--领奖开包
     elseif (isColor(1101, 119, 0xff0053, 85) and isColor(1123, 117, 0xff0053, 85) and isColor(1147, 147, 0xff0053, 85) and isColor(1160, 166, 0xff0054, 85) and isColor(1129, 170, 0xfa0052, 85) and isColor(1127, 143, 0xfffeff, 85)) then
@@ -1514,7 +1423,7 @@ function toPVP_i68()
     checkAndGetPackage();
     tap(758, 688);
     mSleep(2000);
-    place = checkPlace_i68();
+    place = checkPlace();
     if place ~= 1 then
         toast("有内鬼，停止交易", 1)
         return -1;
@@ -1588,7 +1497,7 @@ function autoMobile_i68()
         mSleep(500);
         tap(1130, 600);
     end
-    recordPVPE();
+    recordPVPnPVE();
     refreshTable();
     mSleep(2000);
 end
@@ -1615,7 +1524,7 @@ function Login_i68()
         mSleep(5000)
         return -1;
     else
-        if ts.system.udid() == "649a76c95b6e2f89f0eebbb0d5f5621e" then
+        if ts.system.udid() == "udid" then
             toast("无密码,自动输入", 1);
             log4j("Input_passcode_automatically");
             mSleep(1000);
@@ -1701,13 +1610,26 @@ function gametoCarbarn_i68()
         return actAfterNoFuelNTicket();
     end
     mSleep(3000)
-    if waitBegin_i68() == -1 then
+    if waitBegin() == -1 then
         return -1;
     end
-    autoMobile_i68();--接管比赛
+    autoMobile();--接管比赛
     return -1;
 end
-function worker_i68()
+function toSpecialEvent_i68()
+    return 0;
+end
+function worker_i68(place)
+    if checkplacetimes > 2 then
+        mSleep(1000);
+    end
+    if checkplacetimes > checkplacetimesout then
+        checkplacetimes = 0;
+        restartApp();
+        toast("等待30秒", 1)
+        mSleep(30000);
+        place = 404;
+    end
     if place == -3 then
         toast("网络未同步", 1);
         state = -1;
@@ -1717,9 +1639,9 @@ function worker_i68()
     elseif place == 0 then
         toast("在大厅", 1);
         if mode == "多人刷积分声望" then
-            state = toPVP_i68();
+            state = toPVP();
         elseif mode == "赛事模式" then
-            state = toDailyGame_i68();
+            state = toDailyGame();
         end
     elseif place == 1 then
         toast("在多人", 1);
@@ -1727,15 +1649,15 @@ function worker_i68()
             state = 0;
         elseif mode == "赛事模式" then
             back();
-            state = toDailyGame_i68();
+            state = toDailyGame();
         end
     elseif place == -1 then
         toast("不在大厅，不在多人,回到大厅", 1);
         state = backHome();
         if mode == "多人刷积分声望" then
-            state = toPVP_i68();
+            state = toPVP();
         elseif mode == "赛事模式" then
-            state = toDailyGame_i68();
+            state = toDailyGame();
         end
     elseif place == 2 then
         toast("在结算", 1);
@@ -1745,7 +1667,7 @@ function worker_i68()
         state = -5;
     elseif place == -2 then
         toast("登录界面", 1);
-        state = Login_i68();
+        state = Login();
     elseif place == 4 then
         toast("奖励界面", 1);
         receivePrizeFromGL();
@@ -1766,7 +1688,7 @@ function worker_i68()
                 back();
                 state = -1;
             elseif validateGame == true then
-                state = gametoCarbarn_i68();
+                state = gametoCarbarn();
             end
         elseif mode == "多人刷积分声望" then
             backHome();
@@ -1820,7 +1742,7 @@ function worker_i68()
         mSleep(2000);
         state = -1;
     elseif place == 16 then
-        wait_topped();
+        wait_when_Parallel_read_detected();
         tap(1140, 252);--关闭
         mSleep(2000);
         state = -1;
@@ -1865,9 +1787,87 @@ function worker_i68()
         state = -1;
     else
         toast("不知道在哪", 1);
-        tap(1199,  685);
+        tap(1199, 685);
         state = -1;
     end
     receive_starting_command = false;
+end
+---统一命名函数---
+function worker(place)
+    if model == "SE" then
+        worker_SE(place);
+    elseif model == "i68" then
+        worker_i68(place);
+    end
+end
+function checkPlace()
+    if model == "SE" then
+        return checkPlace_SE();
+    elseif model == "i68" then
+        return checkPlace_i68();
+    end
+end
+function chooseCar()
+    if model == "SE" then
+        chooseCar_SE();
+    elseif model == "i68" then
+        chooseCar_i68();
+    end
+end
+function waitBegin()
+    if model == "SE" then
+        return waitBegin_SE();
+    elseif model == "i68" then
+        return waitBegin_i68();
+    end
+end
+function autoMobile()
+    if model == "SE" then
+        autoMobile_SE();
+    elseif model == "i68" then
+        autoMobile_i68();
+    end
+end
+function backFromLines()
+    if model == "SE" then
+        backFromLines_SE();
+    elseif model == "i68" then
+        backFromLines_i68();
+    end
+end
+function gametoCarbarn()
+    if model == "SE" then
+        return gametoCarbarn_SE();
+    elseif model == "i68" then
+        return gametoCarbarn_i68();
+    end
+end
+function toDailyGame()
+    if model == "SE" then
+        return toDailyGame_SE();
+    elseif model == "i68" then
+        return toDailyGame_i68();
+    end
+end
+function Login()
+    if model == "SE" then
+        return Login_SE();
+    elseif model == "i68" then
+        return Login_i68();
+    end
+end
+function toPVP()
+    if model == "SE" then
+        return toPVP_SE();
+    elseif model == "i68" then
+        return toPVP_i68();
+    end
+end
+function toSpecialEvent()
+    if model == "SE" then
+        return toSpecialEvent_SE();
+    elseif model == "i68" then
+        return toSpecialEvent_i68();
+    end
 end
 main();
