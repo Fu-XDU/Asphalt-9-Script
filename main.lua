@@ -56,9 +56,10 @@ function main()
     elseif state == -6 then
         goto waitBegin;
     end
-    if toCarbarn() == 0 then
+    state = toCarbarn()--state=-1 0 1 分别对应停止 中断再识别 继续
+    if state == 0 then
         goto flag;
-    else
+    elseif state == -1 then
         goto stop;
     end
     :: chooseCar ::
@@ -444,8 +445,7 @@ function backHome()
         tap(1300, 30);--返回大厅
     end
     mSleep(2000);
-    place = checkPlace();
-    if place ~= 0 then
+    if checkPlace() ~= 0 then
         toast("有内鬼，停止交易", 1)
         return -1;
     end
@@ -545,8 +545,7 @@ function toCarbarn()
     elseif model == "i68" then
         tap(883, 691);--进入车库
     end
-    mSleep(1000);
-    return 0;
+    return 1;--可以进入车库选车并开始PVP
 end
 function chooseGame()
     gamenum = tonumber(gamenum);
@@ -1327,6 +1326,7 @@ function worker_SE(place)
         state = -1;
     end
     receive_starting_command = false;
+
 end
 ---iPhone 6/6S/7/8 设备处理函数---
 function checkPlace_i68()
