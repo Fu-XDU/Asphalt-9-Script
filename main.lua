@@ -524,7 +524,6 @@ function chooseCarStage()
     end
 end
 function toCarbarn()
-    --mSleep(1000);
     getStage();
     if stage == 4 and PVPatBest == "否" then
         if supermode == "多人刷积分声望" then
@@ -546,6 +545,7 @@ function toCarbarn()
     elseif model == "i68" then
         tap(883, 691);--进入车库
     end
+    mSleep(1000);
     return 0;
 end
 function chooseGame()
