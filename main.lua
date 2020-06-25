@@ -88,7 +88,7 @@ end
 ---通用处理函数[不区分设备型号]---
 function savePowerF()
     if savePower == "开" then
-        toast("降低屏幕亮度", 2);
+        toast("降低屏幕亮度", 1);
         setBacklightLevel(0);--屏幕亮度调制最暗
     end
 end
@@ -546,6 +546,7 @@ function toCarbarn()
     elseif model == "i68" then
         tap(883, 691);--进入车库
     end
+    return 0;
 end
 function chooseGame()
     gamenum = tonumber(gamenum);
@@ -907,7 +908,7 @@ function checkPlace_SE()
         checkplacetimes = 0;
         return 24;--获得了新红币界面
     end
-    mSleep(1000);
+    return 404;
 end
 function toPVP_SE()
     toast("进入多人", 1);
@@ -1321,8 +1322,8 @@ function worker_SE(place)
         mSleep(500);
         tap(980, 580);--确定
         state = -1;
-    else
-        toast("不知道在哪:"..tostring(place), 1)
+    elseif place == 404 then
+        toast("不知道在哪", 1)
         state = -1;
     end
     receive_starting_command = false;
@@ -1413,7 +1414,7 @@ function checkPlace_i68()
         checkplacetimes = 0;
         return 22;--广告弹窗
     end
-    mSleep(1000);
+    return 404;
 end
 function toPVP_i68()
     toast("进入多人", 1);
@@ -1785,7 +1786,7 @@ function worker_i68(place)
         tap(1127, 113);
         mSleep(500);
         state = -1;
-    else
+    elseif place == 404 then
         toast("不知道在哪", 1);
         tap(1199, 685);
         state = -1;
