@@ -17,6 +17,7 @@ receive_starting_command = false;--如果是true那么检测到账号被顶就�
 changecar = false;--PVE是否已经换车
 model = "";--设备型号
 chooseHighStageCarClass = 1;--改成1的话，使用新多人选车方案
+watchAds = "";
 -------下面是主函数-------
 ---前置准备函数---
 function prepare()
@@ -157,12 +158,14 @@ function getHttpsCommand()
         elseif a9getCommandbody_resp == "5" then
             toast("赛事没油没票后改为等待60分钟", 1);
             switch = "等60分钟";
+            mode = supermode;
             log4j("SwitchChange_command,to_60min");
             ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
             return 5;
         elseif a9getCommandbody_resp == "6" then
             toast("赛事没油没票后改为去刷多人", 1);
             switch = "去刷多人";
+            mode = supermode;
             log4j("SwitchChange_command,to_PVP");
             ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
             return 6;
@@ -330,6 +333,8 @@ function ShowUI()
     UIRadio(1, "lowerCar", "开,关", "0");
     UILabel(1, "赛事没油是否换车", 15, "left", "38,38,38");
     UIRadio(1, "changeCar", "开,关", "0");
+    UILabel(1, "赛事没油是否看广告(建议配合插件VideoAdsSpeed开20倍使用)", 15, "left", "38,38,38");
+    UIRadio(1, "watchAds", "开(有20倍广告加速),关,开(没有广告加速)", "0");
     UILabel(1, "需要过多久返回赛事模式或寻车模式（分钟）", 15, "left", "38,38,38");
     UIEdit(1, "timeout", "内容", "60", 15, "center", "38,38,38", "number");
     UILabel(1, "多人跳车（填0不跳）", 15, "left", "38,38,38");
@@ -339,6 +344,7 @@ function ShowUI()
     UILabel(1, "接收日志的邮箱", 15, "left", "38,38,38");
     UIEdit(1, "email", "邮箱地址", "", 15, "left", "38,38,38", "default");
     UILabel(1, "详细说明请向左滑查看第二页", 20, "left", "255,30,2");
+    UILabel(2, "本脚本目前适用设备为iPhone 5S/SE/6/6s/7/8/iPod Touch5G(6G)，iPad与Plus设备均不支持。", 15, "left", "38,38,38")
     UILabel(2, "刷赛事模式需要先用所需车辆手动完成一局再启动脚本。", 15, "left", "255,30,2")
     UILabel(2, "多人刷积分声望:脚本自动刷多人获得声望。", 15, "left", "38,38,38")
     UILabel(2, "脚本运行前需手动开启自动驾驶。", 15, "left", "38,38,38")
@@ -347,6 +353,7 @@ function ShowUI()
     UILabel(2, "赛事是否选车:有些赛事为指定车辆，无法从车库选车。", 15, "left", "38,38,38")
     UILabel(2, "寻车赛事用车位置选择:赛事选车时游戏会自动跳到上局此赛事所用车辆，需要选择上还是下。", 15, "left", "38,38,38")
     UILabel(2, "多人跳车:避免赛事所需车的燃油在多人中消耗，可以指定跳过车辆。", 15, "left", "38,38,38")
+    UILabel(2, "赛事没油看广告:建议配合插件VideoAdsSpeed开20倍使用。", 15, "left", "38,38,38")
     UILabel(2, "接收日志的邮箱：每日日志会在次日脚本运行之初发送至此邮箱。", 15, "left", "38,38,38")
     UILabel(2, "远程控制功能，可以访问网址https://yourdomin.cn/api/a9control?command=XXX&udid=YYY来远程控制脚本的运行。YYY需要更改为你设备的udid，XXX有如下几种选项：", 15, "left", "38,38,38")
     UILabel(2, "XXX=0 暂停脚本运行，与XXX=1配合使用", 15, "left", "38,38,38")
@@ -436,6 +443,21 @@ function actAfterNoFuelNTicket()
         changecar = false;
         return -1;
     end
+end
+function watchAd()
+    beginGame();
+    mSleep(2000);
+    if model == "SE" then
+        tap(731, 427);
+    elseif model == "i68" then
+        tap(862, 509);
+    end
+    if watchAds == "开(有20倍广告加速)" then
+        mSleep(5000);
+    elseif watchAds == "开(没有广告加速)" then
+        mSleep(35000);
+    end
+    return -1;
 end
 ---通用处理函数[区分设备型号]---
 function backHome()
@@ -805,6 +827,7 @@ function chooseClassCar()
         end
     end
 end
+
 ---iPhone 5S/SE 设备处理函数---
 function checkPlace_SE()
     if checkplacetimes > 2 then
@@ -822,7 +845,10 @@ function checkPlace_SE()
     if (isColor(92, 129, 0xf00252, 85) and isColor(97, 129, 0xf20252, 85) and isColor(104, 129, 0xf50153, 85) and isColor(116, 130, 0xea0352, 85) and isColor(128, 127, 0xf1014b, 85) and isColor(158, 128, 0xdb0244, 85) and isColor(761, 96, 0xd9d6d6, 85) and isColor(827, 101, 0x3887d7, 85) and isColor(906, 101, 0x4e443b, 85) and isColor(971, 100, 0x9015fb, 85)) then
         return 3.1;--在多人车库
     end
-    if getColor(5, 5) == 0x101f3b then
+    if (isColor(1069, 75, 0xffffff, 85) and isColor(1087, 74, 0xffffff, 85) and isColor(1077, 83, 0xffffff, 85) and isColor(1068, 93, 0xffffff, 85) and isColor(1087, 93, 0xffffff, 85)) then
+        checkplacetimes = 0;
+        return 25;--广告播放完成
+    elseif getColor(5, 5) == 0x101f3b then
         checkplacetimes = 0;
         return 0;--在大厅
     end
@@ -1114,7 +1140,6 @@ function gametoCarbarn_SE()
             return actAfterNoFuelNTicket();
         end
     else
-        toast("没油了", 1);
         if changeCar == "开" and not changecar then
             if upordown == "中间下" then
                 downwithoutoil = true
@@ -1131,6 +1156,9 @@ function gametoCarbarn_SE()
                 goto beginAtGame;--此行只能运行一次
             end
         end
+        if watchAds ~= "关" then
+            return watchAd();
+        end
         --去多人or生涯
         return actAfterNoFuelNTicket();
     end
@@ -1139,7 +1167,6 @@ function gametoCarbarn_SE()
         return -1;
     end
     autoMobile();--接管比赛
-
     return -1;
 end
 function worker_SE(place)
@@ -1321,17 +1348,24 @@ function worker_SE(place)
         mSleep(500);
         tap(980, 580);--确定
         state = -1;
+    elseif place == 25 then
+        --广告播放完成界面
+        tap(1077, 83);--不再提示
+        state = -1;
     elseif place == 404 then
         toast("不知道在哪", 1)
         state = -1;
     end
     receive_starting_command = false;
-
 end
 ---iPhone 6/6S/7/8 设备处理函数---
 function checkPlace_i68()
     if checkplacetimes > 2 then
         toast("检测界面," .. tostring(checkplacetimes) .. "/" .. tostring(checkplacetimesout), 1);
+    end
+    if (isColor(1266,   74, 0xffffff, 85) and isColor(1285,   74, 0xffffff, 85) and isColor(1275,   83, 0xffffff, 85) and isColor(1267,   92, 0xffffff, 85) and isColor(1285,   92, 0xffffff, 85)) then
+        checkplacetimes = 0;
+        return 25;--广告播放完毕
     end
     if (((isColor(1305, 14, 0xfcffff, 85) and isColor(1312, 22, 0xfefefe, 85) and isColor(1314, 37, 0xcdd3db, 85) and isColor(1293, 32, 0xfefeff, 85) and isColor(1294, 21, 0xffffff, 85) and isColor(1304, 17, 0xfeffff, 85)) and not (isColor(12, 16, 0xffffff, 85) and
             isColor(10, 45, 0xffffff, 85)))) or ((isColor(1111, 11, 0xfbffff, 85) and isColor(1120, 16, 0xf8faf9, 85) and isColor(1126, 26, 0xe2e4e8, 85) and isColor(1095, 26, 0xfdfdfd, 85))) then
@@ -1607,6 +1641,9 @@ function gametoCarbarn_i68()
             end
         end
         toast("没油了", 1);
+        if watchAds ~= "关" then
+            return watchAd();
+        end
         --去多人or生涯
         return actAfterNoFuelNTicket();
     end
@@ -1784,6 +1821,11 @@ function worker_i68(place)
         state = -1;
     elseif place == 22 then
         tap(1127, 113);
+        mSleep(500);
+        state = -1;
+    elseif place == 25 then
+        --广告播放完成
+        tap(1276,83);
         mSleep(500);
         state = -1;
     elseif place == 404 then
