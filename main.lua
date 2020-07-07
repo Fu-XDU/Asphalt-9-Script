@@ -18,22 +18,15 @@ changecar = false;--PVE是否已经换车
 model = "";--设备型号
 chooseHighStageCarClass = 1;--改成1的话，使用新多人选车方案
 watchAds = "";
--------下面是主函数-------
+PVPwithoutPack = 0;--开过最近的一个PVP包后完成PVP局数
 ---前置准备函数---
 function prepare()
-    math.randomseed(tostring(os.time()):reverse():sub(1, 7));--随机数初始化
     checkScreenSize();
     ShowUI();
     savePowerF();
     initTable();
-    log4j("Starting_script");
-    toast("脚本开始", 3);
-    runApp("com.Aligames.kybc9");
-    ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
-    supermode = mode;
-    timeout = tonumber(timeout);
-    timeout2 = tonumber(timeout2);
-    skipcar = tonumber(skipcar);
+    startGame();
+    paraArgu();
 end
 ---为程序主函数---
 function main()
@@ -64,7 +57,9 @@ function main()
         goto stop;
     end
     :: chooseCar ::
-    chooseCar();
+    if not chooseCar() then
+        goto flag;--选车出错了
+    end
     :: waitBegin ::
     if waitBegin() == -1 then
         goto flag;
@@ -110,6 +105,22 @@ function checkScreenSize()
         end
     end
 end
+function paraArgu()
+    math.randomseed(tostring(os.time()):reverse():sub(1, 7));--随机数初始化
+    timeout = tonumber(timeout);
+    timeout2 = tonumber(timeout2);
+    skipcar = tonumber(skipcar);
+    if path == "左" then
+        path = -1;
+    elseif path == "中" then
+        path = 0;
+    elseif path == "右" then
+        path = 1;
+    elseif path == "随机" then
+        path = 2;
+    end
+    supermode = mode;
+end
 function getHttpsCommand()
     :: getCommand ::
     a9getCommandcode, a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet(apiUrl .. "a9getCommand?udid=" .. ts.system.udid(), {}, {})
@@ -137,8 +148,8 @@ function getHttpsCommand()
             toast("接收到模式转换指令，停止赛事模式", 1);
             mSleep(1000);
             log4j("Switch_command,PVE_suspended");
-            supermode = "多人刷积分声望";
-            mode = "多人刷积分声望";
+            supermode = "多人刷声望";
+            mode = "多人刷声望";
             savePowerF();
             ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
             return 2;
@@ -312,7 +323,7 @@ function ShowUI()
     UILabel(1, "详细说明，远程控制和远程日志查看请向左滑查看第二页", 20, "left", "255,30,2");
     UILabel(1, "购买脚本授权码请联系QQ群1028746490群主", 20, "left", "255,30,2");
     UILabel(1, "模式选择", 15, "left", "38,38,38");
-    UIRadio(1, "mode", "多人刷积分声望,赛事模式", "0");--记录最初设置 | 特殊赛事保留
+    UIRadio(1, "mode", "多人刷声望,赛事模式,多人刷包", "0");--记录最初设置 | 特殊赛事保留
     UILabel(1, "没油没票后动作（赛事模式）", 15, "left", "38,38,38");
     UIRadio(1, "switch", "去刷多人,等30分钟,等60分钟", "0");
     UILabel(1, "路线选择（所有模式）", 15, "left", "38,38,38");
@@ -346,7 +357,8 @@ function ShowUI()
     UILabel(1, "详细说明请向左滑查看第二页", 20, "left", "255,30,2");
     UILabel(2, "本脚本目前适用设备为iPhone 5S/SE/6/6s/7/8/iPod Touch5G(6G)，iPad与Plus设备均不支持。", 15, "left", "38,38,38")
     UILabel(2, "刷赛事模式需要先用所需车辆手动完成一局再启动脚本。", 15, "left", "255,30,2")
-    UILabel(2, "多人刷积分声望:脚本自动刷多人获得声望。", 15, "left", "38,38,38")
+    UILabel(2, "多人刷声望:脚本自动刷多人获得声望。", 15, "left", "38,38,38")
+    UILabel(2, "多人刷包:脚本自动刷多人包，确保开始时有包可刷。当连续完成12局PVP且12局中未开包时认为刷完，刷完脚本自动停止。", 15, "left", "38,38,38")
     UILabel(2, "脚本运行前需手动开启自动驾驶。", 15, "left", "38,38,38")
     UILabel(2, "没油没票后动作:刷赛事用完油和票之后的动作，选择去刷多人会在指定时间后返回。", 15, "left", "38,38,38")
     UILabel(2, "赛事位置选择:选择刷第几个赛事。", 15, "left", "38,38,38")
@@ -358,7 +370,7 @@ function ShowUI()
     UILabel(2, "远程控制功能，可以访问网址https://yourdomin.cn/api/a9control?command=XXX&udid=YYY来远程控制脚本的运行。YYY需要更改为你设备的udid，XXX有如下几种选项：", 15, "left", "38,38,38")
     UILabel(2, "XXX=0 暂停脚本运行，与XXX=1配合使用", 15, "left", "38,38,38")
     UILabel(2, "XXX=1 恢复脚本运行，与XXX=0配合使用", 15, "left", "38,38,38")
-    UILabel(2, "XXX=2 停止赛事模式，将主模式更改为多人刷积分声望，与XXX=3配合使用", 15, "left", "38,38,38")
+    UILabel(2, "XXX=2 停止赛事模式，将主模式更改为多人刷声望，与XXX=3配合使用", 15, "left", "38,38,38")
     UILabel(2, "XXX=3 开始赛事模式，将主模式更改为赛事模式，与XXX=2配合使用", 15, "left", "38,38,38")
     UILabel(2, "XXX=4 终止脚本运行，此操作不可逆", 15, "left", "38,38,38")
     UILabel(2, "XXX=5 赛事没油没票后改为等待60分钟", 15, "left", "38,38,38")
@@ -367,6 +379,12 @@ function ShowUI()
     UILabel(2, "远程日志功能，可以访问网址https://yourdomin.cn/api/a9log?udid=YYY查看本日脚本日志，远程监控脚本运行情况。YYY需要更改为你设备的udid", 15, "left", "38,38,38")
     UILabel(2, "如果有脚本无法识别的界面，请联系QQ群1028746490群主。如果需要购买脚本授权码也请联系上述QQ群群主。", 20, "left", "38,38,38")
     UIShow();
+end
+function startGame()
+    log4j("Starting_script");
+    toast("脚本开始", 3);
+    runApp("com.Aligames.kybc9");
+    ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
 end
 function keypress(key)
     keyDown(key);
@@ -418,7 +436,8 @@ function checkTimeOut()
     end
 end
 function recordPVPnPVE()
-    if mode == "多人刷积分声望" then
+    if mode == "多人刷声望" or mode == "多人刷包" then
+        PVPwithoutPack = PVPwithoutPack + 1;
         PVPTimes = PVPTimes + 1;
         log4j(tostring(PVPTimes) .. "_PVP_done");
     elseif mode == "赛事模式" then
@@ -430,7 +449,7 @@ function actAfterNoFuelNTicket()
     time = os.time();--记录当前时间
     if switch == "去刷多人" then
         toast(tostring(timeout) .. "分钟后返回", 1)
-        mode = "多人刷积分声望"
+        mode = "多人刷声望"
         mSleep(200);
         backHome();
         return -1;
@@ -548,7 +567,7 @@ end
 function toCarbarn()
     getStage();
     if stage == 4 and PVPatBest == "否" then
-        if supermode == "多人刷积分声望" then
+        if supermode == "多人刷声望" then
             toast("脚本停止", 1);
             return -1;
         elseif supermode == "赛事模式" then
@@ -606,6 +625,7 @@ function chooseGame()
 end
 function checkAndGetPackage()
     if model == "SE" then
+        receive, restore = false, false
         if (not isColor(649, 472, 0x091624, 85)) then
             toast("领取多人包", 1);
             log4j("Open_multiplayer_pack");
@@ -616,11 +636,20 @@ function checkAndGetPackage()
             mSleep(2000);
             tap(1030, 590);
             mSleep(10000);
+            receive = true
         end
         if ((isColor(178, 503, 0xb9e816, 85) and isColor(173, 500, 0xbae916, 85) and isColor(175, 506, 0xc3fb12, 85) and isColor(147, 506, 0xbba7bb, 85) and isColor(128, 508, 0xe5dde5, 85) and isColor(127, 500, 0xfdfcfd, 85)) and not (isColor(80, 453, 0x1d071e, 85) and isColor(211, 455, 0x241228, 85) and isColor(84, 473, 0x241128, 85) and isColor(201, 472, 0x221226, 85) and isColor(228, 482, 0x676769, 85))) then
             log4j("Restocks_multiplayer_pack");
+            restore = true
             tap(153, 462);
             mSleep(1000);
+        end
+        if receive and PVPwithoutPack == 12 and not restore then
+            log4j("No_anymore_multiplayer_pack");
+            return -2;--脚本应该停止
+        end
+        if receive then
+            PVPwithoutPack = 0;
         end
     elseif model == "i68" then
         tap(668, 576);
@@ -628,9 +657,20 @@ function checkAndGetPackage()
         if checkPlace() == 7 then
             log4j("Open_multiplayer_pack");
             receivePrizeAtGame();
+            PVPwithoutPack = 0;
             mSleep(10000);
         end
         tap(176, 545);--尝试补充多人包
+    end
+    return checkShouldStop();
+end
+function checkShouldStop()
+    if mode == "多人刷包" and PVPwithoutPack > 12 then
+        --脚本应该停止
+        log4j("No_anymore_multiplayer_pack");
+        return -2;
+    else
+        return 1;
     end
 end
 function receivePrizeFromGL()
@@ -649,6 +689,19 @@ function receivePrizeFromGL()
         tap(1015, 582);
     end
     mSleep(2000);
+end
+function chooseCar()
+    mSleep(2500);
+    chooseCarStage();
+    mSleep(1500);
+    chooseClassCar();
+    mSleep(3000);
+    if not switchToSuitableCar() then
+        return false
+    end
+    checkAutoMobile();
+    beginGame();
+    return true
 end
 function receivePrizeAtGame()
     if model == "SE" then
@@ -772,7 +825,12 @@ function switchToSuitableCar()
         mSleep(500);
         skip = skip + 1;
         should_skip = skip == skipcar;
+        --如果连续三十次没车 估计是不在选车界面
+        if skip > 30 then
+            return false
+        end
     end
+    return true
 end
 function chooseClassCar()
     if model == "SE" then
@@ -943,7 +1001,9 @@ function toPVP_SE()
     slideToPVP();
     --TODO:检查是否在多人入口
     :: PVP ::
-    checkAndGetPackage();
+    if checkAndGetPackage() == -2 then
+        return -2;
+    end
     tap(660, 600);
     mSleep(1500);
     place = checkPlace();
@@ -953,16 +1013,7 @@ function toPVP_SE()
     end
     return 0;
 end
-function chooseCar_SE()
-    mSleep(2500);
-    chooseCarStage();
-    mSleep(1500);
-    chooseClassCar();
-    mSleep(3000);
-    switchToSuitableCar();
-    checkAutoMobile();
-    beginGame();
-end
+
 function waitBegin_SE()
     timer = 0;
     while (getColor(170, 100) ~= 0x14bde9 and timer < 35) do
@@ -997,21 +1048,15 @@ function autoMobile_SE()
         mSleep(500);
         tap(950, 400);
         mSleep(500);
-        if path == "左" then
-            moveTo(800, 235, 400, 235, 20);--从右往左划
-            moveTo(800, 235, 400, 235, 20);--从右往左划
-        elseif path == "右" then
-            moveTo(600, 235, 800, 235, 20);--从左往右划
-            moveTo(600, 235, 800, 235, 20);--从左往右划
-        elseif path == "随机" then
-            rand = math.random(1, 3);--rand==1 2 or 3
-            if rand == 1 then
-                moveTo(800, 235, 400, 235, 20);--从右往左划
-                moveTo(800, 235, 400, 235, 20);--从右往左划
-            elseif rand == 2 then
-                moveTo(600, 235, 800, 235, 20);--从左往右划
-                moveTo(600, 235, 800, 235, 20);--从左往右划
-            end
+        if path == -1 or path == 1 then
+            -- -1从右往左划 1从左往右划
+            moveTo(700 + path * (-100), 235, 600 + path * 200, 235, 20);
+            moveTo(700 + path * (-100), 235, 600 + path * 200, 235, 20);
+        elseif path == 2 then
+            rand = math.random(1, 2);--rand==1 or 2
+            --1从右往左划 2从左往右划
+            moveTo(1000 + rand * (-200), 235, 800 + rand * (-400), 235, 20);
+            moveTo(1000 + rand * (-200), 235, 800 + rand * (-400), 235, 20);
         end
         mSleep(500);
         tap(950, 400);
@@ -1032,7 +1077,7 @@ function backFromLines_SE()
     end
     mSleep(5000);
     --toast("比赛完成",1);
-    if supermode == "赛事模式" and (mode == "多人刷积分声望" or mode == "特殊赛事") then
+    if supermode == "赛事模式" and (mode == "多人刷声望" or mode == "特殊赛事") then
         checkTimeOut();
     end
 end
@@ -1157,7 +1202,8 @@ function gametoCarbarn_SE()
             end
         end
         if watchAds ~= "关" then
-            return watchAd();
+            watchAd();
+            goto beginAtGame;
         end
         --去多人or生涯
         return actAfterNoFuelNTicket();
@@ -1189,7 +1235,7 @@ function worker_SE(place)
         state = -3;
     elseif place == 0 then
         toast("在大厅", 1);
-        if mode == "多人刷积分声望" then
+        if mode == "多人刷声望" or mode == "多人刷包" then
             state = toPVP();
         elseif mode == "赛事模式" then
             state = toDailyGame();
@@ -1198,7 +1244,7 @@ function worker_SE(place)
         end
     elseif place == 1 then
         toast("在多人", 1);
-        if mode == "多人刷积分声望" then
+        if mode == "多人刷声望" or mode == "多人刷包" then
             state = 0;
         elseif mode == "赛事模式" then
             back();
@@ -1210,7 +1256,7 @@ function worker_SE(place)
     elseif place == -1 then
         toast("不在大厅，不在多人，回到大厅", 1);
         state = backHome();
-        if mode == "多人刷积分声望" then
+        if mode == "多人刷声望" or mode == "多人刷包" then
             state = toPVP();
         elseif mode == "赛事模式" then
             state = toDailyGame();
@@ -1234,7 +1280,7 @@ function worker_SE(place)
         if mode == "赛事模式" then
             state = chooseGame();
             validateGame = true;
-        elseif mode == "多人刷积分声望" or mode == "特殊赛事" then
+        elseif mode == "多人刷声望" or mode == "特殊赛事" or mode == "多人刷包" then
             back();
             state = -1;
         end
@@ -1247,7 +1293,7 @@ function worker_SE(place)
             elseif validateGame == true then
                 state = gametoCarbarn();
             end
-        elseif mode == "多人刷积分声望" or mode == "特殊赛事" then
+        elseif mode == "多人刷声望" or mode == "特殊赛事" or mode == "多人刷包" then
             backHome();
             state = -1;
         end
@@ -1350,10 +1396,12 @@ function worker_SE(place)
         state = -1;
     elseif place == 25 then
         --广告播放完成界面
-        tap(1077, 83);--不再提示
+        tap(1077, 83);
+        mSleep(2000);
         state = -1;
     elseif place == 404 then
         toast("不知道在哪", 1)
+        mSleep(1000);
         state = -1;
     end
     receive_starting_command = false;
@@ -1363,7 +1411,7 @@ function checkPlace_i68()
     if checkplacetimes > 2 then
         toast("检测界面," .. tostring(checkplacetimes) .. "/" .. tostring(checkplacetimesout), 1);
     end
-    if (isColor(1266,   74, 0xffffff, 85) and isColor(1285,   74, 0xffffff, 85) and isColor(1275,   83, 0xffffff, 85) and isColor(1267,   92, 0xffffff, 85) and isColor(1285,   92, 0xffffff, 85)) then
+    if (isColor(1266, 74, 0xffffff, 85) and isColor(1285, 74, 0xffffff, 85) and isColor(1275, 83, 0xffffff, 85) and isColor(1267, 92, 0xffffff, 85) and isColor(1285, 92, 0xffffff, 85)) then
         checkplacetimes = 0;
         return 25;--广告播放完毕
     end
@@ -1455,7 +1503,9 @@ function toPVP_i68()
     mSleep(4000);
     slideToPVP();
     --TODO:检查是否在多人入口
-    checkAndGetPackage();
+    if checkAndGetPackage() == -2 then
+        return -2;
+    end
     tap(758, 688);
     mSleep(2000);
     place = checkPlace();
@@ -1465,16 +1515,7 @@ function toPVP_i68()
     end
     return 0;
 end
-function chooseCar_i68()
-    mSleep(2500);
-    chooseCarStage();
-    mSleep(1500);
-    chooseClassCar();
-    mSleep(3000);
-    switchToSuitableCar();
-    checkAutoMobile();
-    beginGame();
-end
+
 function waitBegin_i68()
     --done
     timer = 0;
@@ -1513,21 +1554,14 @@ function autoMobile_i68()
         mSleep(500);
         tap(1130, 600);
         mSleep(500)
-        if path == "左" then
-            moveTo(1300, 235, 1100, 235, 20);--从右往左划
-            moveTo(1300, 235, 1100, 235, 20);--从右往左划
-        elseif path == "右" then
-            moveTo(1100, 235, 1300, 235, 20);--从左往右划
-            moveTo(1100, 235, 1300, 235, 20);--从左往右划
-        elseif path == "随机" then
-            rand = math.random(1, 3);--rand==1 2 or 3
-            if rand == 1 then
-                moveTo(1300, 235, 1100, 235, 20);--从右往左划
-                moveTo(1300, 235, 1100, 235, 20);--从右往左划
-            elseif rand == 2 then
-                moveTo(1100, 235, 1300, 235, 20);--从左往右划
-                moveTo(1100, 235, 1300, 235, 20);--从左往右划
-            end
+        if path == -1 or path == 1 then
+            -- -1从右往左划 1从左往右划
+            moveTo(1200 + path * (-100), 235, 1200 + path * 100, 235, 20);--从右往左划
+            moveTo(1200 + path * (-100), 235, 1200 + path * 100, 235, 20);--从右往左划
+        elseif path == 2 then
+            rand = math.random(1, 2);--rand==1 or 2
+            moveTo(1500 + rand * (-200), 235, 900 + rand * 200, 235, 20);--从右往左划
+            moveTo(1500 + rand * (-200), 235, 900 + rand * 200, 235, 20);--从右往左划
         end
         mSleep(500);
         tap(1130, 600);
@@ -1547,7 +1581,7 @@ function backFromLines_i68()
     end
     mSleep(5000);
     --toast("比赛完成",1);
-    if supermode == "赛事模式" and mode == "多人刷积分声望" then
+    if supermode == "赛事模式" and mode == "多人刷声望" then
         checkTimeOut();
     end
 end
@@ -1642,7 +1676,8 @@ function gametoCarbarn_i68()
         end
         toast("没油了", 1);
         if watchAds ~= "关" then
-            return watchAd();
+            watchAd();
+            goto beginAtGame;
         end
         --去多人or生涯
         return actAfterNoFuelNTicket();
@@ -1676,14 +1711,14 @@ function worker_i68(place)
         state = -3;
     elseif place == 0 then
         toast("在大厅", 1);
-        if mode == "多人刷积分声望" then
+        if mode == "多人刷声望" or mode == "多人刷包" then
             state = toPVP();
         elseif mode == "赛事模式" then
             state = toDailyGame();
         end
     elseif place == 1 then
         toast("在多人", 1);
-        if mode == "多人刷积分声望" then
+        if mode == "多人刷声望" or mode == "多人刷包" then
             state = 0;
         elseif mode == "赛事模式" then
             back();
@@ -1692,7 +1727,7 @@ function worker_i68(place)
     elseif place == -1 then
         toast("不在大厅，不在多人,回到大厅", 1);
         state = backHome();
-        if mode == "多人刷积分声望" then
+        if mode == "多人刷声望" or mode == "多人刷包" then
             state = toPVP();
         elseif mode == "赛事模式" then
             state = toDailyGame();
@@ -1715,7 +1750,7 @@ function worker_i68(place)
         if mode == "赛事模式" then
             state = chooseGame();
             validateGame = true;
-        elseif mode == "多人刷积分声望" then
+        elseif mode == "多人刷声望" or mode == "多人刷包" then
             back();
             state = -1;
         end
@@ -1728,7 +1763,7 @@ function worker_i68(place)
             elseif validateGame == true then
                 state = gametoCarbarn();
             end
-        elseif mode == "多人刷积分声望" then
+        elseif mode == "多人刷声望" or mode == "多人刷包" then
             backHome();
             state = -1;
         end
@@ -1825,12 +1860,13 @@ function worker_i68(place)
         state = -1;
     elseif place == 25 then
         --广告播放完成
-        tap(1276,83);
-        mSleep(500);
+        tap(1276, 83);
+        mSleep(2000);
         state = -1;
     elseif place == 404 then
         toast("不知道在哪", 1);
         tap(1199, 685);
+        mSleep(1000);
         state = -1;
     end
     receive_starting_command = false;
@@ -1848,13 +1884,6 @@ function checkPlace()
         return checkPlace_SE();
     elseif model == "i68" then
         return checkPlace_i68();
-    end
-end
-function chooseCar()
-    if model == "SE" then
-        chooseCar_SE();
-    elseif model == "i68" then
-        chooseCar_i68();
     end
 end
 function waitBegin()
