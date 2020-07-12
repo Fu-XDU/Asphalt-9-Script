@@ -714,6 +714,7 @@ function checkAndGetPackage()
             mSleep(2000)
             tap(1030, 590)
             mSleep(10000)
+            receive=true
         end
         if
             ((isColor(178, 503, 0xb9e816, 85) and isColor(173, 500, 0xbae916, 85) and isColor(175, 506, 0xc3fb12, 85) and
@@ -1313,7 +1314,7 @@ function waitBegin_SE()
             return -1
         end
     end
-    if timer >= 45 then
+    if timer >= 35 then
         toast("开局异常", 1)
         if
             (isColor(540, 312, 0x01b9e3, 85) and isColor(635, 307, 0x01b8e3, 85) and isColor(596, 273, 0x01718b, 85) and
@@ -2004,7 +2005,7 @@ function waitBegin_i68()
             return -1
         end
     end
-    if timer >= 45 then
+    if timer >= 35 then
         --如果还在匹配界面且左上有返回
         toast("开局异常", 1)
         if
