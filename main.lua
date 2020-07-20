@@ -71,10 +71,9 @@ function main()
     autoMobile()
     ::backFromLines::
     backFromLines()
-    if getHttpsCommand() == 4 then
-        goto stop
+    if not shouldStop() then
+        goto flag
     end
-    goto flag
     ::stop::
     after()
 end
@@ -396,7 +395,7 @@ function ShowUI()
     UILabel(1, "顶号重连（分钟）", 15, "left", "38,38,38")
     UIEdit(1, "timeout2", "内容", "30", 15, "center", "38,38,38", "number")
     UILabel(1, "接收日志的邮箱", 15, "left", "38,38,38")
-    UIEdit(1, "email", "邮箱地址", "", 15, "left", "38,38,38", "default")
+    UIEdit(1, "email", "邮箱地址（选填）", "", 15, "left", "38,38,38", "default")
     UILabel(1, "详细说明请向左滑查看第二页", 20, "left", "255,30,2")
     UILabel(2, "本脚本目前适用设备为iPhone 5S/SE/6/6s/7/8/iPod Touch5G(6G)，iPad与Plus设备均不支持。", 15, "left", "38,38,38")
     UILabel(2, "刷赛事模式需要先用所需车辆手动完成一局再启动脚本。", 15, "left", "255,30,2")
@@ -412,7 +411,7 @@ function ShowUI()
     UILabel(2, "接收日志的邮箱：每日日志会在次日脚本运行之初发送至此邮箱。", 15, "left", "38,38,38")
     UILabel(
         2,
-        "远程控制功能，可以访问网址https://yourdomin.cn/api/a9control?command=XXX&udid=YYY来远程控制脚本的运行。YYY需要更改为你设备的udid，XXX有如下几种选项：",
+        "远程控制功能，可以访问网址https://yourdomin.cn/api/a9control?command=XXX&udid="..ts.system.udid().."来远程控制脚本的运行。XXX需要更改为如下几种选项之一：",
         15,
         "left",
         "38,38,38"
@@ -424,10 +423,9 @@ function ShowUI()
     UILabel(2, "XXX=4 终止脚本运行，此操作不可逆", 15, "left", "38,38,38")
     UILabel(2, "XXX=5 赛事没油没票后改为等待60分钟", 15, "left", "38,38,38")
     UILabel(2, "XXX=6 赛事没油没票后改为去刷多人", 15, "left", "38,38,38")
-    UILabel(2, "在这里可以查看自己设备的UDID：http://www.pgyer.com/tools/udid", 15, "left", "38,38,38")
     UILabel(
         2,
-        "远程日志功能，可以访问网址https://yourdomin.cn/api/a9log?udid=YYY查看本日脚本日志，远程监控脚本运行情况。YYY需要更改为你设备的udid",
+        "远程日志功能，可以访问网址https://yourdomin.cn/api/a9log?udid="..ts.system.udid().."查看本日脚本日志，远程监控脚本运行情况。",
         15,
         "left",
         "38,38,38"
@@ -638,6 +636,14 @@ function chooseCarStage()
         end
     end
 end
+function checkBatteryStatus()
+    t = batteryStatus()
+    --没在充电 电量少于20 停止脚本
+    if t.charging == 0 and tonumber(t.level) <= 20 then
+        return false
+    end
+    return true
+end
 function toCarbarn()
     getStage()
     if stage == 4 and PVPatBest == "否" then
@@ -714,7 +720,7 @@ function checkAndGetPackage()
             mSleep(2000)
             tap(1030, 590)
             mSleep(10000)
-            receive=true
+            receive = true
         end
         if
             ((isColor(178, 503, 0xb9e816, 85) and isColor(173, 500, 0xbae916, 85) and isColor(175, 506, 0xc3fb12, 85) and
@@ -749,16 +755,23 @@ function checkAndGetPackage()
         end
         tap(176, 545) --尝试补充多人包
     end
-    return checkShouldStop()
-end
-function checkShouldStop()
-    if mode == "多人刷包" and PVPwithoutPack > 12 then
-        --脚本应该停止
-        log4j("No_anymore_multiplayer_pack")
+    if shouldStop() then
         return -2
     else
         return 1
     end
+end
+function shouldStop()
+    --开完最后一个包可能不会立刻停止，因为12个奖杯只需要少于12局即可完成，代码中写12是为稳定起见
+    if
+        (mode == "多人刷包" and PVPwithoutPack > 12) or (not checkBatteryStatus() and savePower == "开") or
+            getHttpsCommand() == 4
+     then
+        --脚本应该停止
+        log4j("No_anymore_multiplayer_pack")
+        return true
+    end
+    return false
 end
 function receivePrizeFromGL()
     log4j("Receive_packets_from_GL")
@@ -1464,10 +1477,7 @@ function toSpecialEvent_SE()
     return -1
 end
 function gametoCarbarn_SE()
-    upwithoutoil = false
-    downwithoutoil = false
-    changecar = false
-    ads=false
+    upwithoutoil, downwithoutoil, changecar, ads = false, false, false, false
     tap(1065, 590)
     mSleep(2000)
     selectCarAtGame()
@@ -1506,9 +1516,10 @@ function gametoCarbarn_SE()
         end
         if watchAds ~= "关" then
             watchAd()
-            tap(1077, 83)--关闭广告
+            tap(1077, 83)
+             --关闭广告
             mSleep(2000)
-            ads=true
+            ads = true
             goto beginAtGame
         end
         --去多人or生涯
@@ -2128,7 +2139,7 @@ function gametoCarbarn_i68()
     downwithoutoil = false
     upwithoutoil = false
     changecar = false
-    ads=false
+    ads = false
     tap(1260, 690)
     mSleep(2000)
     selectCarAtGame()
@@ -2174,9 +2185,10 @@ function gametoCarbarn_i68()
         toast("没油了", 1)
         if watchAds ~= "关" then
             watchAd()
-            tap(1276, 83)--关闭广告
+            tap(1276, 83)
+             --关闭广告
             mSleep(2000)
-            ads=true
+            ads = true
             goto beginAtGame
         end
         --去多人or生涯
