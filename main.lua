@@ -20,6 +20,7 @@ model = "" --设备型号
 chooseHighStageCarClass = 1 --改成1的话，使用新多人选车方案
 watchAds = ""
 PVPwithoutPack = 0 --开过最近的一个PVP包后完成PVP局数
+packWithoutRestore = 0--连着开了多少个包但是没有补充
 ---前置准备函数---
 function prepare()
     checkScreenSize()
@@ -33,7 +34,7 @@ end
 ---为程序主函数---
 function main()
     prepare()
-    ::flag::
+    :: flag ::
     worker(checkPlace())
     if state ~= -1 then
         checkplacetimes = 0
@@ -59,22 +60,22 @@ function main()
     elseif state == -1 then
         goto stop
     end
-    ::chooseCar::
+    :: chooseCar ::
     if not chooseCar() then
         goto flag --选车出错了
     end
-    ::waitBegin::
+    :: waitBegin ::
     if waitBegin() == -1 then
         goto flag
     end
-    ::autoMobile::
+    :: autoMobile ::
     autoMobile()
-    ::backFromLines::
+    :: backFromLines ::
     backFromLines()
     if not shouldStop() then
         goto flag
     end
-    ::stop::
+    :: stop ::
     after()
 end
 ---结束处理函数---
@@ -132,9 +133,8 @@ function paraArgu()
     supermode = mode
 end
 function getHttpsCommand()
-    ::getCommand::
-    a9getCommandcode, a9getCommandheader_resp, a9getCommandbody_resp =
-        ts.httpsGet(apiUrl .. "a9getCommand?udid=" .. ts.system.udid(), {}, {})
+    :: getCommand ::
+    a9getCommandcode, a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet(apiUrl .. "a9getCommand?udid=" .. ts.system.udid(), {}, {})
     if a9getCommandcode == 200 then
         if a9getCommandbody_resp == "0" then
             if runningState == true then
@@ -215,8 +215,7 @@ function httpsGet(content)
     header_send = {}
     body_send = {}
     ts.setHttpsTimeOut(5) --安卓不支持设置超时时间
-    code, header_resp, body_resp =
-        ts.httpsGet(apiUrl .. "a9?content=" .. content .. "&udid=" .. udid, header_send, body_send)
+    code, header_resp, body_resp = ts.httpsGet(apiUrl .. "a9?content=" .. content .. "&udid=" .. udid, header_send, body_send)
 end
 function ToStringEx(value)
     if type(value) == "table" then
@@ -245,8 +244,7 @@ function TableToStr(t)
                 retstr = retstr .. signal .. "[" .. ToStringEx(key) .. "]=" .. ToStringEx(value)
             else
                 if type(key) == "userdata" then
-                    retstr =
-                        retstr .. signal .. "*s" .. TableToStr(getmetatable(key)) .. "*e" .. "=" .. ToStringEx(value)
+                    retstr = retstr .. signal .. "*s" .. TableToStr(getmetatable(key)) .. "*e" .. "=" .. ToStringEx(value)
                 else
                     retstr = retstr .. signal .. key .. "=" .. ToStringEx(value)
                 end
@@ -262,16 +260,16 @@ function refreshTable()
     if table then
         --如果日期不对
         if table[1] ~= os.date("%Y年%m月%d日") then
-            writeFile(userPath() .. "/res/A9Info.txt", {os.date("%Y年%m月%d日"), 0, 0}, "w", 1)
+            writeFile(userPath() .. "/res/A9Info.txt", { os.date("%Y年%m月%d日"), 0, 0 }, "w", 1)
             PVPTimes = 0
             PVETimes = 0
-            writeFile(userPath() .. "/res/A9Info.txt", {os.date("%Y年%m月%d日"), PVPTimes, PVETimes}, "w", 1)
+            writeFile(userPath() .. "/res/A9Info.txt", { os.date("%Y年%m月%d日"), PVPTimes, PVETimes }, "w", 1)
         else
-            writeFile(userPath() .. "/res/A9Info.txt", {os.date("%Y年%m月%d日"), PVPTimes, PVETimes}, "w", 1)
+            writeFile(userPath() .. "/res/A9Info.txt", { os.date("%Y年%m月%d日"), PVPTimes, PVETimes }, "w", 1)
         end
     else
         --没有文件就创建文件，初始化内容
-        writeFile(userPath() .. "/res/A9Info.txt", {os.date("%Y年%m月%d日"), 0, 0}, "w", 1)
+        writeFile(userPath() .. "/res/A9Info.txt", { os.date("%Y年%m月%d日"), 0, 0 }, "w", 1)
     end
 end
 function initTable()
@@ -281,7 +279,7 @@ function initTable()
         --如果日期不对，数据重写
         if table[1] ~= os.date("%Y年%m月%d日") then
             --文件重写
-            writeFile(userPath() .. "/res/A9Info.txt", {os.date("%Y年%m月%d日"), 0, 0}, "w", 1)
+            writeFile(userPath() .. "/res/A9Info.txt", { os.date("%Y年%m月%d日"), 0, 0 }, "w", 1)
             initTable()
         else
             PVPTimes = table[2]
@@ -289,7 +287,7 @@ function initTable()
         end
     else
         --没有文件就创建文件，初始化内容
-        writeFile(userPath() .. "/res/A9Info.txt", {os.date("%Y年%m月%d日"), 0, 0}, "w", 1)
+        writeFile(userPath() .. "/res/A9Info.txt", { os.date("%Y年%m月%d日"), 0, 0 }, "w", 1)
         mSleep(1000)
         initTable() --每次初始化内容都要再运行initTable()检查
     end
@@ -297,7 +295,7 @@ function initTable()
         if logtxt[1] ~= os.date("%Y年%m月%d日") then
             --如果日期不对,发邮件，数据重写
             sendEmail(email, "[A9]" .. os.date("%m%d%H") .. "日志" .. getDeviceName(), logtxt)
-            writeFile(userPath() .. "/res/A9log.txt", {os.date("%Y年%m月%d日")}, "w", 1)
+            writeFile(userPath() .. "/res/A9log.txt", { os.date("%Y年%m月%d日") }, "w", 1)
             mSleep(1000)
             httpsGet("Delete_log")
             initTable() --每次初始化内容都要再运行initTable()检查
@@ -306,7 +304,7 @@ function initTable()
         end
     else
         --没有文件就创建文件，初始化内容
-        writeFile(userPath() .. "/res/A9log.txt", {os.date("%Y年%m月%d日")}, "w", 1)
+        writeFile(userPath() .. "/res/A9log.txt", { os.date("%Y年%m月%d日") }, "w", 1)
         mSleep(1000)
         initTable() --每次初始化内容都要再运行initTable()检查
     end
@@ -319,7 +317,7 @@ function log4j(content)
             initTable()
             httpsGet("Delete_log")
         else
-            writeFile(userPath() .. "/res/A9log.txt", {"[" .. os.date("%H:%M:%S") .. "]" .. content}, "a", 1)
+            writeFile(userPath() .. "/res/A9log.txt", { "[" .. os.date("%H:%M:%S") .. "]" .. content }, "a", 1)
             httpsGet(content)
         end
     else
@@ -409,13 +407,7 @@ function ShowUI()
     UILabel(2, "多人跳车:避免赛事所需车的燃油在多人中消耗，可以指定跳过车辆。", 15, "left", "38,38,38")
     UILabel(2, "赛事没油看广告:建议配合插件VideoAdsSpeed开20倍使用。", 15, "left", "38,38,38")
     UILabel(2, "接收日志的邮箱：每日日志会在次日脚本运行之初发送至此邮箱。", 15, "left", "38,38,38")
-    UILabel(
-        2,
-        "远程控制功能，可以访问网址https://yourdomin.cn/api/a9control?command=XXX&udid="..ts.system.udid().."来远程控制脚本的运行。XXX需要更改为如下几种选项之一：",
-        15,
-        "left",
-        "38,38,38"
-    )
+    UILabel(2, "远程控制功能，可以访问网址https://yourdomin.cn/api/a9control?command=XXX&udid=" .. ts.system.udid() .. "来远程控制脚本的运行。XXX需要更改为如下几种选项之一：",15, "left", "38,38,38")
     UILabel(2, "XXX=0 暂停脚本运行，与XXX=1配合使用", 15, "left", "38,38,38")
     UILabel(2, "XXX=1 恢复脚本运行，与XXX=0配合使用", 15, "left", "38,38,38")
     UILabel(2, "XXX=2 停止赛事模式，将主模式更改为多人刷声望，与XXX=3配合使用", 15, "left", "38,38,38")
@@ -423,13 +415,7 @@ function ShowUI()
     UILabel(2, "XXX=4 终止脚本运行，此操作不可逆", 15, "left", "38,38,38")
     UILabel(2, "XXX=5 赛事没油没票后改为等待60分钟", 15, "left", "38,38,38")
     UILabel(2, "XXX=6 赛事没油没票后改为去刷多人", 15, "left", "38,38,38")
-    UILabel(
-        2,
-        "远程日志功能，可以访问网址https://yourdomin.cn/api/a9log?udid="..ts.system.udid().."查看本日脚本日志，远程监控脚本运行情况。",
-        15,
-        "left",
-        "38,38,38"
-    )
+    UILabel(2,"远程日志功能，可以访问网址https://yourdomin.cn/api/a9log?udid=" .. ts.system.udid() .. "查看本日脚本日志，远程监控脚本运行情况。",15, "left", "38,38,38")
     UILabel(2, "如果有脚本无法识别的界面，请联系QQ群1028746490群主。如果需要购买脚本授权码也请联系上述QQ群群主。", 20, "left", "38,38,38")
     UIShow()
 end
@@ -561,17 +547,14 @@ function getStage()
         elseif isColor(328, 328, 0x9365f8, 85) then
             stage = 3 --白金段位
         elseif
-            (isColor(320, 309, 0xf5e2a4, 85) and isColor(334, 309, 0xf5e2a4, 85) and isColor(323, 324, 0xf4e1a4, 85) and
-                isColor(334, 323, 0xf5e2a4, 85) and
-                isColor(328, 327, 0xf5e2a4, 85))
-         then
+        (isColor(320, 309, 0xf5e2a4, 85) and isColor(334, 309, 0xf5e2a4, 85) and isColor(323, 324, 0xf4e1a4, 85) and isColor(334, 323, 0xf5e2a4, 85) and isColor(328, 327, 0xf5e2a4, 85))
+        then
             stage = 4 --传奇段位
         elseif
-            (isColor(322, 308, 0x00bbe8, 85) and isColor(335, 308, 0x00bbe8, 85) and isColor(334, 323, 0x00bbe8, 85) and
-                isColor(320, 321, 0x00bbe8, 85))
-         then
+        (isColor(322, 308, 0x00bbe8, 85) and isColor(335, 308, 0x00bbe8, 85) and isColor(334, 323, 0x00bbe8, 85) and isColor(320, 321, 0x00bbe8, 85))
+        then
             stage = -2 --没有段位
-        --toast("没有段位",1);
+            --toast("没有段位",1);
         end
     elseif model == "i68" then
         --Undone
@@ -588,18 +571,15 @@ function getStage()
             --toast("白金段位",1);
             stage = 3 --白金段位
         elseif
-            (isColor(320, 309, 0xf5e2a4, 85) and isColor(334, 309, 0xf5e2a4, 85) and isColor(323, 324, 0xf4e1a4, 85) and
-                isColor(334, 323, 0xf5e2a4, 85) and
-                isColor(328, 327, 0xf5e2a4, 85))
-         then
+        (isColor(320, 309, 0xf5e2a4, 85) and isColor(334, 309, 0xf5e2a4, 85) and isColor(323, 324, 0xf4e1a4, 85) and isColor(334, 323, 0xf5e2a4, 85) and isColor(328, 327, 0xf5e2a4, 85))
+        then
             --toast("传奇段位",1);
             stage = 4 --传奇段位
         elseif
-            (isColor(322, 308, 0x00bbe8, 85) and isColor(335, 308, 0x00bbe8, 85) and isColor(334, 323, 0x00bbe8, 85) and
-                isColor(320, 321, 0x00bbe8, 85))
-         then
+        (isColor(322, 308, 0x00bbe8, 85) and isColor(335, 308, 0x00bbe8, 85) and isColor(334, 323, 0x00bbe8, 85) and isColor(320, 321, 0x00bbe8, 85))
+        then
             stage = -2 --没有段位
-        --toast("没有段位",1);
+            --toast("没有段位",1);
         end
     end
 end
@@ -636,13 +616,13 @@ function chooseCarStage()
         end
     end
 end
-function checkBatteryStatus()
+function lowPower()
     t = batteryStatus()
     --没在充电 电量少于20 停止脚本
     if t.charging == 0 and tonumber(t.level) <= 20 then
-        return false
+        return true
     end
-    return true
+    return false
 end
 function toCarbarn()
     getStage()
@@ -654,9 +634,9 @@ function toCarbarn()
             toast("等待" .. tostring(timeout - (os.time() - time) / 60) .. "分钟后返回", 5)
             for _ = 1, timeout * 60 - (os.time() - time), 1 do
                 toast(
-                    tostring((timeout * 60 - (os.time() - time)) - ((timeout * 60 - (os.time() - time)) % 0.01)) ..
-                        "秒后返回赛事",
-                    0.7
+                        tostring((timeout * 60 - (os.time() - time)) - ((timeout * 60 - (os.time() - time)) % 0.01)) ..
+                                "秒后返回赛事",
+                        0.7
                 )
                 mSleep(1000)
             end
@@ -709,7 +689,6 @@ function chooseGame()
 end
 function checkAndGetPackage()
     if model == "SE" then
-        receive, restore = false, false
         if (not isColor(649, 472, 0x091624, 85)) then
             toast("领取多人包", 1)
             log4j("Open_multiplayer_pack")
@@ -720,30 +699,19 @@ function checkAndGetPackage()
             mSleep(2000)
             tap(1030, 590)
             mSleep(10000)
-            receive = true
+            packWithoutRestore = packWithoutRestore + 1
+            PVPwithoutPack = 0
         end
         if
-            ((isColor(178, 503, 0xb9e816, 85) and isColor(173, 500, 0xbae916, 85) and isColor(175, 506, 0xc3fb12, 85) and
-                isColor(147, 506, 0xbba7bb, 85) and
-                isColor(128, 508, 0xe5dde5, 85) and
-                isColor(127, 500, 0xfdfcfd, 85)) and
-                not (isColor(80, 453, 0x1d071e, 85) and isColor(211, 455, 0x241228, 85) and
-                    isColor(84, 473, 0x241128, 85) and
-                    isColor(201, 472, 0x221226, 85) and
-                    isColor(228, 482, 0x676769, 85)))
-         then
+        ((isColor(178, 503, 0xb9e816, 85) and isColor(173, 500, 0xbae916, 85) and isColor(175, 506, 0xc3fb12, 85) and isColor(147, 506, 0xbba7bb, 85) and isColor(128, 508, 0xe5dde5, 85) and isColor(127, 500, 0xfdfcfd, 85)) and
+                not (isColor(80, 453, 0x1d071e, 85) and isColor(211, 455, 0x241228, 85) and isColor(84, 473, 0x241128, 85) and isColor(201, 472, 0x221226, 85) and isColor(228, 482, 0x676769, 85)))
+        then
             log4j("Restocks_multiplayer_pack")
-            restore = true
+            packWithoutRestore = 0
             tap(153, 462)
             mSleep(1000)
         end
-        if mode == "多人刷包" and (receive and PVPwithoutPack == 12 and not restore) then
-            log4j("No_anymore_multiplayer_pack")
-            return -2 --脚本应该停止
-        end
-        if receive then
-            PVPwithoutPack = 0
-        end
+
     elseif model == "i68" then
         tap(668, 576)
         mSleep(2000)
@@ -762,13 +730,15 @@ function checkAndGetPackage()
     end
 end
 function shouldStop()
-    --开完最后一个包可能不会立刻停止，因为12个奖杯只需要少于12局即可完成，代码中写12是为稳定起见
-    if
-        (mode == "多人刷包" and PVPwithoutPack > 12) or (not checkBatteryStatus() and savePower == "开") or
-            getHttpsCommand() == 4
-     then
+    --开完最后一个包可能不会立刻停止，因为12个奖杯只需要少于12局即可完成，代码中写12是为稳定起见 //针对SE：连续开4个包但没补充应该停止
+    if (mode == "多人刷包" and PVPwithoutPack >= 12) or (model == "SE" and mode == "多人刷包" and packWithoutRestore >= 4) then
         --脚本应该停止
         log4j("No_anymore_multiplayer_pack")
+        return true
+    elseif savePower == "开" and lowPower() then
+        log4j("Low Power,script_terminated")
+        return true
+    elseif getHttpsCommand() == 4 then
         return true
     end
     return false
@@ -897,19 +867,15 @@ end
 function checkAutoMobile()
     if model == "SE" then
         if
-            (isColor(1058, 508, 0xfc0001, 85) and isColor(1053, 508, 0xef0103, 85) and isColor(1065, 508, 0xef0103, 85) and
-                isColor(1057, 515, 0xff0000, 85) and
-                isColor(1047, 523, 0xf00103, 85) and
-                isColor(1062, 521, 0xe60205, 85))
-         then
+        (isColor(1058, 508, 0xfc0001, 85) and isColor(1053, 508, 0xef0103, 85) and isColor(1065, 508, 0xef0103, 85) and isColor(1057, 515, 0xff0000, 85) and isColor(1047, 523, 0xf00103, 85) and isColor(1062, 521, 0xe60205, 85))
+        then
             --toast("开启自动驾驶",1);
             tap(1060, 510)
         end
     elseif model == "i68" then
         if
-            (isColor(1237, 595, 0xf20102, 85) and isColor(1250, 595, 0xf20102, 85) and isColor(1242, 602, 0xfe0000, 85) and
-                isColor(1250, 612, 0xf80101, 85))
-         then
+        (isColor(1237, 595, 0xf20102, 85) and isColor(1250, 595, 0xf20102, 85) and isColor(1242, 602, 0xfe0000, 85) and isColor(1250, 612, 0xf80101, 85))
+        then
             --toast("开启自动驾驶",1);
             tap(1242, 602)
         end
@@ -996,62 +962,35 @@ function checkPlace_SE()
         toast("检测界面," .. tostring(checkplacetimes) .. "/" .. tostring(checkplacetimesout), 1)
     end
     if
-        (isColor(53, 64, 0xfb1264, 85) and isColor(151, 65, 0xfb1264, 85) and isColor(55, 102, 0xfb1264, 85) and
-            isColor(153, 102, 0xfb1264, 85) and
-            isColor(47, 225, 0xef1363, 85) and
-            isColor(72, 225, 0xf91264, 85) and
-            isColor(107, 225, 0xfa1264, 85) and
-            isColor(145, 225, 0xf21364, 85) and
-            isColor(85, 540, 0xffffff, 85) and
-            isColor(1052, 552, 0xffffff, 85))
-     then
+    (isColor(53, 64, 0xfb1264, 85) and isColor(151, 65, 0xfb1264, 85) and isColor(55, 102, 0xfb1264, 85) and isColor(153, 102, 0xfb1264, 85) and isColor(47, 225, 0xef1363, 85) and isColor(72, 225, 0xf91264, 85) and isColor(107, 225, 0xfa1264, 85) and isColor(145, 225, 0xf21364, 85) and isColor(85, 540, 0xffffff, 85) and isColor(1052, 552, 0xffffff, 85))
+    then
         checkplacetimes = 0
         return 26 --公告
     elseif
-        (isColor(688, 391, 0xfe8b40, 85) and isColor(395, 392, 0xfe8b40, 85) and isColor(479, 399, 0xfe8b40, 85) and
-            isColor(494, 371, 0xfe8b40, 85) and
-            isColor(787, 420, 0xfe8b40, 85) and
-            isColor(819, 366, 0xfe8b40, 85))
-     then
+    (isColor(688, 391, 0xfe8b40, 85) and isColor(395, 392, 0xfe8b40, 85) and isColor(479, 399, 0xfe8b40, 85) and isColor(494, 371, 0xfe8b40, 85) and isColor(787, 420, 0xfe8b40, 85) and isColor(819, 366, 0xfe8b40, 85))
+    then
         checkplacetimes = 0
         return -2 --在登录界面
     elseif
-        (isColor(419, 137, 0xffffff, 85) and isColor(455, 134, 0xffffff, 85) and isColor(573, 137, 0xffffff, 85) and
-            isColor(573, 158, 0xffffff, 85) and
-            isColor(602, 136, 0xffffff, 85) and
-            isColor(636, 133, 0xffffff, 85) and
-            isColor(659, 134, 0xffffff, 85) and
-            isColor(683, 140, 0xffffff, 85) and
-            isColor(442, 515, 0x000721, 85) and
-            isColor(190, 518, 0xffffff, 85))
-     then
+    (isColor(419, 137, 0xffffff, 85) and isColor(455, 134, 0xffffff, 85) and isColor(573, 137, 0xffffff, 85) and isColor(573, 158, 0xffffff, 85) and isColor(602, 136, 0xffffff, 85) and isColor(636, 133, 0xffffff, 85) and isColor(659, 134, 0xffffff, 85) and isColor(683, 140, 0xffffff, 85) and isColor(442, 515, 0x000721, 85) and isColor(190, 518, 0xffffff, 85))
+    then
         checkplacetimes = 0
         return 20 --俱乐部新人
     end
     if
-        (isColor(437, 570, 0x9f0942, 85) and isColor(452, 569, 0x9f0943, 85) and isColor(451, 584, 0x9f0942, 85) and
-            isColor(444, 577, 0x9f0942, 85))
-     then
+    (isColor(437, 570, 0x9f0942, 85) and isColor(452, 569, 0x9f0943, 85) and isColor(451, 584, 0x9f0942, 85) and isColor(444, 577, 0x9f0942, 85))
+    then
         return -3 --网络未同步
     end
     if
-        (isColor(92, 129, 0xf00252, 85) and isColor(97, 129, 0xf20252, 85) and isColor(104, 129, 0xf50153, 85) and
-            isColor(116, 130, 0xea0352, 85) and
-            isColor(128, 127, 0xf1014b, 85) and
-            isColor(158, 128, 0xdb0244, 85) and
-            isColor(761, 96, 0xd9d6d6, 85) and
-            isColor(827, 101, 0x3887d7, 85) and
-            isColor(906, 101, 0x4e443b, 85) and
-            isColor(971, 100, 0x9015fb, 85))
-     then
+    (isColor(92, 129, 0xf00252, 85) and isColor(97, 129, 0xf20252, 85) and isColor(104, 129, 0xf50153, 85) and isColor(116, 130, 0xea0352, 85) and isColor(128, 127, 0xf1014b, 85) and isColor(158, 128, 0xdb0244, 85) and isColor(761, 96, 0xd9d6d6, 85) and isColor(827, 101, 0x3887d7, 85) and isColor(906, 101, 0x4e443b, 85) and isColor(971, 100, 0x9015fb, 85))
+    then
         checkplacetimes = 0
         return 3.1 --在多人车库
     end
     if
-        (isColor(1069, 75, 0xffffff, 85) and isColor(1087, 74, 0xffffff, 85) and isColor(1077, 83, 0xffffff, 85) and
-            isColor(1068, 93, 0xffffff, 85) and
-            isColor(1087, 93, 0xffffff, 85))
-     then
+    (isColor(1069, 75, 0xffffff, 85) and isColor(1087, 74, 0xffffff, 85) and isColor(1077, 83, 0xffffff, 85) and isColor(1068, 93, 0xffffff, 85) and isColor(1087, 93, 0xffffff, 85))
+    then
         checkplacetimes = 0
         return 25 --广告播放完成
     elseif getColor(5, 5) == 0x101f3b then
@@ -1059,9 +998,9 @@ function checkPlace_SE()
         return 0 --在大厅
     end
     if
-        multiColor({{100, 560, 0xffffff}, {270, 570, 0xffffff}, {860, 560, 0xffffff}, {1060, 560, 0xffffff}}, 90, false) ==
+    multiColor({ { 100, 560, 0xffffff }, { 270, 570, 0xffffff }, { 860, 560, 0xffffff }, { 1060, 560, 0xffffff } }, 90, false) ==
             true
-     then
+    then
         checkplacetimes = 0
         return 1 --在多人
     end
@@ -1070,21 +1009,14 @@ function checkPlace_SE()
         return 5 --在赛事
     end
     if
-        (isColor(216, 96, 0xe6004d, 85) and isColor(139, 96, 0xfc0053, 85) and isColor(60, 95, 0xf00251, 85) and
-            isColor(221, 176, 0xffffff, 85) and
-            isColor(60, 161, 0xff0054, 85))
-     then
+    (isColor(216, 96, 0xe6004d, 85) and isColor(139, 96, 0xfc0053, 85) and isColor(60, 95, 0xf00251, 85) and isColor(221, 176, 0xffffff, 85) and isColor(60, 161, 0xff0054, 85))
+    then
         checkplacetimes = 0
         return 6 --在赛事开始界面
     end
     if
-        (isColor(540, 312, 0x01b9e3, 85) and isColor(635, 307, 0x01b8e3, 85) and isColor(596, 273, 0x01718b, 85) and
-            isColor(581, 350, 0x03b9e3, 85) and
-            isColor(564, 308, 0xffffff, 85) and
-            isColor(609, 310, 0xffffff, 85) and
-            isColor(658, 314, 0xffffff, 85) and
-            isColor(682, 291, 0xdfdfdf, 85))
-     then
+    (isColor(540, 312, 0x01b9e3, 85) and isColor(635, 307, 0x01b8e3, 85) and isColor(596, 273, 0x01718b, 85) and isColor(581, 350, 0x03b9e3, 85) and isColor(564, 308, 0xffffff, 85) and isColor(609, 310, 0xffffff, 85) and isColor(658, 314, 0xffffff, 85) and isColor(682, 291, 0xdfdfdf, 85))
+    then
         checkplacetimes = 0
         return 17 --多人匹配中
     end
@@ -1100,188 +1032,90 @@ function checkPlace_SE()
         return 3 --游戏中
     end
     if
-        (isColor(60, 26, 0xff0052, 85) and isColor(153, 29, 0xfe0052, 85) and isColor(209, 59, 0xffffff, 85) and
-            isColor(282, 57, 0xffffff, 85) and
-            isColor(355, 65, 0xffffff, 85) and
-            isColor(454, 63, 0xffffff, 85) and
-            isColor(515, 61, 0xffffff, 85) and
-            isColor(629, 45, 0xffffff, 85))
-     then
+    (isColor(60, 26, 0xff0052, 85) and isColor(153, 29, 0xfe0052, 85) and isColor(209, 59, 0xffffff, 85) and isColor(282, 57, 0xffffff, 85) and isColor(355, 65, 0xffffff, 85) and isColor(454, 63, 0xffffff, 85) and isColor(515, 61, 0xffffff, 85) and isColor(629, 45, 0xffffff, 85))
+    then
         checkplacetimes = 0
         return 4 --来自Gameloft的礼物
     end
     if
-        (isColor(525, 33, 0xff0054, 85) and isColor(536, 33, 0xff0054, 85) and isColor(531, 41, 0xff0054, 85) and
-            isColor(529, 52, 0xff0054, 85) and
-            isColor(568, 33, 0xff0054, 85) and
-            isColor(568, 44, 0xbe064c, 85) and
-            isColor(567, 53, 0xc6054c, 85) and
-            isColor(490, 81, 0xdadce0, 85) and
-            isColor(556, 87, 0xe4e6e8, 85) and
-            isColor(631, 85, 0xe6e8ea, 85))
-     then
+    (isColor(525, 33, 0xff0054, 85) and isColor(536, 33, 0xff0054, 85) and isColor(531, 41, 0xff0054, 85) and isColor(529, 52, 0xff0054, 85) and isColor(568, 33, 0xff0054, 85) and isColor(568, 44, 0xbe064c, 85) and isColor(567, 53, 0xc6054c, 85) and isColor(490, 81, 0xdadce0, 85) and isColor(556, 87, 0xe4e6e8, 85) and isColor(631, 85, 0xe6e8ea, 85))
+    then
         checkplacetimes = 0
         return 7 --领奖开包
     elseif
-        (isColor(211, 328, 0xe77423, 85) and isColor(366, 321, 0x4299e1, 85) and isColor(511, 310, 0xd8a200, 85) and
-            isColor(657, 303, 0x5c17db, 85) and
-            isColor(825, 289, 0x545454, 85) and
-            isColor(960, 123, 0xfffeff, 85))
-     then
+    (isColor(211, 328, 0xe77423, 85) and isColor(366, 321, 0x4299e1, 85) and isColor(511, 310, 0xd8a200, 85) and isColor(657, 303, 0x5c17db, 85) and isColor(825, 289, 0x545454, 85) and isColor(960, 123, 0xfffeff, 85))
+    then
         checkplacetimes = 0
         return 8 --多人联赛奖励界面
     elseif
-        (isColor(597, 52, 0xff0054, 85) and isColor(596, 63, 0xff0054, 85) and isColor(523, 55, 0xff0054, 85) and
-            isColor(535, 55, 0xff0054, 85) and
-            isColor(567, 54, 0xff0054, 85) and
-            isColor(557, 70, 0xff0054, 85) and
-            isColor(254, 552, 0xffffff, 85) and
-            isColor(522, 557, 0xffffff, 85) and
-            isColor(250, 592, 0xffffff, 85) and
-            isColor(526, 591, 0xffffff, 85))
-     then
+    (isColor(597, 52, 0xff0054, 85) and isColor(596, 63, 0xff0054, 85) and isColor(523, 55, 0xff0054, 85) and isColor(535, 55, 0xff0054, 85) and isColor(567, 54, 0xff0054, 85) and isColor(557, 70, 0xff0054, 85) and isColor(254, 552, 0xffffff, 85) and isColor(522, 557, 0xffffff, 85) and isColor(250, 592, 0xffffff, 85) and isColor(526, 591, 0xffffff, 85))
+    then
         checkplacetimes = 0
         return 9 --赛车解锁或升星
     elseif
-        (isColor(523, 350, 0xcb0042, 85) and isColor(610, 350, 0xcc0042, 85) and isColor(610, 435, 0xcc0042, 85) and
-            isColor(568, 460, 0xcd0042, 85) and
-            isColor(525, 436, 0xcc0042, 85) and
-            isColor(544, 422, 0xd9d9d9, 85) and
-            isColor(568, 439, 0xcecece, 85) and
-            isColor(591, 426, 0xd6d6d6, 85) and
-            isColor(592, 396, 0xececec, 85) and
-            isColor(592, 371, 0xfafafa, 85))
-     then
+    (isColor(523, 350, 0xcb0042, 85) and isColor(610, 350, 0xcc0042, 85) and isColor(610, 435, 0xcc0042, 85) and isColor(568, 460, 0xcd0042, 85) and isColor(525, 436, 0xcc0042, 85) and isColor(544, 422, 0xd9d9d9, 85) and isColor(568, 439, 0xcecece, 85) and isColor(591, 426, 0xd6d6d6, 85) and isColor(592, 396, 0xececec, 85) and isColor(592, 371, 0xfafafa, 85))
+    then
         checkplacetimes = 0
         return 10 --开始的开始
     elseif
-        (isColor(35, 555, 0xfb1264, 85) and isColor(35, 602, 0xfb1264, 85) and isColor(223, 136, 0xfa0153, 85) and
-            isColor(349, 137, 0xfe0055, 85) and
-            isColor(938, 569, 0xffffff, 85) and
-            isColor(1070, 569, 0xffffff, 85) and
-            isColor(935, 602, 0xffffff, 85) and
-            isColor(1076, 601, 0xffffff, 85))
-     then
+    (isColor(35, 555, 0xfb1264, 85) and isColor(35, 602, 0xfb1264, 85) and isColor(223, 136, 0xfa0153, 85) and isColor(349, 137, 0xfe0055, 85) and isColor(938, 569, 0xffffff, 85) and isColor(1070, 569, 0xffffff, 85) and isColor(935, 602, 0xffffff, 85) and isColor(1076, 601, 0xffffff, 85))
+    then
         checkplacetimes = 0
         return 11 --段位升级
     elseif
-        (isColor(222, 50, 0xffffff, 85) and isColor(301, 53, 0xffffff, 85) and isColor(196, 85, 0xffffff, 85) and
-            isColor(277, 84, 0xffffff, 85) and
-            isColor(333, 298, 0xffffff, 85) and
-            isColor(392, 297, 0xffffff, 85) and
-            isColor(456, 300, 0xffffff, 85) and
-            isColor(394, 212, 0xffffff, 85) and
-            isColor(293, 237, 0xffffff, 85) and
-            isColor(494, 235, 0xffffff, 85))
-     then
+    (isColor(222, 50, 0xffffff, 85) and isColor(301, 53, 0xffffff, 85) and isColor(196, 85, 0xffffff, 85) and isColor(277, 84, 0xffffff, 85) and isColor(333, 298, 0xffffff, 85) and isColor(392, 297, 0xffffff, 85) and isColor(456, 300, 0xffffff, 85) and isColor(394, 212, 0xffffff, 85) and isColor(293, 237, 0xffffff, 85) and isColor(494, 235, 0xffffff, 85))
+    then
         checkplacetimes = 0
         return 12 --声望升级
     elseif
-        (isColor(184, 218, 0xffffff, 85) and isColor(218, 229, 0xd8d9dc, 85) and isColor(245, 224, 0xe6e7e9, 85) and
-            isColor(266, 225, 0xf9f9f9, 85) and
-            isColor(342, 225, 0xe9e9e9, 85) and
-            isColor(408, 221, 0xcfcfcf, 85) and
-            isColor(935, 228, 0xf2004f, 85) and
-            isColor(991, 225, 0xff0054, 85) and
-            isColor(976, 243, 0xfb0052, 85))
-     then
+    (isColor(184, 218, 0xffffff, 85) and isColor(218, 229, 0xd8d9dc, 85) and isColor(245, 224, 0xe6e7e9, 85) and isColor(266, 225, 0xf9f9f9, 85) and isColor(342, 225, 0xe9e9e9, 85) and isColor(408, 221, 0xcfcfcf, 85) and isColor(935, 228, 0xf2004f, 85) and isColor(991, 225, 0xff0054, 85) and isColor(976, 243, 0xfb0052, 85))
+    then
         checkplacetimes = 0
         return 13 --未能连接到服务器
     elseif
-        (isColor(26, 24, 0xff0054, 85) and isColor(234, 20, 0xff0054, 85) and isColor(29, 212, 0xff0054, 85) and
-            isColor(195, 120, 0xffffff, 85) and
-            isColor(441, 127, 0xffffff, 85) and
-            isColor(15, 103, 0x061724, 85) and
-            isColor(845, 559, 0xc3fb13, 85) and
-            isColor(1035, 559, 0xc2fb12, 85) and
-            isColor(945, 603, 0xc3fb13, 85))
-     then
+    (isColor(26, 24, 0xff0054, 85) and isColor(234, 20, 0xff0054, 85) and isColor(29, 212, 0xff0054, 85) and isColor(195, 120, 0xffffff, 85) and isColor(441, 127, 0xffffff, 85) and isColor(15, 103, 0x061724, 85) and isColor(845, 559, 0xc3fb13, 85) and isColor(1035, 559, 0xc2fb12, 85) and isColor(945, 603, 0xc3fb13, 85))
+    then
         checkplacetimes = 0
         return 14 --多人断开连接
     elseif
-        (isColor(525, 185, 0xffffff, 85) and isColor(546, 182, 0xffffff, 85) and isColor(574, 189, 0xffffff, 85) and
-            isColor(591, 190, 0xffffff, 85) and
-            isColor(729, 329, 0xeceef1, 85) and
-            isColor(742, 336, 0xd2d6dd, 85) and
-            isColor(759, 334, 0xffffff, 85) and
-            isColor(788, 336, 0xe4e7eb, 85) and
-            isColor(798, 329, 0xcdd1d9, 85) and
-            isColor(569, 437, 0xffffff, 85))
-     then
+    (isColor(525, 185, 0xffffff, 85) and isColor(546, 182, 0xffffff, 85) and isColor(574, 189, 0xffffff, 85) and isColor(591, 190, 0xffffff, 85) and isColor(729, 329, 0xeceef1, 85) and isColor(742, 336, 0xd2d6dd, 85) and isColor(759, 334, 0xffffff, 85) and isColor(788, 336, 0xe4e7eb, 85) and isColor(798, 329, 0xcdd1d9, 85) and isColor(569, 437, 0xffffff, 85))
+    then
         checkplacetimes = 0
         return 15 --连接错误
     elseif
-        (isColor(176, 214, 0xffffff, 85) and isColor(269, 217, 0xecedee, 85) and isColor(326, 217, 0x999da4, 85) and
-            isColor(342, 211, 0xbdc0c4, 85) and
-            isColor(352, 221, 0xe7e7e7, 85) and
-            isColor(395, 221, 0xd7d7d7, 85) and
-            isColor(409, 221, 0xcececf, 85) and
-            isColor(555, 352, 0xe5eaf0, 85) and
-            isColor(951, 217, 0xff0054, 85) and
-            isColor(993, 221, 0xff0054, 85))
-     then
+    (isColor(176, 214, 0xffffff, 85) and isColor(269, 217, 0xecedee, 85) and isColor(326, 217, 0x999da4, 85) and isColor(342, 211, 0xbdc0c4, 85) and isColor(352, 221, 0xe7e7e7, 85) and isColor(395, 221, 0xd7d7d7, 85) and isColor(409, 221, 0xcececf, 85) and isColor(555, 352, 0xe5eaf0, 85) and isColor(951, 217, 0xff0054, 85) and isColor(993, 221, 0xff0054, 85))
+    then
         checkplacetimes = 0
         return 16 --顶号行为
     elseif
-        (isColor(495, 147, 0xff0054, 85) and isColor(525, 149, 0xd4044d, 85) and isColor(538, 148, 0xfd0054, 85) and
-            isColor(564, 145, 0xfd0054, 85) and
-            isColor(585, 150, 0xfd0054, 85) and
-            isColor(604, 146, 0xfd0054, 85) and
-            isColor(608, 145, 0xe80250, 85) and
-            isColor(861, 158, 0xf90052, 85) and
-            isColor(567, 453, 0xc3fb11, 85))
-     then
+    (isColor(495, 147, 0xff0054, 85) and isColor(525, 149, 0xd4044d, 85) and isColor(538, 148, 0xfd0054, 85) and isColor(564, 145, 0xfd0054, 85) and isColor(585, 150, 0xfd0054, 85) and isColor(604, 146, 0xfd0054, 85) and isColor(608, 145, 0xe80250, 85) and isColor(861, 158, 0xf90052, 85) and isColor(567, 453, 0xc3fb11, 85))
+    then
         checkplacetimes = 0
         return 18 --VIP到期
     elseif
-        (isColor(67, 23, 0x664944, 85) and isColor(183, 26, 0x7b4542, 85) and isColor(346, 22, 0x8f7a81, 85) and
-            isColor(495, 27, 0x587bad, 85) and
-            isColor(632, 25, 0x90bee2, 85) and
-            isColor(764, 27, 0x8c7b94, 85) and
-            isColor(892, 29, 0x9c7d84, 85))
-     then
+    (isColor(67, 23, 0x664944, 85) and isColor(183, 26, 0x7b4542, 85) and isColor(346, 22, 0x8f7a81, 85) and isColor(495, 27, 0x587bad, 85) and isColor(632, 25, 0x90bee2, 85) and isColor(764, 27, 0x8c7b94, 85) and isColor(892, 29, 0x9c7d84, 85))
+    then
         checkplacetimes = 0
         return 19 --登录延时
     elseif
-        (isColor(506, 152, 0xf3f4f5, 85) and isColor(542, 162, 0xfbfbfb, 85) and isColor(560, 162, 0xe8eaec, 85) and
-            isColor(573, 161, 0xffffff, 85) and
-            isColor(612, 162, 0xffffff, 85) and
-            isColor(508, 464, 0xffffff, 85) and
-            isColor(619, 457, 0xffffff, 85) and
-            isColor(647, 486, 0x020922, 85))
-     then
+    (isColor(506, 152, 0xf3f4f5, 85) and isColor(542, 162, 0xfbfbfb, 85) and isColor(560, 162, 0xe8eaec, 85) and isColor(573, 161, 0xffffff, 85) and isColor(612, 162, 0xffffff, 85) and isColor(508, 464, 0xffffff, 85) and isColor(619, 457, 0xffffff, 85) and isColor(647, 486, 0x020922, 85))
+    then
         checkplacetimes = 0
         return 21 --段位降低
     elseif
-        (isColor(19, 21, 0xff0054, 85) and isColor(223, 17, 0xff0054, 85) and isColor(18, 235, 0xff0054, 85) and
-            isColor(231, 241, 0xff0054, 85) and
-            isColor(178, 155, 0xffffff, 85) and
-            isColor(409, 157, 0xffffff, 85) and
-            isColor(454, 131, 0xffffff, 85) and
-            isColor(1017, 562, 0xc3fb12, 85) and
-            isColor(1074, 593, 0xc3fb11, 85) and
-            isColor(1085, 607, 0x000b1f, 85))
-     then
+    (isColor(19, 21, 0xff0054, 85) and isColor(223, 17, 0xff0054, 85) and isColor(18, 235, 0xff0054, 85) and isColor(231, 241, 0xff0054, 85) and isColor(178, 155, 0xffffff, 85) and isColor(409, 157, 0xffffff, 85) and isColor(454, 131, 0xffffff, 85) and isColor(1017, 562, 0xc3fb12, 85) and isColor(1074, 593, 0xc3fb11, 85) and isColor(1085, 607, 0x000b1f, 85))
+    then
         checkplacetimes = 0
         return 22 --失去资格
     elseif
-        (isColor(961, 97, 0xff0054, 85) and isColor(967, 91, 0xfd0054, 85) and isColor(955, 89, 0xf60252, 85) and
-            isColor(955, 103, 0xfd0155, 85) and
-            isColor(971, 105, 0xf80151, 85) and
-            isColor(961, 97, 0xff0054, 85))
-     then
+    (isColor(961, 97, 0xff0054, 85) and isColor(967, 91, 0xfd0054, 85) and isColor(955, 89, 0xf60252, 85) and isColor(955, 103, 0xfd0155, 85) and isColor(971, 105, 0xf80151, 85) and isColor(961, 97, 0xff0054, 85))
+    then
         checkplacetimes = 0
         return 23 --弹窗广告
     end
     if
-        (isColor(76, 51, 0xf8004c, 85) and isColor(76, 69, 0xf40153, 85) and isColor(282, 54, 0xff0054, 85) and
-            isColor(282, 62, 0xf00253, 85) and
-            isColor(282, 68, 0xff0054, 85) and
-            isColor(125, 552, 0x828786, 85) and
-            isColor(67, 584, 0x000921, 85) and
-            isColor(1099, 611, 0x000d21, 85) and
-            isColor(1099, 568, 0xc4fb11, 85))
-     then
+    (isColor(76, 51, 0xf8004c, 85) and isColor(76, 69, 0xf40153, 85) and isColor(282, 54, 0xff0054, 85) and isColor(282, 62, 0xf00253, 85) and isColor(282, 68, 0xff0054, 85) and isColor(125, 552, 0x828786, 85) and isColor(67, 584, 0x000921, 85) and isColor(1099, 611, 0x000d21, 85) and isColor(1099, 568, 0xc4fb11, 85))
+    then
         checkplacetimes = 0
         return 24 --获得了新红币界面
     end
@@ -1294,7 +1128,7 @@ function toPVP_SE()
     end
     slideToPVP()
     --TODO:检查是否在多人入口
-    ::PVP::
+    :: PVP ::
     if checkAndGetPackage() == -2 then
         return -2
     end
@@ -1315,13 +1149,8 @@ function waitBegin_SE()
         timer = timer + 1
         toast("开局中," .. tostring(timer) .. "/35", 0.5)
         if
-            (isColor(959, 206, 0xfff8fb, 85) and isColor(980, 228, 0xfffbff, 85) and isColor(959, 226, 0xffffff, 85) and
-                isColor(981, 205, 0xfffeff, 85) and
-                isColor(969, 216, 0xfffeff, 85) and
-                isColor(938, 213, 0xff0053, 85) and
-                isColor(993, 207, 0xff0054, 85) and
-                isColor(981, 238, 0xff0054, 85))
-         then
+        (isColor(959, 206, 0xfff8fb, 85) and isColor(980, 228, 0xfffbff, 85) and isColor(959, 226, 0xffffff, 85) and isColor(981, 205, 0xfffeff, 85) and isColor(969, 216, 0xfffeff, 85) and isColor(938, 213, 0xff0053, 85) and isColor(993, 207, 0xff0054, 85) and isColor(981, 238, 0xff0054, 85))
+        then
             tap(970, 220)
             mSleep(2000)
             return -1
@@ -1330,14 +1159,8 @@ function waitBegin_SE()
     if timer >= 35 then
         toast("开局异常", 1)
         if
-            (isColor(540, 312, 0x01b9e3, 85) and isColor(635, 307, 0x01b8e3, 85) and isColor(596, 273, 0x01718b, 85) and
-                isColor(581, 350, 0x03b9e3, 85) and
-                isColor(564, 308, 0xffffff, 85) and
-                isColor(658, 314, 0xffffff, 85) and
-                isColor(682, 291, 0xdfdfdf, 85) and
-                isColor(17, 50, 0xffffff, 85) and
-                isColor(70, 14, 0xffffff, 85))
-         then
+        (isColor(540, 312, 0x01b9e3, 85) and isColor(635, 307, 0x01b8e3, 85) and isColor(596, 273, 0x01718b, 85) and isColor(581, 350, 0x03b9e3, 85) and isColor(564, 308, 0xffffff, 85) and isColor(658, 314, 0xffffff, 85) and isColor(682, 291, 0xdfdfdf, 85) and isColor(17, 50, 0xffffff, 85) and isColor(70, 14, 0xffffff, 85))
+        then
             back()
             return -1
         else
@@ -1392,14 +1215,8 @@ function backFromLines_SE()
 end
 function Login_SE()
     if
-        (isColor(521, 298, 0x333333, 85) and isColor(502, 298, 0x333333, 85) and isColor(487, 298, 0x333333, 85) and
-            isColor(469, 297, 0x333333, 85) and
-            isColor(452, 298, 0x333333, 85) and
-            isColor(435, 297, 0x333333, 85) and
-            isColor(418, 297, 0x333333, 85) and
-            isColor(399, 296, 0x333333, 85) and
-            isColor(385, 296, 0x333333, 85))
-     then
+    (isColor(521, 298, 0x333333, 85) and isColor(502, 298, 0x333333, 85) and isColor(487, 298, 0x333333, 85) and isColor(469, 297, 0x333333, 85) and isColor(452, 298, 0x333333, 85) and isColor(435, 297, 0x333333, 85) and isColor(418, 297, 0x333333, 85) and isColor(399, 296, 0x333333, 85) and isColor(385, 296, 0x333333, 85))
+    then
         log4j("Login")
         tap(559, 397)
         mSleep(2000)
@@ -1443,7 +1260,7 @@ function toDailyGame_SE()
     end
     mSleep(1000)
     --TODO:检查是否在赛事入口
-    ::DailyGame::
+    :: DailyGame ::
     tap(469, 589)
     mSleep(2000)
     for _ = 1, 4, 1 do
@@ -1467,7 +1284,7 @@ function toSpecialEvent_SE()
     moveTo(600, 235, 360, 235, 20) --从右往左划一次
     mSleep(1000)
     --TODO:检查是否在特殊赛事入口
-    ::DailyGame::
+    :: DailyGame ::
     tap(207, 621)
     mSleep(2000)
     for _ = 1, 4, 1 do
@@ -1481,7 +1298,7 @@ function gametoCarbarn_SE()
     tap(1065, 590)
     mSleep(2000)
     selectCarAtGame()
-    ::beginAtGame::
+    :: beginAtGame ::
     mSleep(4000)
     if ads or carCanUse() then
         checkAutoMobile()
@@ -1489,9 +1306,8 @@ function gametoCarbarn_SE()
         mSleep(2000)
         --检查是不是有票
         if
-            (isColor(257, 448, 0xc3fb12, 85) and isColor(508, 453, 0xc3fb12, 85) and isColor(250, 488, 0xc2fb12, 85) and
-                isColor(509, 492, 0xc4fb12, 85))
-         then
+        (isColor(257, 448, 0xc3fb12, 85) and isColor(508, 453, 0xc3fb12, 85) and isColor(250, 488, 0xc2fb12, 85) and isColor(509, 492, 0xc4fb12, 85))
+        then
             toast("没票", 1)
             tap(970, 160)
             --去多人or生涯
@@ -1517,7 +1333,7 @@ function gametoCarbarn_SE()
         if watchAds ~= "关" then
             watchAd()
             tap(1077, 83)
-             --关闭广告
+            --关闭广告
             mSleep(2000)
             ads = true
             goto beginAtGame
@@ -1734,91 +1550,56 @@ function checkPlace_i68()
         toast("检测界面," .. tostring(checkplacetimes) .. "/" .. tostring(checkplacetimesout), 1)
     end
     if
-        (isColor(1266, 74, 0xffffff, 85) and isColor(1285, 74, 0xffffff, 85) and isColor(1275, 83, 0xffffff, 85) and
-            isColor(1267, 92, 0xffffff, 85) and
-            isColor(1285, 92, 0xffffff, 85))
-     then
+    (isColor(1266, 74, 0xffffff, 85) and isColor(1285, 74, 0xffffff, 85) and isColor(1275, 83, 0xffffff, 85) and isColor(1267, 92, 0xffffff, 85) and isColor(1285, 92, 0xffffff, 85))
+    then
         checkplacetimes = 0
         return 25 --广告播放完毕
     end
     if
-        ((isColor(1305, 14, 0xfcffff, 85) and isColor(1312, 22, 0xfefefe, 85) and isColor(1314, 37, 0xcdd3db, 85) and
-            isColor(1293, 32, 0xfefeff, 85) and
-            isColor(1294, 21, 0xffffff, 85) and
-            isColor(1304, 17, 0xfeffff, 85)) and
+    ((isColor(1305, 14, 0xfcffff, 85) and isColor(1312, 22, 0xfefefe, 85) and isColor(1314, 37, 0xcdd3db, 85) and isColor(1293, 32, 0xfefeff, 85) and isColor(1294, 21, 0xffffff, 85) and isColor(1304, 17, 0xfeffff, 85)) and
             not (isColor(12, 16, 0xffffff, 85) and isColor(10, 45, 0xffffff, 85))) or
-            (isColor(1111, 11, 0xfbffff, 85) and isColor(1120, 16, 0xf8faf9, 85) and isColor(1126, 26, 0xe2e4e8, 85) and
-                isColor(1095, 26, 0xfdfdfd, 85))
-     then
+            (isColor(1111, 11, 0xfbffff, 85) and isColor(1120, 16, 0xf8faf9, 85) and isColor(1126, 26, 0xe2e4e8, 85) and isColor(1095, 26, 0xfdfdfd, 85))
+    then
         checkplacetimes = 0
         return 0 --在大厅
     elseif
-        (isColor(513, 668, 0xff0054, 85) and isColor(521, 676, 0xff0054, 85) and isColor(529, 685, 0xff0054, 85) and
-            isColor(530, 668, 0xfc0053, 85) and
-            isColor(513, 684, 0xfe0054, 85) and
-            isColor(587, 665, 0xe4e5e8, 85) and
-            isColor(588, 717, 0xfb1264, 85) and
-            isColor(615, 717, 0xfb1264, 85) and
-            isColor(640, 717, 0xfb1264, 85) and
-            isColor(660, 717, 0xfb1264, 85))
-     then
+    (isColor(513, 668, 0xff0054, 85) and isColor(521, 676, 0xff0054, 85) and isColor(529, 685, 0xff0054, 85) and isColor(530, 668, 0xfc0053, 85) and isColor(513, 684, 0xfe0054, 85) and isColor(587, 665, 0xe4e5e8, 85) and isColor(588, 717, 0xfb1264, 85) and isColor(615, 717, 0xfb1264, 85) and isColor(640, 717, 0xfb1264, 85) and isColor(660, 717, 0xfb1264, 85))
+    then
         checkplacetimes = 0
         return -3 --网络未同步
     elseif
-        (isColor(498, 429, 0xfe8b40, 85) and isColor(500, 472, 0xfe8b40, 85) and isColor(845, 434, 0xfe8b40, 85) and
-            isColor(846, 467, 0xfe8b40, 85))
-     then
+    (isColor(498, 429, 0xfe8b40, 85) and isColor(500, 472, 0xfe8b40, 85) and isColor(845, 434, 0xfe8b40, 85) and isColor(846, 467, 0xfe8b40, 85))
+    then
         checkplacetimes = 0
         return -2 --在登录界面
     elseif
-        (isColor(419, 137, 0xffffff, 85) and isColor(455, 134, 0xffffff, 85) and isColor(573, 137, 0xffffff, 85) and
-            isColor(573, 158, 0xffffff, 85) and
-            isColor(602, 136, 0xffffff, 85) and
-            isColor(636, 133, 0xffffff, 85) and
-            isColor(659, 134, 0xffffff, 85) and
-            isColor(683, 140, 0xffffff, 85) and
-            isColor(442, 515, 0x000721, 85) and
-            isColor(190, 518, 0xffffff, 85))
-     then
+    (isColor(419, 137, 0xffffff, 85) and isColor(455, 134, 0xffffff, 85) and isColor(573, 137, 0xffffff, 85) and isColor(573, 158, 0xffffff, 85) and isColor(602, 136, 0xffffff, 85) and isColor(636, 133, 0xffffff, 85) and isColor(659, 134, 0xffffff, 85) and isColor(683, 140, 0xffffff, 85) and isColor(442, 515, 0x000721, 85) and isColor(190, 518, 0xffffff, 85))
+    then
         checkplacetimes = 0
         return 20 --俱乐部新人,undone
     elseif
-        (isColor(896, 112, 0xce7345, 85) and isColor(985, 113, 0x6c7889, 85) and isColor(1059, 119, 0xbd9158, 85) and
-            isColor(1144, 118, 0xbcb3d5, 85) and
-            isColor(1230, 116, 0x6d6c63, 85))
-     then
+    (isColor(896, 112, 0xce7345, 85) and isColor(985, 113, 0x6c7889, 85) and isColor(1059, 119, 0xbd9158, 85) and isColor(1144, 118, 0xbcb3d5, 85) and isColor(1230, 116, 0x6d6c63, 85))
+    then
         checkplacetimes = 0
         return 3.1 --在多人车库
     elseif
-        (isColor(89, 643, 0xffffff, 85) and isColor(335, 645, 0xffffff, 85) and isColor(362, 708, 0x000822, 85) and
-            isColor(1021, 648, 0xffffff, 85) and
-            isColor(1234, 646, 0xffffff, 85) and
-            isColor(1260, 704, 0x000821, 85))
-     then
+    (isColor(89, 643, 0xffffff, 85) and isColor(335, 645, 0xffffff, 85) and isColor(362, 708, 0x000822, 85) and isColor(1021, 648, 0xffffff, 85) and isColor(1234, 646, 0xffffff, 85) and isColor(1260, 704, 0x000821, 85))
+    then
         checkplacetimes = 0
         return 1 --在多人
     elseif
-        (isColor(89, 679, 0xc5fb12, 85) and isColor(246, 680, 0xc3fb12, 85) and isColor(81, 703, 0xc2fb0f, 85) and
-            isColor(253, 700, 0xc3fa12, 85))
-     then
+    (isColor(89, 679, 0xc5fb12, 85) and isColor(246, 680, 0xc3fb12, 85) and isColor(81, 703, 0xc2fb0f, 85) and isColor(253, 700, 0xc3fa12, 85))
+    then
         checkplacetimes = 0
         return 5 --在赛事
     elseif
-        (isColor(70, 112, 0xfa0152, 85) and isColor(82, 112, 0xfa0052, 85) and isColor(101, 112, 0xfb0052, 85) and
-            isColor(143, 113, 0xfd0053, 85) and
-            isColor(189, 113, 0xfe0053, 85) and
-            isColor(228, 113, 0xfd0053, 85) and
-            isColor(258, 113, 0xf60051, 85))
-     then
+    (isColor(70, 112, 0xfa0152, 85) and isColor(82, 112, 0xfa0052, 85) and isColor(101, 112, 0xfb0052, 85) and isColor(143, 113, 0xfd0053, 85) and isColor(189, 113, 0xfe0053, 85) and isColor(228, 113, 0xfd0053, 85) and isColor(258, 113, 0xf60051, 85))
+    then
         checkplacetimes = 0
         return 6 --在赛事开始界面
     elseif
-        (isColor(628, 370, 0x03b9e4, 85) and isColor(660, 353, 0xfefefe, 85) and isColor(682, 360, 0xffffff, 85) and
-            isColor(712, 364, 0xffffff, 85) and
-            isColor(738, 389, 0xffffff, 85) and
-            isColor(678, 423, 0x02b9e2, 85) and
-            isColor(621, 385, 0x00b9e2, 85))
-     then
+    (isColor(628, 370, 0x03b9e4, 85) and isColor(660, 353, 0xfefefe, 85) and isColor(682, 360, 0xffffff, 85) and isColor(712, 364, 0xffffff, 85) and isColor(738, 389, 0xffffff, 85) and isColor(678, 423, 0x02b9e2, 85) and isColor(621, 385, 0x00b9e2, 85))
+    then
         checkplacetimes = 0
         return 17 --多人匹配中
     elseif getColor(5, 5) == 0xffffff then
@@ -1830,148 +1611,77 @@ function checkPlace_i68()
         checkplacetimes = 0
         return 3 --游戏中
     elseif
-        (isColor(60, 26, 0xff0052, 85) and isColor(153, 29, 0xfe0052, 85) and isColor(209, 59, 0xffffff, 85) and
-            isColor(282, 57, 0xffffff, 85) and
-            isColor(355, 65, 0xffffff, 85) and
-            isColor(454, 63, 0xffffff, 85) and
-            isColor(515, 61, 0xffffff, 85) and
-            isColor(629, 45, 0xffffff, 85))
-     then
+    (isColor(60, 26, 0xff0052, 85) and isColor(153, 29, 0xfe0052, 85) and isColor(209, 59, 0xffffff, 85) and isColor(282, 57, 0xffffff, 85) and isColor(355, 65, 0xffffff, 85) and isColor(454, 63, 0xffffff, 85) and isColor(515, 61, 0xffffff, 85) and isColor(629, 45, 0xffffff, 85))
+    then
         checkplacetimes = 0
         return 4 --来自Gameloft的礼物,undone
     elseif
-        (isColor(617, 34, 0xea3358, 85) and isColor(699, 39, 0xea3358, 85) and isColor(701, 66, 0xe83258, 85) and
-            isColor(1291, 716, 0x01061f, 85) and
-            isColor(1264, 702, 0xffffff, 85))
-     then
+    (isColor(617, 34, 0xea3358, 85) and isColor(699, 39, 0xea3358, 85) and isColor(701, 66, 0xe83258, 85) and isColor(1291, 716, 0x01061f, 85) and isColor(1264, 702, 0xffffff, 85))
+    then
         checkplacetimes = 0
         return 7 --领奖开包
     elseif
-        (isColor(1101, 119, 0xff0053, 85) and isColor(1123, 117, 0xff0053, 85) and isColor(1147, 147, 0xff0053, 85) and
-            isColor(1160, 166, 0xff0054, 85) and
-            isColor(1129, 170, 0xfa0052, 85) and
-            isColor(1127, 143, 0xfffeff, 85))
-     then
+    (isColor(1101, 119, 0xff0053, 85) and isColor(1123, 117, 0xff0053, 85) and isColor(1147, 147, 0xff0053, 85) and isColor(1160, 166, 0xff0054, 85) and isColor(1129, 170, 0xfa0052, 85) and isColor(1127, 143, 0xfffeff, 85))
+    then
         checkplacetimes = 0
         return 8 --多人联赛奖励界面
     elseif
-        (isColor(616, 208, 0xfbde23, 85) and isColor(625, 224, 0xfec002, 85) and isColor(643, 226, 0xfee53d, 85) and
-            isColor(629, 204, 0xfffef5, 85))
-     then
+    (isColor(616, 208, 0xfbde23, 85) and isColor(625, 224, 0xfec002, 85) and isColor(643, 226, 0xfee53d, 85) and isColor(629, 204, 0xfffef5, 85))
+    then
         checkplacetimes = 0
         return 9 --赛车解锁或升星
     elseif
-        (isColor(584, 582, 0xc3fb12, 85) and isColor(774, 587, 0xc3fb11, 85) and isColor(547, 638, 0xc3fb13, 85) and
-            isColor(785, 638, 0xc5fb12, 85) and
-            isColor(806, 650, 0x000b21, 85))
-     then
+    (isColor(584, 582, 0xc3fb12, 85) and isColor(774, 587, 0xc3fb11, 85) and isColor(547, 638, 0xc3fb13, 85) and isColor(785, 638, 0xc5fb12, 85) and isColor(806, 650, 0x000b21, 85))
+    then
         checkplacetimes = 0
         return 10 --开始的开始
     elseif
-        (isColor(252, 161, 0xfd0055, 85) and isColor(290, 159, 0xfa0051, 85) and isColor(316, 161, 0xfe0055, 85) and
-            isColor(375, 162, 0xf60154, 85) and
-            isColor(414, 161, 0xfc0156, 85) and
-            isColor(42, 652, 0xfb1264, 85) and
-            isColor(43, 696, 0xf91263, 85) and
-            isColor(1111, 663, 0xffffff, 85) and
-            isColor(1260, 668, 0xffffff, 85) and
-            isColor(1284, 712, 0x000521, 85))
-     then
+    (isColor(252, 161, 0xfd0055, 85) and isColor(290, 159, 0xfa0051, 85) and isColor(316, 161, 0xfe0055, 85) and isColor(375, 162, 0xf60154, 85) and isColor(414, 161, 0xfc0156, 85) and isColor(42, 652, 0xfb1264, 85) and isColor(43, 696, 0xf91263, 85) and isColor(1111, 663, 0xffffff, 85) and isColor(1260, 668, 0xffffff, 85) and isColor(1284, 712, 0x000521, 85))
+    then
         checkplacetimes = 0
         return 11 --段位升级
     elseif
-        (isColor(265, 59, 0xfffefd, 85) and isColor(287, 59, 0xfffffd, 85) and isColor(347, 68, 0xffffff, 85) and
-            isColor(334, 88, 0xffffff, 85) and
-            isColor(337, 268, 0xfefffd, 85) and
-            isColor(459, 245, 0xffffff, 85) and
-            isColor(462, 178, 0xf4feff, 85) and
-            isColor(323, 540, 0xfcffff, 85) and
-            isColor(591, 644, 0xffffff, 85) and
-            isColor(820, 687, 0x030625, 85))
-     then
+    (isColor(265, 59, 0xfffefd, 85) and isColor(287, 59, 0xfffffd, 85) and isColor(347, 68, 0xffffff, 85) and isColor(334, 88, 0xffffff, 85) and isColor(337, 268, 0xfefffd, 85) and isColor(459, 245, 0xffffff, 85) and isColor(462, 178, 0xf4feff, 85) and isColor(323, 540, 0xfcffff, 85) and isColor(591, 644, 0xffffff, 85) and isColor(820, 687, 0x030625, 85))
+    then
         checkplacetimes = 0
         return 12 --声望升级
     elseif
-        (isColor(184, 218, 0xffffff, 85) and isColor(218, 229, 0xd8d9dc, 85) and isColor(245, 224, 0xe6e7e9, 85) and
-            isColor(266, 225, 0xf9f9f9, 85) and
-            isColor(342, 225, 0xe9e9e9, 85) and
-            isColor(408, 221, 0xcfcfcf, 85) and
-            isColor(935, 228, 0xf2004f, 85) and
-            isColor(991, 225, 0xff0054, 85) and
-            isColor(976, 243, 0xfb0052, 85))
-     then
+    (isColor(184, 218, 0xffffff, 85) and isColor(218, 229, 0xd8d9dc, 85) and isColor(245, 224, 0xe6e7e9, 85) and isColor(266, 225, 0xf9f9f9, 85) and isColor(342, 225, 0xe9e9e9, 85) and isColor(408, 221, 0xcfcfcf, 85) and isColor(935, 228, 0xf2004f, 85) and isColor(991, 225, 0xff0054, 85) and isColor(976, 243, 0xfb0052, 85))
+    then
         checkplacetimes = 0
         return 13 --未能连接到服务器,undone
     elseif
-        (isColor(36, 45, 0xff0054, 85) and isColor(26, 260, 0xff0054, 85) and isColor(148, 139, 0xff0054, 85) and
-            isColor(243, 37, 0xff0054, 85) and
-            isColor(269, 272, 0xff0054, 85) and
-            isColor(521, 140, 0xffffff, 85) and
-            isColor(992, 650, 0xc3fb12, 85) and
-            isColor(1114, 705, 0xc2fb13, 85) and
-            isColor(1221, 658, 0xc3fb13, 85) and
-            isColor(1272, 713, 0x000a21, 85))
-     then
+    (isColor(36, 45, 0xff0054, 85) and isColor(26, 260, 0xff0054, 85) and isColor(148, 139, 0xff0054, 85) and isColor(243, 37, 0xff0054, 85) and isColor(269, 272, 0xff0054, 85) and isColor(521, 140, 0xffffff, 85) and isColor(992, 650, 0xc3fb12, 85) and isColor(1114, 705, 0xc2fb13, 85) and isColor(1221, 658, 0xc3fb13, 85) and isColor(1272, 713, 0x000a21, 85))
+    then
         checkplacetimes = 0
         return 14 --多人断开连接
     elseif
-        (isColor(525, 185, 0xffffff, 85) and isColor(546, 182, 0xffffff, 85) and isColor(574, 189, 0xffffff, 85) and
-            isColor(591, 190, 0xffffff, 85) and
-            isColor(729, 329, 0xeceef1, 85) and
-            isColor(742, 336, 0xd2d6dd, 85) and
-            isColor(759, 334, 0xffffff, 85) and
-            isColor(788, 336, 0xe4e7eb, 85) and
-            isColor(798, 329, 0xcdd1d9, 85) and
-            isColor(569, 437, 0xffffff, 85))
-     then
+    (isColor(525, 185, 0xffffff, 85) and isColor(546, 182, 0xffffff, 85) and isColor(574, 189, 0xffffff, 85) and isColor(591, 190, 0xffffff, 85) and isColor(729, 329, 0xeceef1, 85) and isColor(742, 336, 0xd2d6dd, 85) and isColor(759, 334, 0xffffff, 85) and isColor(788, 336, 0xe4e7eb, 85) and isColor(798, 329, 0xcdd1d9, 85) and isColor(569, 437, 0xffffff, 85))
+    then
         checkplacetimes = 0
         return 15 --连接错误,undone
     elseif
-        (isColor(207, 250, 0xffffff, 85) and isColor(222, 250, 0xf3f3f4, 85) and isColor(243, 250, 0xeeeff0, 85) and
-            isColor(252, 250, 0xbbc0c5, 85) and
-            isColor(261, 254, 0xb2b6bc, 85) and
-            isColor(274, 255, 0xe8e9ea, 85) and
-            isColor(291, 255, 0xf3f3f4, 85) and
-            isColor(317, 257, 0xf9f9f9, 85) and
-            isColor(1136, 253, 0xfffafd, 85) and
-            isColor(1138, 253, 0xffffff, 85))
-     then
+    (isColor(207, 250, 0xffffff, 85) and isColor(222, 250, 0xf3f3f4, 85) and isColor(243, 250, 0xeeeff0, 85) and isColor(252, 250, 0xbbc0c5, 85) and isColor(261, 254, 0xb2b6bc, 85) and isColor(274, 255, 0xe8e9ea, 85) and isColor(291, 255, 0xf3f3f4, 85) and isColor(317, 257, 0xf9f9f9, 85) and isColor(1136, 253, 0xfffafd, 85) and isColor(1138, 253, 0xffffff, 85))
+    then
         checkplacetimes = 0
         return 16 --顶号行为
     elseif
-        (isColor(495, 147, 0xff0054, 85) and isColor(525, 149, 0xd4044d, 85) and isColor(538, 148, 0xfd0054, 85) and
-            isColor(564, 145, 0xfd0054, 85) and
-            isColor(585, 150, 0xfd0054, 85) and
-            isColor(604, 146, 0xfd0054, 85) and
-            isColor(608, 145, 0xe80250, 85) and
-            isColor(861, 158, 0xf90052, 85) and
-            isColor(567, 453, 0xc3fb11, 85))
-     then
+    (isColor(495, 147, 0xff0054, 85) and isColor(525, 149, 0xd4044d, 85) and isColor(538, 148, 0xfd0054, 85) and isColor(564, 145, 0xfd0054, 85) and isColor(585, 150, 0xfd0054, 85) and isColor(604, 146, 0xfd0054, 85) and isColor(608, 145, 0xe80250, 85) and isColor(861, 158, 0xf90052, 85) and isColor(567, 453, 0xc3fb11, 85))
+    then
         checkplacetimes = 0
         return 18 --VIP到期,undone
     elseif
-        (isColor(67, 23, 0x664944, 85) and isColor(183, 26, 0x7b4542, 85) and isColor(346, 22, 0x8f7a81, 85) and
-            isColor(495, 27, 0x587bad, 85) and
-            isColor(632, 25, 0x90bee2, 85) and
-            isColor(764, 27, 0x8c7b94, 85) and
-            isColor(892, 29, 0x9c7d84, 85))
-     then
+    (isColor(67, 23, 0x664944, 85) and isColor(183, 26, 0x7b4542, 85) and isColor(346, 22, 0x8f7a81, 85) and isColor(495, 27, 0x587bad, 85) and isColor(632, 25, 0x90bee2, 85) and isColor(764, 27, 0x8c7b94, 85) and isColor(892, 29, 0x9c7d84, 85))
+    then
         return 19 --登录延时,undone
     elseif
-        (isColor(591, 187, 0xfcfcfc, 85) and isColor(605, 187, 0xdfe0e3, 85) and isColor(623, 190, 0xffffff, 85) and
-            isColor(632, 190, 0xfafafb, 85) and
-            isColor(641, 191, 0xffffff, 85) and
-            isColor(651, 191, 0xf5f6f6, 85) and
-            isColor(707, 191, 0xe6e7e9, 85) and
-            isColor(730, 552, 0xffffff, 85) and
-            isColor(761, 569, 0x010722, 85))
-     then
+    (isColor(591, 187, 0xfcfcfc, 85) and isColor(605, 187, 0xdfe0e3, 85) and isColor(623, 190, 0xffffff, 85) and isColor(632, 190, 0xfafafb, 85) and isColor(641, 191, 0xffffff, 85) and isColor(651, 191, 0xf5f6f6, 85) and isColor(707, 191, 0xe6e7e9, 85) and isColor(730, 552, 0xffffff, 85) and isColor(761, 569, 0x010722, 85))
+    then
         checkplacetimes = 0
         return 21 --段位降级
     elseif
-        (isColor(1117, 103, 0xf0075a, 85) and isColor(1127, 113, 0xfb004c, 85) and isColor(1137, 103, 0xed0457, 85) and
-            isColor(1119, 121, 0xf3005a, 85))
-     then
+    (isColor(1117, 103, 0xf0075a, 85) and isColor(1127, 113, 0xfb004c, 85) and isColor(1137, 103, 0xed0457, 85) and isColor(1119, 121, 0xf3005a, 85))
+    then
         checkplacetimes = 0
         return 22 --广告弹窗
     end
@@ -2004,13 +1714,8 @@ function waitBegin_i68()
         toast("开局中," .. tostring(timer) .. "/35", 0.5)
         --网络不好没匹配到人被提示，undone
         if
-            (isColor(959, 206, 0xfff8fb, 85) and isColor(980, 228, 0xfffbff, 85) and isColor(959, 226, 0xffffff, 85) and
-                isColor(981, 205, 0xfffeff, 85) and
-                isColor(969, 216, 0xfffeff, 85) and
-                isColor(938, 213, 0xff0053, 85) and
-                isColor(993, 207, 0xff0054, 85) and
-                isColor(981, 238, 0xff0054, 85))
-         then
+        (isColor(959, 206, 0xfff8fb, 85) and isColor(980, 228, 0xfffbff, 85) and isColor(959, 226, 0xffffff, 85) and isColor(981, 205, 0xfffeff, 85) and isColor(969, 216, 0xfffeff, 85) and isColor(938, 213, 0xff0053, 85) and isColor(993, 207, 0xff0054, 85) and isColor(981, 238, 0xff0054, 85))
+        then
             tap(970, 220)
             mSleep(2000)
             return -1
@@ -2020,12 +1725,8 @@ function waitBegin_i68()
         --如果还在匹配界面且左上有返回
         toast("开局异常", 1)
         if
-            (isColor(632, 383, 0x02b9e3, 85) and isColor(663, 366, 0xffffff, 85) and isColor(678, 367, 0xfeffff, 85) and
-                isColor(699, 360, 0xffffff, 85) and
-                isColor(722, 374, 0xffffff, 85) and
-                isColor(23, 47, 0xffffff, 85) and
-                isColor(87, 15, 0xffffff, 85))
-         then
+        (isColor(632, 383, 0x02b9e3, 85) and isColor(663, 366, 0xffffff, 85) and isColor(678, 367, 0xfeffff, 85) and isColor(699, 360, 0xffffff, 85) and isColor(722, 374, 0xffffff, 85) and isColor(23, 47, 0xffffff, 85) and isColor(87, 15, 0xffffff, 85))
+        then
             back()
             return -1
         else
@@ -2080,15 +1781,8 @@ end
 function Login_i68()
     --done
     if
-        (isColor(482, 353, 0x333333, 85) and isColor(498, 353, 0x333333, 85) and isColor(517, 353, 0x333333, 85) and
-            isColor(535, 353, 0x333333, 85) and
-            isColor(550, 353, 0x333333, 85) and
-            isColor(568, 352, 0x333333, 85) and
-            isColor(584, 354, 0x333333, 85) and
-            isColor(515, 444, 0xfe8b40, 85) and
-            isColor(769, 444, 0xfe8b40, 85) and
-            isColor(874, 444, 0xfe8b40, 85))
-     then
+    (isColor(482, 353, 0x333333, 85) and isColor(498, 353, 0x333333, 85) and isColor(517, 353, 0x333333, 85) and isColor(535, 353, 0x333333, 85) and isColor(550, 353, 0x333333, 85) and isColor(568, 352, 0x333333, 85) and isColor(584, 354, 0x333333, 85) and isColor(515, 444, 0xfe8b40, 85) and isColor(769, 444, 0xfe8b40, 85) and isColor(874, 444, 0xfe8b40, 85))
+    then
         log4j("Login")
         tap(660, 450)
         mSleep(5000)
@@ -2136,30 +1830,18 @@ function toDailyGame_i68()
 end
 function gametoCarbarn_i68()
     --done
-    downwithoutoil = false
-    upwithoutoil = false
-    changecar = false
-    ads = false
+    upwithoutoil, downwithoutoil, changecar, ads = false, false, false, false
     tap(1260, 690)
     mSleep(2000)
     selectCarAtGame()
-    ::beginAtGame::
+    :: beginAtGame ::
     if ads or carCanUse() then
         --检查自动驾驶
         checkAutoMobile()
         beginGame()
         mSleep(2000)
         --检查是不是有票
-        if
-            (isColor(546, 169, 0xf4f5f6, 85) and isColor(561, 180, 0xffffff, 85) and isColor(561, 192, 0xffffff, 85) and
-                isColor(601, 189, 0xffffff, 85) and
-                isColor(669, 169, 0xfcfcfc, 85) and
-                isColor(1112, 187, 0xff0053, 85) and
-                isColor(1168, 186, 0xff0054, 85) and
-                isColor(1139, 160, 0xff0054, 85) and
-                isColor(1139, 206, 0xfe0054, 85) and
-                isColor(1139, 183, 0xffffff, 85))
-         then
+        if (isColor(546, 169, 0xf4f5f6, 85) and isColor(561, 180, 0xffffff, 85) and isColor(561, 192, 0xffffff, 85) and isColor(601, 189, 0xffffff, 85) and isColor(669, 169, 0xfcfcfc, 85) and isColor(1112, 187, 0xff0053, 85) and isColor(1168, 186, 0xff0054, 85) and isColor(1139, 160, 0xff0054, 85) and isColor(1139, 206, 0xfe0054, 85) and isColor(1139, 183, 0xffffff, 85)) then
             toast("没票", 1)
             tap(1140, 180)
             --去多人or生涯
@@ -2186,7 +1868,7 @@ function gametoCarbarn_i68()
         if watchAds ~= "关" then
             watchAd()
             tap(1276, 83)
-             --关闭广告
+            --关闭广告
             mSleep(2000)
             ads = true
             goto beginAtGame
