@@ -475,6 +475,9 @@ function wait_when_Parallel_read_detected()
     end
 end
 function wait_time(minutes)
+    if minutes >= 5 then
+        closeApp(gameBid)
+    end
     --minutes是数字型
     toast("等" .. tostring(minutes) .. "分钟", 1)
     --循环minutes * 6次，每次等10秒，共minutes * 60秒也就是minutes分钟
