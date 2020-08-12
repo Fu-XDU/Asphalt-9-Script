@@ -20,8 +20,9 @@ changecar = false --PVE是否已经换车
 model = "" --设备型号
 chooseHighStageCarClass = 1 --改成1的话，使用新多人选车方案
 watchAds = ""
-PVPwithoutPack = 0 --开过最近的一个PVP包后完成PVP局数
-packWithoutRestore = 0--连着开了多少个包但是没有补充
+PVPwithoutPack, packWithoutRestore = 0, 0 --开过最近的一个PVP包后完成PVP局数,连着开了多少个包但是没有补充
+accountnum, nowaccount = "", "" --当前运行的账号,当前运行的账号+密码
+switchaccountfun = true --是否打开多人刷包切换账号的功能
 ---前置准备函数---
 function prepare()
     checkScreenSize()
@@ -256,7 +257,6 @@ function TableToStr(t)
     retstr = retstr .. ""
     return retstr
 end
-
 function url_encode(str)
     if (str) then
         str = string.gsub(str, "\n", "\r\n")
@@ -268,8 +268,10 @@ function url_encode(str)
     end
     return str
 end
-function gameisFront()
-    return isFrontApp(gameBid) == 1
+function makeGameFront()
+    if not isFrontApp(gameBid) == 1 then
+        runApp(gameBid)
+    end
 end
 function refreshTable()
     table = readFile(userPath() .. "/res/A9Info.txt")
@@ -444,7 +446,7 @@ end
 function startGame()
     log4j("脚本开始")
     toast("脚本开始", 3)
-    runApp(gameBid)
+    makeGameFront()
     ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})
     --将脚本状态置为运行
 end
@@ -645,10 +647,7 @@ end
 function lowPower()
     t = batteryStatus()
     --没在充电 电量少于20 停止脚本
-    if t.charging == 0 and tonumber(t.level) <= 20 then
-        return true
-    end
-    return false
+    return t.charging == 0 and tonumber(t.level) <= 20
 end
 function toCarbarn()
     getStage()
@@ -730,12 +729,15 @@ function checkAndGetPackage()
         end
         if ((isColor(178, 503, 0xb9e816, 85) and isColor(173, 500, 0xbae916, 85) and isColor(175, 506, 0xc3fb12, 85) and isColor(147, 506, 0xbba7bb, 85) and isColor(128, 508, 0xe5dde5, 85) and isColor(127, 500, 0xfdfcfd, 85)) and
                 not (isColor(80, 453, 0x1d071e, 85) and isColor(211, 455, 0x241228, 85) and isColor(84, 473, 0x241128, 85) and isColor(201, 472, 0x221226, 85) and isColor(228, 482, 0x676769, 85))) then
-            log4j("补充多人包")
-            packWithoutRestore = 0
-            tap(153, 462)
-            mSleep(1000)
+            if tonumber(os.date("%H"))~=7 then
+                log4j("补充多人包")
+                packWithoutRestore = 0
+                tap(153, 462)
+                mSleep(1000)
+            else
+                log4j("可补充多人包，早7点不补充")
+            end
         end
-
     elseif model == "i68" then
         tap(668, 576)
         mSleep(2000)
@@ -745,19 +747,81 @@ function checkAndGetPackage()
             PVPwithoutPack = 0
             mSleep(10000)
         end
-        tap(176, 545) --尝试补充多人包
+        if tonumber(os.date("%H"))~=7 then
+            tap(176, 545) --尝试补充多人包
+        end
     end
+    --现在位于大厅，页面在多人界面
     if shouldStop() then
         return -2
     else
         return 1
     end
 end
+function checkShouldSwitchAccount()
+    a9getCommandcode, a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet(apiUrl .. "a9switchAccount?udid=" .. ts.system.udid(), {}, {})
+    if a9getCommandcode == 200 then
+        return a9getCommandbody_resp
+    else
+        return "null"
+    end
+end
+function switchAccount(account, passwd)
+    accountnum=account
+    account = splitStr(account) --拿到账号
+    passwd = splitStr(passwd) --拿到密码
+    backHome()
+    tap(1100, 20) --按下设置
+    mSleep(2000)
+    tap(655, 300)--按下退出
+    mSleep(2000)
+    tap(390, 425)--按下确定
+    mSleep(5000)
+    tap(570, 520)--按下开始
+    mSleep(4000)
+    for _ = 1, 10 do
+        tap(1030, 40)--按右上角切换账号
+        mSleep(500)
+    end
+    tap(540, 205)--按下账号输入框弹出键盘
+    mSleep(2000)
+    tap(723, 63)--按下删除清清除当前账号密码
+    mSleep(2000)
+    --输入账号
+    keypress('1')--第一次keypress会失效
+    mSleep(500)
+    for i = 1, #account do
+        keypress(account[i])
+    end
+    mSleep(1000)
+    tap(381,157) --按下密码输入框
+    mSleep(1000)
+    --输入密码
+    for i = 1, #passwd do
+        keypress(passwd[i])
+    end
+    tap(580, 257) --点击登陆
+    log4j("登陆账号" .. accountnum)
+    mSleep(10000)
+end
 function shouldStop()
     --开完最后一个包可能不会立刻停止，因为12个奖杯只需要少于12局即可完成，代码中写12是为稳定起见 //针对SE：连续开4个包但没补充应该停止
     if (mode == "多人刷包" and PVPwithoutPack >= 12) or (model == "SE" and mode == "多人刷包" and packWithoutRestore >= 4) then
-        --脚本应该停止
-        log4j("🈚 没有多人包可刷")
+        log4j("🈚 " .. accountnum .. "没有多人包可刷")
+        --将账号accountnum在数据库中状态改为刷包关闭
+        ts.httpsGet(apiUrl .. "a9accountDone?udid=" .. ts.system.udid() .. "&account=" .. nowaccount, {}, {})
+        if switchaccountfun then
+            --查看是否有需要刷包的账号
+            nowaccount = checkShouldSwitchAccount()
+            if nowaccount ~= "null" then
+                -- 拿到账号密码
+                data = strSplit(nowaccount, '｜',1)
+                switchAccount(data[1], data[2]) --切换账号
+                PVPwithoutPack, packWithoutRestore = 0, 0 --初始化刷包数据
+                return false
+            end
+        end
+        --没有账号可以切换，脚本应该停止
         return true
     elseif savePower == "开" and lowPower() then
         log4j("电量低，脚本停止")
@@ -990,53 +1054,39 @@ function checkPlace_SE()
     elseif (isColor(419, 137, 0xffffff, 85) and isColor(455, 134, 0xffffff, 85) and isColor(573, 137, 0xffffff, 85) and isColor(573, 158, 0xffffff, 85) and isColor(602, 136, 0xffffff, 85) and isColor(636, 133, 0xffffff, 85) and isColor(659, 134, 0xffffff, 85) and isColor(683, 140, 0xffffff, 85) and isColor(442, 515, 0x000721, 85) and isColor(190, 518, 0xffffff, 85)) then
         checkplacetimes = 0
         return 20 --俱乐部新人
-    end
-    if (isColor(437, 570, 0x9f0942, 85) and isColor(452, 569, 0x9f0943, 85) and isColor(451, 584, 0x9f0942, 85) and isColor(444, 577, 0x9f0942, 85)) then
+    elseif (isColor(437, 570, 0x9f0942, 85) and isColor(452, 569, 0x9f0943, 85) and isColor(451, 584, 0x9f0942, 85) and isColor(444, 577, 0x9f0942, 85)) then
         return -3 --网络未同步
-    end
-    if (isColor(92, 129, 0xf00252, 85) and isColor(97, 129, 0xf20252, 85) and isColor(104, 129, 0xf50153, 85) and isColor(116, 130, 0xea0352, 85) and isColor(128, 127, 0xf1014b, 85) and isColor(158, 128, 0xdb0244, 85) and isColor(761, 96, 0xd9d6d6, 85) and isColor(827, 101, 0x3887d7, 85) and isColor(906, 101, 0x4e443b, 85) and isColor(971, 100, 0x9015fb, 85)) then
+    elseif (isColor(92, 129, 0xf00252, 85) and isColor(97, 129, 0xf20252, 85) and isColor(104, 129, 0xf50153, 85) and isColor(116, 130, 0xea0352, 85) and isColor(128, 127, 0xf1014b, 85) and isColor(158, 128, 0xdb0244, 85) and isColor(761, 96, 0xd9d6d6, 85) and isColor(827, 101, 0x3887d7, 85) and isColor(906, 101, 0x4e443b, 85) and isColor(971, 100, 0x9015fb, 85)) then
         checkplacetimes = 0
         return 3.1 --在多人车库
-    end
-    if (isColor(1069, 75, 0xffffff, 85) and isColor(1087, 74, 0xffffff, 85) and isColor(1077, 83, 0xffffff, 85) and isColor(1068, 93, 0xffffff, 85) and isColor(1087, 93, 0xffffff, 85)) then
+    elseif (isColor(1069, 75, 0xffffff, 85) and isColor(1087, 74, 0xffffff, 85) and isColor(1077, 83, 0xffffff, 85) and isColor(1068, 93, 0xffffff, 85) and isColor(1087, 93, 0xffffff, 85)) then
         checkplacetimes = 0
         return 25 --广告播放完成
     elseif getColor(5, 5) == 0x101f3b then
         checkplacetimes = 0
         return 0 --在大厅
-    end
-    if multiColor({ { 100, 560, 0xffffff }, { 270, 570, 0xffffff }, { 860, 560, 0xffffff }, { 1060, 560, 0xffffff } }, 90, false) == true then
+    elseif multiColor({ { 100, 560, 0xffffff }, { 270, 570, 0xffffff }, { 860, 560, 0xffffff }, { 1060, 560, 0xffffff } }, 90, false) == true then
         checkplacetimes = 0
         return 1 --在多人
-    end
-    if (isColor(115, 625, 0xc3fb12, 85) or isColor(301, 625, 0xc3fb12, 85) or isColor(469, 625, 0xc3fb12, 85)) then
+    elseif (isColor(115, 625, 0xc3fb12, 85) or isColor(301, 625, 0xc3fb12, 85) or isColor(469, 625, 0xc3fb12, 85)) then
         checkplacetimes = 0
         return 5 --在赛事
-    end
-    if (isColor(216, 96, 0xe6004d, 85) and isColor(139, 96, 0xfc0053, 85) and isColor(60, 95, 0xf00251, 85) and isColor(221, 176, 0xffffff, 85) and isColor(60, 161, 0xff0054, 85)) then
+    elseif (isColor(216, 96, 0xe6004d, 85) and isColor(139, 96, 0xfc0053, 85) and isColor(60, 95, 0xf00251, 85) and isColor(221, 176, 0xffffff, 85) and isColor(60, 161, 0xff0054, 85)) then
         checkplacetimes = 0
         return 6 --在赛事开始界面
-    end
-    if (isColor(540, 312, 0x01b9e3, 85) and isColor(635, 307, 0x01b8e3, 85) and isColor(596, 273, 0x01718b, 85) and isColor(581, 350, 0x03b9e3, 85) and isColor(564, 308, 0xffffff, 85) and isColor(609, 310, 0xffffff, 85) and isColor(658, 314, 0xffffff, 85) and isColor(682, 291, 0xdfdfdf, 85)) then
+    elseif (isColor(540, 312, 0x01b9e3, 85) and isColor(635, 307, 0x01b8e3, 85) and isColor(596, 273, 0x01718b, 85) and isColor(581, 350, 0x03b9e3, 85) and isColor(564, 308, 0xffffff, 85) and isColor(609, 310, 0xffffff, 85) and isColor(658, 314, 0xffffff, 85) and isColor(682, 291, 0xdfdfdf, 85)) then
         checkplacetimes = 0
         return 17 --多人匹配中
-    end
-    if getColor(5, 5) == 0xffffff then
-        return -1 --不在大厅，不在多人
-    end
-    if getColor(115, 25) == 0xff0054 then
+    elseif getColor(115, 25) == 0xff0054 then
         checkplacetimes = 0
         return 2 --游戏结算界面
-    end
-    if getColor(170, 100) == 0x14bde9 then
+    elseif getColor(170, 100) == 0x14bde9 then
         checkplacetimes = 0
         return 3 --游戏中
-    end
-    if (isColor(60, 26, 0xff0052, 85) and isColor(153, 29, 0xfe0052, 85) and isColor(209, 59, 0xffffff, 85) and isColor(282, 57, 0xffffff, 85) and isColor(355, 65, 0xffffff, 85) and isColor(454, 63, 0xffffff, 85) and isColor(515, 61, 0xffffff, 85) and isColor(629, 45, 0xffffff, 85)) then
+    elseif (isColor(60, 26, 0xff0052, 85) and isColor(153, 29, 0xfe0052, 85) and isColor(209, 59, 0xffffff, 85) and isColor(282, 57, 0xffffff, 85) and isColor(355, 65, 0xffffff, 85) and isColor(454, 63, 0xffffff, 85) and isColor(515, 61, 0xffffff, 85) and isColor(629, 45, 0xffffff, 85)) then
         checkplacetimes = 0
         return 4 --来自Gameloft的礼物
-    end
-    if (isColor(525, 33, 0xff0054, 85) and isColor(536, 33, 0xff0054, 85) and isColor(531, 41, 0xff0054, 85) and isColor(529, 52, 0xff0054, 85) and isColor(568, 33, 0xff0054, 85) and isColor(568, 44, 0xbe064c, 85) and isColor(567, 53, 0xc6054c, 85) and isColor(490, 81, 0xdadce0, 85) and isColor(556, 87, 0xe4e6e8, 85) and isColor(631, 85, 0xe6e8ea, 85)) then
+    elseif (isColor(525, 33, 0xff0054, 85) and isColor(536, 33, 0xff0054, 85) and isColor(531, 41, 0xff0054, 85) and isColor(529, 52, 0xff0054, 85) and isColor(568, 33, 0xff0054, 85) and isColor(568, 44, 0xbe064c, 85) and isColor(567, 53, 0xc6054c, 85) and isColor(490, 81, 0xdadce0, 85) and isColor(556, 87, 0xe4e6e8, 85) and isColor(631, 85, 0xe6e8ea, 85)) then
         checkplacetimes = 0
         return 7 --领奖开包
     elseif (isColor(211, 328, 0xe77423, 85) and isColor(366, 321, 0x4299e1, 85) and isColor(511, 310, 0xd8a200, 85) and isColor(657, 303, 0x5c17db, 85) and isColor(825, 289, 0x545454, 85) and isColor(960, 123, 0xfffeff, 85)) then
@@ -1081,12 +1131,22 @@ function checkPlace_SE()
     elseif (isColor(961, 97, 0xff0054, 85) and isColor(967, 91, 0xfd0054, 85) and isColor(955, 89, 0xf60252, 85) and isColor(955, 103, 0xfd0155, 85) and isColor(971, 105, 0xf80151, 85) and isColor(961, 97, 0xff0054, 85)) then
         checkplacetimes = 0
         return 23 --弹窗广告
-    end
-    if (isColor(76, 51, 0xf8004c, 85) and isColor(76, 69, 0xf40153, 85) and isColor(282, 54, 0xff0054, 85) and isColor(282, 62, 0xf00253, 85) and isColor(282, 68, 0xff0054, 85) and isColor(125, 552, 0x828786, 85) and isColor(67, 584, 0x000921, 85) and isColor(1099, 611, 0x000d21, 85) and isColor(1099, 568, 0xc4fb11, 85)) then
+    elseif (isColor(76, 51, 0xf8004c, 85) and isColor(76, 69, 0xf40153, 85) and isColor(282, 54, 0xff0054, 85) and isColor(282, 62, 0xf00253, 85) and isColor(282, 68, 0xff0054, 85) and isColor(125, 552, 0x828786, 85) and isColor(67, 584, 0x000921, 85) and isColor(1099, 611, 0x000d21, 85) and isColor(1099, 568, 0xc4fb11, 85)) then
         checkplacetimes = 0
         return 24 --获得了新红币界面
+    elseif (isColor(365, 82, 0xffffff, 85) and isColor(410, 100, 0xffffff, 85) and isColor(464, 98, 0xffffff, 85) and isColor(508, 98, 0xffffff, 85) and isColor(553, 99, 0xffffff, 85) and isColor(584, 55, 0xffffff, 85) and isColor(665, 55, 0xffffff, 85) and isColor(723, 57, 0xffffff, 85) and isColor(743, 61, 0xffffff, 85) and isColor(745, 95, 0xffffff, 85)) then
+        --账号刚登录时的欢迎来到俱乐部界面
+        checkplacetimes = 0
+        return 27
+    elseif (isColor(672, 368, 0xfaf9f9, 85) and isColor(684, 367, 0xf5b500, 85) and isColor(682, 377, 0xf8b800, 85) and isColor(688, 376, 0xd39502, 85) and isColor(693, 379, 0xf5b500, 85) and isColor(710, 369, 0xffbf00, 85) and isColor(734, 369, 0xfabb00, 85) and isColor(760, 363, 0xcb9401, 85)) then
+        --刚登录时的神兽车联会
+        checkplacetimes = 0
+        return 28
+    elseif getColor(5, 5) == 0xffffff then
+        return -1 --不在大厅，不在多人
+    else
+        return 404 --不知道在哪
     end
-    return 404
 end
 function toPVP_SE()
     toast("进入多人", 1)
@@ -1108,7 +1168,6 @@ function toPVP_SE()
     end
     return 0
 end
-
 function waitBegin_SE()
     timer = 0
     while (getColor(170, 100) ~= 0x14bde9 and timer < 35) do
@@ -1501,6 +1560,18 @@ function worker_SE(place)
         --公告
         tap(986, 554)
         mSleep(500)
+        state = -1
+    elseif place == 27 then
+        --账号刚登录时的欢迎来到俱乐部界面
+        mSleep(500)
+        tap(975, 560)
+        mSleep(500)
+        state = -1
+    elseif place == 28 then
+        --账号刚登录时的欢迎来到俱乐部界面
+        mSleep(500)
+        tap(565, 545)
+        mSleep(5000)
         state = -1
     elseif place == 404 then
         toast("不知道在哪", 1)
@@ -1983,9 +2054,7 @@ function worker(place)
     end
 end
 function checkPlace()
-    if not gameisFront() then
-        restartApp();
-    end
+    makeGameFront()
     if model == "SE" then
         return checkPlace_SE()
     elseif model == "i68" then
