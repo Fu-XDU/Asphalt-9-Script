@@ -120,8 +120,8 @@ function splitStr(str)
 end
 function paraArgu()
     math.randomseed(tostring(os.time()):reverse():sub(1, 7)) --随机数初始化
-    timeout = tonumber(timeout)
-    timeout2 = tonumber(timeout2)
+    timeout_backPVE = tonumber(timeout_backPVE) --需要过多久返回赛事模式或寻车模式
+    timeout_parallelRead = tonumber(timeout_parallelRead) --顶号重连时间
     skipcar = tonumber(skipcar)
     if path == "左" then
         path = -1
@@ -411,11 +411,11 @@ function ShowUI()
     UILabel(1, "赛事没油是否看广告(建议配合插件VideoAdsSpeed开20倍使用)", 15, "left", "38,38,38")
     UIRadio(1, "watchAds", "开(有20倍广告加速),关,开(没有广告加速)", "0")
     UILabel(1, "需要过多久返回赛事模式或寻车模式（分钟）", 15, "left", "38,38,38")
-    UIEdit(1, "timeout", "内容", "60", 15, "center", "38,38,38", "number")
+    UIEdit(1, "timeout_backPVE", "内容", "60", 15, "center", "38,38,38", "number")
     UILabel(1, "多人跳车（填0不跳）", 15, "left", "38,38,38")
     UIEdit(1, "skipcar", "内容", "0", 15, "center", "38,38,38", "number")
     UILabel(1, "顶号重连（分钟）", 15, "left", "38,38,38")
-    UIEdit(1, "timeout2", "内容", "30", 15, "center", "38,38,38", "number")
+    UIEdit(1, "timeout_parallelRead", "内容", "30", 15, "center", "38,38,38", "number")
     UILabel(1, "接收日志的邮箱", 15, "left", "38,38,38")
     UIEdit(1, "email", "邮箱地址（选填）", "", 15, "left", "38,38,38", "default")
     UILabel(1, "详细说明请向左滑查看第二页", 20, "left", "255,30,2")
@@ -467,11 +467,11 @@ function restartApp()
 end
 function wait_when_Parallel_read_detected()
     if receive_starting_command == false then
-        log4j("账号被顶，等待" .. tostring(timeout2) .. "分钟")
+        log4j("账号被顶，等待" .. tostring(timeout_parallelRead) .. "分钟")
         toast("账号被顶", 1)
         mSleep(1000)
-        toast("等待" .. tostring(timeout2) .. "分钟", 1)
-        wait_time(timeout2)
+        toast("等待" .. tostring(timeout_parallelRead) .. "分钟", 1)
+        wait_time(timeout_parallelRead)
         log4j("等待完成")
         toast("等待完成", 1)
     end
@@ -488,6 +488,7 @@ function wait_time(minutes)
     end
     getHttpsCommand() --https请求获取运行指令
     toast(tostring(minutes) .. "分钟到", 1)
+    makeGameFront()
 end
 function back()
     if model == "SE" then
@@ -501,7 +502,7 @@ function back()
 end
 function checkTimeOut()
     if time ~= -1 then
-        if (os.time() - time >= timeout * 60) then
+        if (os.time() - time >= timeout_backPVE * 60) then
             toast("时间到", 1)
             mode = supermode
             backHome()
@@ -524,7 +525,7 @@ end
 function actAfterNoFuelNTicket()
     time = os.time() --记录当前时间
     if switch == "去刷多人" then
-        toast(tostring(timeout) .. "分钟后返回", 1)
+        toast(tostring(timeout_backPVE) .. "分钟后返回", 1)
         mode = "多人刷声望"
         mSleep(200)
         backHome()
@@ -655,18 +656,10 @@ function toCarbarn()
         if supermode == "多人刷声望" then
             toast("脚本停止", 1)
             return -1
+            --传奇段位且不在传奇刷多人并且主模式是赛事模式时
         elseif supermode == "赛事模式" then
-            toast("等待" .. tostring(timeout - (os.time() - time) / 60) .. "分钟后返回", 5)
-            for _ = 1, timeout * 60 - (os.time() - time), 1 do
-                toast(
-                        tostring((timeout * 60 - (os.time() - time)) - ((timeout * 60 - (os.time() - time)) % 0.01)) ..
-                                "秒后返回赛事",
-                        0.7
-                )
-                mSleep(1000)
-            end
-            mSleep(5 * 60 * 1000)
-            checkTimeOut()
+            mode = "赛事模式" --将现在的模式改为赛事模式
+            switch = "等30分钟" --赛事没油改为等30分钟
             return 0
         end
     end
@@ -729,7 +722,7 @@ function checkAndGetPackage()
         end
         if ((isColor(178, 503, 0xb9e816, 85) and isColor(173, 500, 0xbae916, 85) and isColor(175, 506, 0xc3fb12, 85) and isColor(147, 506, 0xbba7bb, 85) and isColor(128, 508, 0xe5dde5, 85) and isColor(127, 500, 0xfdfcfd, 85)) and
                 not (isColor(80, 453, 0x1d071e, 85) and isColor(211, 455, 0x241228, 85) and isColor(84, 473, 0x241128, 85) and isColor(201, 472, 0x221226, 85) and isColor(228, 482, 0x676769, 85))) then
-            if tonumber(os.date("%H"))~=7 then
+            if tonumber(os.date("%H")) ~= 7 then
                 log4j("补充多人包")
                 packWithoutRestore = 0
                 tap(153, 462)
@@ -747,7 +740,7 @@ function checkAndGetPackage()
             PVPwithoutPack = 0
             mSleep(10000)
         end
-        if tonumber(os.date("%H"))~=7 then
+        if tonumber(os.date("%H")) ~= 7 then
             tap(176, 545) --尝试补充多人包
         end
     end
@@ -767,7 +760,7 @@ function checkShouldSwitchAccount()
     end
 end
 function switchAccount(account, passwd)
-    accountnum=account
+    accountnum = account
     account = splitStr(account) --拿到账号
     passwd = splitStr(passwd) --拿到密码
     backHome()
@@ -794,7 +787,7 @@ function switchAccount(account, passwd)
         keypress(account[i])
     end
     mSleep(1000)
-    tap(381,157) --按下密码输入框
+    tap(381, 157) --按下密码输入框
     mSleep(1000)
     --输入密码
     for i = 1, #passwd do
@@ -815,7 +808,7 @@ function shouldStop()
             nowaccount = checkShouldSwitchAccount()
             if nowaccount ~= "null" then
                 -- 拿到账号密码
-                data = strSplit(nowaccount, '｜',1)
+                data = strSplit(nowaccount, '｜', 1)
                 switchAccount(data[1], data[2]) --切换账号
                 PVPwithoutPack, packWithoutRestore = 0, 0 --初始化刷包数据
                 return false
@@ -1142,6 +1135,14 @@ function checkPlace_SE()
         --刚登录时的神兽车联会
         checkplacetimes = 0
         return 28
+    elseif (isColor(539, 107, 0xffffff, 85) and isColor(461, 94, 0xffffff, 85) and isColor(488, 76, 0xffffff, 85) and isColor(576, 73, 0xffffff, 85) and isColor(639, 76, 0xffffff, 85) and isColor(616, 111, 0xffffff, 85) and isColor(616, 122, 0xffffff, 85) and isColor(299, 514, 0xffffff, 85) and isColor(397, 522, 0x1a2e4a, 85) and isColor(344, 557, 0xffffff, 85)) then
+        --俱乐部达成新里程碑
+        checkplacetimes = 0
+        return 29
+    elseif (isColor(491, 178, 0xffffff, 85) and isColor(496, 178, 0xffffff, 85) and isColor(496, 188, 0xf7f8f8, 85) and isColor(494, 191, 0xffffff, 85) and isColor(494, 185, 0xf6f7f7, 85) and isColor(496, 198, 0xf7f8f8, 85) and isColor(494, 201, 0xffffff, 85) and isColor(490, 192, 0xf3f4f4, 85) and isColor(526, 193, 0xffffff, 85) and isColor(536, 195, 0xffffff, 85)) then
+        --服务器维护中，脚本停止
+        checkplacetimes = 0
+        return 30
     elseif getColor(5, 5) == 0xffffff then
         return -1 --不在大厅，不在多人
     else
@@ -1573,6 +1574,15 @@ function worker_SE(place)
         tap(565, 545)
         mSleep(5000)
         state = -1
+    elseif place == 29 then
+        --俱乐部达成新里程累
+        mSleep(500)
+        tap(370, 530)
+        mSleep(500)
+        state = -1
+    elseif place == 30 then
+        --服务器维护中，脚本停止
+        state = -2
     elseif place == 404 then
         toast("不知道在哪", 1)
         mSleep(1000)
