@@ -25,6 +25,7 @@ accountnum, nowaccount = "", "" --当前运行的账号,当前运行的账号+�
 switchaccountfun = true --是否打开多人刷包切换账号的功能
 ---前置准备函数---
 function prepare()
+    setAutoLockTime(0)
     checkScreenSize()
     networkState()
     ShowUI()
@@ -86,6 +87,9 @@ function after()
     --sendEmail(email, "[A9]脚本停止运行" .. getDeviceName(), readFile(userPath() .. "/res/A9log.txt"))
     closeApp(gameBid) --关闭游戏
     lockDevice()
+end
+function beforeUserExit()
+    log4j("⏹脚本被手动终止")
 end
 ---通用处理函数[不区分设备型号]---
 function savePowerF()
