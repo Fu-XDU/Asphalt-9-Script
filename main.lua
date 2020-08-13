@@ -1139,7 +1139,7 @@ function checkPlace_SE()
         --俱乐部达成新里程碑
         checkplacetimes = 0
         return 29
-    elseif (isColor(491, 178, 0xffffff, 85) and isColor(496, 178, 0xffffff, 85) and isColor(496, 188, 0xf7f8f8, 85) and isColor(494, 191, 0xffffff, 85) and isColor(494, 185, 0xf6f7f7, 85) and isColor(496, 198, 0xf7f8f8, 85) and isColor(494, 201, 0xffffff, 85) and isColor(490, 192, 0xf3f4f4, 85) and isColor(526, 193, 0xffffff, 85) and isColor(536, 195, 0xffffff, 85)) then
+    elseif (isColor(165, 288, 0xf6f7f8, 90) and isColor(165, 297, 0xeaecf0, 90) and isColor(347, 332, 0xffffff, 90) and isColor(709, 462, 0x000822, 90) and isColor(705, 441, 0xffffff, 90) and isColor(889, 330, 0xf5f6f8, 90) and isColor(986, 404, 0x0a1e3a, 90) and isColor(990, 177, 0x0d182b, 90)) then
         --服务器维护中，脚本停止
         checkplacetimes = 0
         return 30
