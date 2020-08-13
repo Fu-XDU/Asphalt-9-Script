@@ -269,7 +269,7 @@ function url_encode(str)
     return str
 end
 function makeGameFront()
-    if not isFrontApp(gameBid) == 1 then
+    if isFrontApp(gameBid) == 0 then
         runApp(gameBid)
     end
 end
