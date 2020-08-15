@@ -25,6 +25,7 @@ accountnum, nowaccount = "", "" --当前运行的账号,当前运行的账号+�
 switchaccountfun = true --是否打开多人刷包切换账号的功能
 ---前置准备函数---
 function prepare()
+    unlockedDevice()
     setAutoLockTime(0)
     checkScreenSize()
     networkState()
@@ -196,7 +197,7 @@ function getHttpsCommand()
             return tonumber(a9getCommandbody_resp)
         elseif a9getCommandbody_resp == "6" then
             toast("赛事没油没票后改为多人刷声望", 1)
-            switch = "去刷多人"
+            switch = "多人刷声望"
             mode = supermode
             log4j("🎮赛事没油没票后改为多人刷声望")
             ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})
@@ -393,7 +394,7 @@ function ShowUI()
     UILabel(1, "模式选择", 15, "left", "38,38,38")
     UIRadio(1, "mode", "多人刷声望,赛事模式,多人刷包", "0") --记录最初设置 | 特殊赛事保留
     UILabel(1, "没油没票后动作（赛事模式）", 15, "left", "38,38,38")
-    UIRadio(1, "switch", "去刷多人,等30分钟,等60分钟", "0")
+    UIRadio(1, "switch", "多人刷声望,多人刷包,等30分钟,等60分钟", "0")
     UILabel(1, "路线选择（所有模式）", 15, "left", "38,38,38")
     UIRadio(1, "path", "左,中,右,随机", "0")
     UILabel(1, "赛事位置选择", 15, "left", "38,38,38")
@@ -442,7 +443,7 @@ function ShowUI()
     UILabel(2, "XXX=3 开始赛事模式，将主模式更改为赛事模式，与XXX=2配合使用", 15, "left", "38,38,38")
     UILabel(2, "XXX=4 终止脚本运行，此操作不可逆", 15, "left", "38,38,38")
     UILabel(2, "XXX=5 赛事没油没票后改为等待60分钟", 15, "left", "38,38,38")
-    UILabel(2, "XXX=6 赛事没油没票后改为去刷多人", 15, "left", "38,38,38")
+    UILabel(2, "XXX=6 赛事没油没票后改为多人刷声望", 15, "left", "38,38,38")
     UILabel(2, "远程日志功能，可以访问网址https://yourdomin.cn/api/a9log?udid=" .. ts.system.udid() .. "查看本日脚本日志，远程监控脚本运行情况。", 15, "left", "38,38,38")
     UILabel(2, "如果有脚本无法识别的界面，请联系QQ群1028746490群主。如果需要购买脚本授权码也请联系上述QQ群群主。", 20, "left", "38,38,38")
     UIShow()
@@ -528,9 +529,9 @@ function recordPVPnPVE()
 end
 function actAfterNoFuelNTicket()
     time = os.time() --记录当前时间
-    if switch == "去刷多人" then
+    if switch == "多人刷声望" or switch == "多人刷包" then
         toast(tostring(timeout_backPVE) .. "分钟后返回", 1)
-        mode = "多人刷声望"
+        mode = switch
         mSleep(200)
         backHome()
         return -1
@@ -755,6 +756,12 @@ function checkAndGetPackage()
         return 1
     end
 end
+function unlockedDevice()
+    flag=deviceIsLock()
+    if flag == 1 then
+        unlockDevice();
+    end
+end
 function checkShouldSwitchAccount()
     a9getCommandcode, a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet(apiUrl .. "a9switchAccount?udid=" .. ts.system.udid(), {}, {})
     if a9getCommandcode == 200 then
@@ -807,12 +814,17 @@ function shouldStop()
         log4j("🈚 " .. accountnum .. "没有多人包可刷")
         --将账号accountnum在数据库中状态改为刷包关闭
         ts.httpsGet(apiUrl .. "a9accountDone?udid=" .. ts.system.udid() .. "&account=" .. nowaccount, {}, {})
+        if supermode == "赛事模式" and switch == "多人刷包" then
+            log4j("赛事没有没票改为等30分钟")
+            switch = "等30分钟"
+            return false
+        end
         if switchaccountfun then
             --查看是否有需要刷包的账号
             nowaccount = checkShouldSwitchAccount()
             if nowaccount ~= "null" then
                 -- 拿到账号密码
-                data = strSplit(nowaccount, '｜', 1)
+                data = strSplit(nowaccount, '_', 1)
                 switchAccount(data[1], data[2]) --切换账号
                 PVPwithoutPack, packWithoutRestore = 0, 0 --初始化刷包数据
                 return false
@@ -1236,7 +1248,7 @@ function backFromLines_SE()
     end
     mSleep(5000)
     --toast("比赛完成",1);
-    if supermode == "赛事模式" and (mode == "多人刷声望" or mode == "特殊赛事") then
+    if supermode == "赛事模式" and (mode == "多人刷声望" or mode == "特殊赛事" or mode == "多人刷包") then
         checkTimeOut()
     end
 end
@@ -1385,10 +1397,23 @@ function worker_SE(place)
     if place == -3 then
         toast("网络未同步", 1)
         state = -1
-    elseif place == 3.1 then
-        toast("在多人车库", 1)
+    elseif place == -2 then
+        toast("登录界面", 1)
+        state = Login()
+    elseif place == -1 then
+        toast("不在大厅，不在多人，回到大厅", 1)
         back()
-        state = -3
+        state = backHome()
+        if state == -1 then
+            return 0
+        end
+        if mode == "多人刷声望" or mode == "多人刷包" then
+            state = toPVP()
+        elseif mode == "赛事模式" then
+            state = toDailyGame()
+        elseif mode == "特殊赛事" then
+            state = toSpecialEvent_SE()
+        end
     elseif place == 0 then
         toast("在大厅", 1)
         if mode == "多人刷声望" or mode == "多人刷包" then
@@ -1409,29 +1434,16 @@ function worker_SE(place)
             back()
             state = toSpecialEvent_SE()
         end
-    elseif place == -1 then
-        toast("不在大厅，不在多人，回到大厅", 1)
-        back()
-        state = backHome()
-        if state == -1 then
-            return 0
-        end
-        if mode == "多人刷声望" or mode == "多人刷包" then
-            state = toPVP()
-        elseif mode == "赛事模式" then
-            state = toDailyGame()
-        elseif mode == "特殊赛事" then
-            state = toSpecialEvent_SE()
-        end
     elseif place == 2 then
         --toast("在结算",1);
         state = -4
     elseif place == 3 then
         --toast("在游戏",1);
         state = -5
-    elseif place == -2 then
-        toast("登录界面", 1)
-        state = Login()
+    elseif place == 3.1 then
+        toast("在多人车库", 1)
+        back()
+        state = -3
     elseif place == 4 then
         toast("奖励界面", 1)
         receivePrizeFromGL()
@@ -1602,8 +1614,7 @@ function checkPlace_i68()
     if (isColor(1266, 74, 0xffffff, 85) and isColor(1285, 74, 0xffffff, 85) and isColor(1275, 83, 0xffffff, 85) and isColor(1267, 92, 0xffffff, 85) and isColor(1285, 92, 0xffffff, 85)) then
         checkplacetimes = 0
         return 25 --广告播放完毕
-    end
-    if ((isColor(1305, 14, 0xfcffff, 85) and isColor(1312, 22, 0xfefefe, 85) and isColor(1314, 37, 0xcdd3db, 85) and isColor(1293, 32, 0xfefeff, 85) and isColor(1294, 21, 0xffffff, 85) and isColor(1304, 17, 0xfeffff, 85)) and
+    elseif ((isColor(1305, 14, 0xfcffff, 85) and isColor(1312, 22, 0xfefefe, 85) and isColor(1314, 37, 0xcdd3db, 85) and isColor(1293, 32, 0xfefeff, 85) and isColor(1294, 21, 0xffffff, 85) and isColor(1304, 17, 0xfeffff, 85)) and
             not (isColor(12, 16, 0xffffff, 85) and isColor(10, 45, 0xffffff, 85))) or
             (isColor(1111, 11, 0xfbffff, 85) and isColor(1120, 16, 0xf8faf9, 85) and isColor(1126, 26, 0xe2e4e8, 85) and isColor(1095, 26, 0xfdfdfd, 85)) then
         checkplacetimes = 0
@@ -1770,7 +1781,7 @@ function backFromLines_i68()
     end
     mSleep(5000)
     --toast("比赛完成",1);
-    if supermode == "赛事模式" and mode == "多人刷声望" then
+    if supermode == "赛事模式" and mode == "多人刷声望" or mode == "多人刷包" then
         checkTimeOut()
     end
 end
@@ -1894,9 +1905,18 @@ function worker_i68(place)
     if place == -3 then
         toast("网络未同步", 1)
         state = -1
-    elseif place == 3.1 then
-        toast("在多人车库", 1)
-        state = -3
+    elseif place == -2 then
+        toast("登录界面", 1)
+        state = Login()
+    elseif place == -1 then
+        toast("不在大厅,不在多人,回到大厅", 1)
+        state = backHome()
+        if mode == "多人刷声望" or mode == "多人刷包" then
+            state = toPVP()
+        elseif mode == "赛事模式" then
+            state = toDailyGame()
+        end
+
     elseif place == 0 then
         toast("在大厅", 1)
         if mode == "多人刷声望" or mode == "多人刷包" then
@@ -1912,23 +1932,16 @@ function worker_i68(place)
             back()
             state = toDailyGame()
         end
-    elseif place == -1 then
-        toast("不在大厅,不在多人,回到大厅", 1)
-        state = backHome()
-        if mode == "多人刷声望" or mode == "多人刷包" then
-            state = toPVP()
-        elseif mode == "赛事模式" then
-            state = toDailyGame()
-        end
+
     elseif place == 2 then
         toast("在结算", 1)
         state = -4
     elseif place == 3 then
         toast("在游戏", 1)
         state = -5
-    elseif place == -2 then
-        toast("登录界面", 1)
-        state = Login()
+    elseif place == 3.1 then
+        toast("在多人车库", 1)
+        state = -3
     elseif place == 4 then
         toast("奖励界面", 1)
         receivePrizeFromGL()
