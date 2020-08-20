@@ -3,6 +3,7 @@ local ts = require("ts")
 init(1)
 apiUrl = "https://yourdomin.cn/api/"
 gameBid = "com.Aligames.kybc9"
+root = userPath() .. "/res/"
 stage = -1 --段位
 state = 0 --中间变量，声明检测界面后的下一步流程
 path = 0 --道路选择
@@ -76,7 +77,7 @@ function main()
     autoMobile()
     :: backFromLines ::
     backFromLines()
-    if not shouldStop() then
+    if not shouldStop(false) then
         goto flag
     end
     :: stop ::
@@ -85,7 +86,7 @@ end
 ---结束处理函数---
 function after()
     log4j("⏹脚本停止运行")
-    --sendEmail(email, "[A9]脚本停止运行" .. getDeviceName(), readFile(userPath() .. "/res/A9log.txt"))
+    --sendEmail(email, "[A9]脚本停止运行" .. getDeviceName(), readFile(root .. "A9log.txt"))
     closeApp(gameBid) --关闭游戏
     lockDevice()
 end
@@ -279,30 +280,30 @@ function makeGameFront()
     end
 end
 function refreshTable()
-    table = readFile(userPath() .. "/res/A9Info.txt")
+    table = readFile(root .. "A9Info.txt")
     if table then
         --如果日期不对
         if table[1] ~= os.date("%Y年%m月%d日") then
-            writeFile(userPath() .. "/res/A9Info.txt", { os.date("%Y年%m月%d日"), 0, 0 }, "w", 1)
+            writeFile(root .. "A9Info.txt", { os.date("%Y年%m月%d日"), 0, 0 }, "w", 1)
             PVPTimes = 0
             PVETimes = 0
-            writeFile(userPath() .. "/res/A9Info.txt", { os.date("%Y年%m月%d日"), PVPTimes, PVETimes }, "w", 1)
+            writeFile(root .. "A9Info.txt", { os.date("%Y年%m月%d日"), PVPTimes, PVETimes }, "w", 1)
         else
-            writeFile(userPath() .. "/res/A9Info.txt", { os.date("%Y年%m月%d日"), PVPTimes, PVETimes }, "w", 1)
+            writeFile(root .. "A9Info.txt", { os.date("%Y年%m月%d日"), PVPTimes, PVETimes }, "w", 1)
         end
     else
         --没有文件就创建文件，初始化内容
-        writeFile(userPath() .. "/res/A9Info.txt", { os.date("%Y年%m月%d日"), 0, 0 }, "w", 1)
+        writeFile(root .. "A9Info.txt", { os.date("%Y年%m月%d日"), 0, 0 }, "w", 1)
     end
 end
 function initTable()
-    table = readFile(userPath() .. "/res/A9Info.txt")
-    logtxt = readFile(userPath() .. "/res/A9log.txt")
+    table = readFile(root .. "A9Info.txt")
+    logtxt = readFile(root .. "A9log.txt")
     if table then
         --如果日期不对，数据重写
         if table[1] ~= os.date("%Y年%m月%d日") then
             --文件重写
-            writeFile(userPath() .. "/res/A9Info.txt", { os.date("%Y年%m月%d日"), 0, 0 }, "w", 1)
+            writeFile(root .. "A9Info.txt", { os.date("%Y年%m月%d日"), 0, 0 }, "w", 1)
             initTable()
         else
             PVPTimes = table[2]
@@ -310,7 +311,7 @@ function initTable()
         end
     else
         --没有文件就创建文件，初始化内容
-        writeFile(userPath() .. "/res/A9Info.txt", { os.date("%Y年%m月%d日"), 0, 0 }, "w", 1)
+        writeFile(root .. "A9Info.txt", { os.date("%Y年%m月%d日"), 0, 0 }, "w", 1)
         mSleep(1000)
         initTable() --每次初始化内容都要再运行initTable()检查
     end
@@ -318,7 +319,7 @@ function initTable()
         if logtxt[1] ~= os.date("%Y年%m月%d日") then
             --如果日期不对,发邮件，数据重写
             sendEmail(email, "[A9]" .. os.date("%m%d%H") .. "日志" .. getDeviceName(), logtxt)
-            writeFile(userPath() .. "/res/A9log.txt", { os.date("%Y年%m月%d日") }, "w", 1)
+            writeFile(root .. "A9log.txt", { os.date("%Y年%m月%d日") }, "w", 1)
             mSleep(1000)
             httpsGet("Delete_log")
             initTable() --每次初始化内容都要再运行initTable()检查
@@ -327,7 +328,7 @@ function initTable()
         end
     else
         --没有文件就创建文件，初始化内容
-        writeFile(userPath() .. "/res/A9log.txt", { os.date("%Y年%m月%d日") }, "w", 1)
+        writeFile(root .. "A9log.txt", { os.date("%Y年%m月%d日") }, "w", 1)
         mSleep(1000)
         initTable() --每次初始化内容都要再运行initTable()检查
     end
@@ -340,14 +341,14 @@ function log4j(content)
         content = content .. "      🔋:️" .. tostring(t.level) .. "%"
     end
     urlcontent = url_encode(content)
-    table = readFile(userPath() .. "/res/A9log.txt")
+    table = readFile(root .. "A9log.txt")
     if table then
         --如果日期不对,发邮件，数据重写
         if table[1] ~= os.date("%Y年%m月%d日") then
             initTable()
             httpsGet("Delete_log")
         else
-            writeFile(userPath() .. "/res/A9log.txt", { "[" .. os.date("%H:%M:%S") .. "]" .. content }, "a", 1)
+            writeFile(root .. "A9log.txt", { "[" .. os.date("%H:%M:%S") .. "]" .. content }, "a", 1)
             httpsGet(urlcontent)
         end
     else
@@ -456,14 +457,35 @@ function startGame()
     --将脚本状态置为运行
 end
 function snap()
-    -- snapshot(os.date("%Y-%m-%d %H:%M:%S", os.time()) .. ".png", 0, 0, height - 1, width - 1)
-    snapshot("Asphalt9snapshot.png", 0, 0, height - 1, width - 1)
+    --截图被存在了userPath().."/res/"下
+    if width == 0 and height == 0 then
+        checkScreenSize()
+    end
+    pngname = os.date("%Y%m%d%H%M%S_") .. tostring(width) .. "x" .. tostring(height) .. ".png"
+    snapshot(pngname, 0, 0, height - 1, width - 1)
+    return pngname
+end
+function upload(filename)
+    status = ts.ftp.connect("yourip", "asphalt9", "asphalt9123")
+    if status then
+        --上传本地 res 文件夹下的 filename 文件到服务器
+        upStatus = ts.ftp.upload(root .. filename, "/home/ftp1/" .. tostring(width) .. "x" .. tostring(height) .. "/" .. filename, 0)
+    else
+        --toast("连接失败", 0)
+    end
+    ts.ftp.close()  --操作完成后，断开 FTP 服务器连接
 end
 function keypress(key)
     keyDown(key)
     keyUp(key)
 end
+function uploadSnap()
+    filename = snap()
+    upload(filename)
+    delFile(root .. filename)
+end
 function restartApp()
+    uploadSnap()
     log4j("游戏重启")
     closeApp(gameBid) --关闭游戏
     mSleep(5000)
@@ -711,6 +733,7 @@ function chooseGame()
     return -1
 end
 function checkAndGetPackage()
+    nomorepack = false
     if model == "SE" then
         if (not isColor(649, 472, 0x091624, 85)) then
             toast("领取多人包", 1)
@@ -736,6 +759,9 @@ function checkAndGetPackage()
                 log4j("可补充多人包，早7点不补充")
             end
         end
+        if (isColor(229, 481, 0x676868, 85) and isColor(124, 459, 0x5a585e, 85) and isColor(91, 448, 0x2f212e, 85) and isColor(147, 463, 0x626266, 85) and isColor(172, 456, 0x2a1c2d, 85)) then
+            nomorepack = true
+        end
     elseif model == "i68" then
         tap(668, 576)
         mSleep(2000)
@@ -750,14 +776,14 @@ function checkAndGetPackage()
         end
     end
     --现在位于大厅，页面在多人界面
-    if shouldStop() then
+    if shouldStop(nomorepack) then
         return -2
     else
         return 1
     end
 end
 function unlockedDevice()
-    flag=deviceIsLock()
+    flag = deviceIsLock()
     if flag == 1 then
         unlockDevice();
     end
@@ -808,15 +834,16 @@ function switchAccount(account, passwd)
     log4j("登陆账号" .. accountnum)
     mSleep(10000)
 end
-function shouldStop()
+function shouldStop(nomorepack)
     --开完最后一个包可能不会立刻停止，因为12个奖杯只需要少于12局即可完成，代码中写12是为稳定起见 //针对SE：连续开4个包但没补充应该停止
-    if (mode == "多人刷包" and PVPwithoutPack >= 12) or (model == "SE" and mode == "多人刷包" and packWithoutRestore >= 4) then
+    if (mode == "多人刷包" and PVPwithoutPack >= 12) or (model == "SE" and mode == "多人刷包" and packWithoutRestore >= 4) or nomorepack then
         log4j("🈚 " .. accountnum .. "没有多人包可刷")
         --将账号accountnum在数据库中状态改为刷包关闭
         ts.httpsGet(apiUrl .. "a9accountDone?udid=" .. ts.system.udid() .. "&account=" .. nowaccount, {}, {})
         if supermode == "赛事模式" and switch == "多人刷包" then
-            log4j("赛事没有没票改为等30分钟")
+            log4j("赛事没油没票改为等30分钟")
             switch = "等30分钟"
+            mode = supermode
             return false
         end
         if switchaccountfun then
@@ -1159,6 +1186,10 @@ function checkPlace_SE()
         --服务器维护中，脚本停止
         checkplacetimes = 0
         return 30
+    elseif (isColor(340, 102, 0xfc0050, 90) and isColor(426, 102, 0xfb004f, 90) and isColor(949, 576, 0xffd800, 90) and isColor(1092, 607, 0x010921, 90) and isColor(1091, 566, 0xffd800, 90)) then
+        --多人赛季奖励
+        checkplacetimes = 0
+        return 31
     elseif getColor(5, 5) == 0xffffff then
         return -1 --不在大厅，不在多人
     else
@@ -1425,8 +1456,11 @@ function worker_SE(place)
         end
     elseif place == 1 then
         toast("在多人", 1)
-        if mode == "多人刷声望" or mode == "多人刷包" then
+        if mode == "多人刷声望" then
             state = 0
+        elseif mode == "多人刷包" then
+            back()
+            state = toPVP()
         elseif mode == "赛事模式" then
             back()
             state = toDailyGame()
@@ -1599,6 +1633,11 @@ function worker_SE(place)
     elseif place == 30 then
         --服务器维护中，脚本停止
         state = -2
+    elseif place == 31 then
+        --多人赛季奖励
+        toast("多人赛季奖励", 1)
+        tap(1000, 570)
+        state = -1
     elseif place == 404 then
         toast("不知道在哪", 1)
         mSleep(1000)
@@ -1715,7 +1754,6 @@ function toPVP_i68()
     end
     return 0
 end
-
 function waitBegin_i68()
     --done
     timer = 0
