@@ -277,6 +277,7 @@ end
 function makeGameFront()
     if isFrontApp(gameBid) == 0 then
         runApp(gameBid)
+        mSleep(10000)
     end
 end
 function refreshTable()
@@ -335,11 +336,11 @@ function initTable()
 end
 function log4j(content)
     t = batteryStatus()
+    charging = ""
     if t.charging == 1 then
-        content = content .. "      🔋:⚡️" .. tostring(t.level) .. "%"
-    else
-        content = content .. "      🔋:️" .. tostring(t.level) .. "%"
+        charging = "⚡"
     end
+    content = content .. "      🔋:️" .. charging .. tostring(t.level) .. "%"
     urlcontent = url_encode(content)
     table = readFile(root .. "A9log.txt")
     if table then
@@ -366,13 +367,12 @@ function sendEmail(reciver, topic, content)
         content = TableToStr(content)
     end
     status = ts.smtp(reciver, topic, content, "smtp.qq.com", "yourqq@qq.com", "授权码")
-    if (status) then
+    if status then
         toast("邮件发送成功", 1)
-        mSleep(1000)
     else
         toast("邮件发送失败", 1)
-        mSleep(10000)
     end
+    mSleep(1000)
 end
 function networkState()
     if getNetTime() == 0 then
@@ -576,7 +576,7 @@ function watchAd()
         tap(862, 509)
     end
     if watchAds == "开(有20倍广告加速)" then
-        mSleep(5000)
+        mSleep(10000)
     elseif watchAds == "开(没有广告加速)" then
         mSleep(35000)
     end
@@ -1198,18 +1198,18 @@ function checkPlace_SE()
 end
 function toPVP_SE()
     toast("进入多人", 1)
-    if (isColor(741, 538, 0xfc0050, 85) and isColor(742, 541, 0xed0150, 85)) then
-        goto PVP
+    --检查是不是已经在多人那一栏了
+    atPVP = isColor(741, 538, 0xfc0050, 85) and isColor(742, 541, 0xed0150, 85)
+    if not atPVP then
+        slideToPVP()
     end
-    slideToPVP()
     --TODO:检查是否在多人入口
-    :: PVP ::
     if checkAndGetPackage() == -2 then
         return -2
     end
-    tap(660, 600)
+    tap(660, 600) --进入多人
     mSleep(1500)
-    place = checkPlace()
+    place = checkPlace() --检查不是是在多人内部
     if place ~= 1 then
         toast("有内鬼，停止交易", 1)
         return -1
@@ -1311,25 +1311,36 @@ function Login_SE()
         end
     end
 end
-function toDailyGame_SE()
-    toast("进入赛事", 1)
-    if (isColor(555, 537, 0xf9004b, 85) and isColor(556, 540, 0xfe0054, 85)) then
-        tap(929, 474)
-        goto DailyGame
-    end
-    for _ = 1, 20, 1 do
-        moveTo(860, 235, 225, 235, 20) --从右往左划
-        if (isColor(1116, 539, 0xdc014a, 85) and isColor(1116, 538, 0xda0147, 85)) then
-            break
+function slideToPVE()
+    if model == "SE" then
+        for _ = 1, 20, 1 do
+            moveTo(860, 235, 225, 235, 20) --从右往左划
+            if (isColor(1116, 539, 0xdc014a, 85) and isColor(1116, 538, 0xda0147, 85)) then
+                break
+            end
+        end
+        for _ = 1, 4, 1 do
+            moveTo(225, 235, 860, 235, 20) --从左往右划
+        end
+    elseif model == "i68" then
+        for _ = 1, 10, 1 do
+            moveTo(860, 235, 225, 235, 20) --从左往右划
+        end
+        for _ = 1, 4, 1 do
+            moveTo(225, 235, 950, 235, 20) --从右往左划，需要改
         end
     end
-    for _ = 1, 4, 1 do
-        moveTo(225, 235, 860, 235, 20) --从左往右划
-    end
     mSleep(1000)
+end
+function toDailyGame_SE()
+    toast("进入赛事", 1)
+    atPVE = isColor(555, 537, 0xf9004b, 85) and isColor(556, 540, 0xfe0054, 85)
+    if not atPVE then
+        slideToPVE()
+    end
     --TODO:检查是否在赛事入口
-    :: DailyGame ::
-    tap(469, 589)
+    tap(929, 474) --点击右侧赛事标签
+    --tap(469, 589) --点击下方赛事标签
     mSleep(2000)
     for _ = 1, 4, 1 do
         moveTo(100, 500, 520, 500, 20) --从左往右划
@@ -1855,13 +1866,7 @@ end
 function toDailyGame_i68()
     --done partly
     toast("进入赛事", 1)
-    for _ = 1, 10, 1 do
-        moveTo(860, 235, 225, 235, 20) --从左往右划
-    end
-    for _ = 1, 4, 1 do
-        moveTo(225, 235, 950, 235, 20) --从右往左划，需要改
-    end
-    mSleep(2000)
+    slideToPVE()
     --TODO:检查是否在赛事入口
     tap(547, 686)
     mSleep(2000)
