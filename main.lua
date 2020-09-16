@@ -91,6 +91,7 @@ function after()
     lockDevice()
 end
 function beforeUserExit()
+    ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})
     log4j("⏹脚本被手动终止")
 end
 ---通用处理函数[不区分设备型号]---
@@ -144,11 +145,13 @@ function getHttpsCommand()
     :: getCommand ::
     a9getCommandcode, a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet(apiUrl .. "a9getCommand?udid=" .. ts.system.udid(), {}, {})
     if a9getCommandcode == 200 then
-        if a9getCommandbody_resp == "0" then
+        a9getCommandbody_resp = tonumber(a9getCommandbody_resp)
+        if a9getCommandbody_resp == 0 then
             if runningState == true then
                 log4j("⏸接收到暂停指令，脚本暂停运行")
                 runningState = false
                 toast("接收到暂停指令，脚本暂停运行", 1)
+                closeApp(gameBid) --关闭游戏
                 savePowerF()
             end
             toast("脚本已暂停运行", 4)
@@ -156,55 +159,40 @@ function getHttpsCommand()
             toast("5秒后再次发起请求", 4)
             mSleep(5000) --等5秒后再次发起请求
             goto getCommand
-        elseif a9getCommandbody_resp == "1" and runningState == false then
+        elseif a9getCommandbody_resp == 1 and runningState == false then
             toast("接收到开始指令，脚本开始运行", 1)
             log4j("▶️接收到开始指令，脚本开始运行")
             runningState = true
             receive_starting_command = true
             savePowerF()
-            return tonumber(a9getCommandbody_resp)
-        elseif a9getCommandbody_resp == "2" then
+        elseif a9getCommandbody_resp == 2 then
             toast("接收到模式转换指令，停止赛事模式，主模式改为多人刷声望", 1)
             mSleep(1000)
             log4j("🎮接收到模式转换指令，停止赛事模式，主模式改为多人刷声望")
             supermode = "多人刷声望"
             mode = "多人刷声望"
             savePowerF()
-            ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})
-            --将脚本状态置为运行
-            return tonumber(a9getCommandbody_resp)
-        elseif a9getCommandbody_resp == "3" then
+        elseif a9getCommandbody_resp == 3 then
             toast("接收到模式转换指令，开始赛事模式", 1)
             log4j("🎮接收到模式转换指令，开始赛事模式")
             supermode = "赛事模式"
             mode = "赛事模式"
             savePowerF()
-            ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})
             --将脚本状态置为运行
-            return tonumber(a9getCommandbody_resp)
-        elseif a9getCommandbody_resp == "4" then
+        elseif a9getCommandbody_resp == 4 then
             toast("接收到脚本停止指令，脚本停止", 1)
             log4j("接收到脚本停止指令，脚本停止")
-            ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})
-            --将脚本状态置为运行
-            return tonumber(a9getCommandbody_resp)
-        elseif a9getCommandbody_resp == "5" then
+        elseif a9getCommandbody_resp == 5 then
             toast("赛事没油没票后改为等待60分钟", 1)
             switch = "等60分钟"
             mode = supermode
             log4j("🎮赛事没油没票后改为等待60分钟")
-            ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})
-            --将脚本状态置为运行
-            return tonumber(a9getCommandbody_resp)
-        elseif a9getCommandbody_resp == "6" then
+        elseif a9getCommandbody_resp == 6 then
             toast("赛事没油没票后改为多人刷声望", 1)
             switch = "多人刷声望"
             mode = supermode
             log4j("🎮赛事没油没票后改为多人刷声望")
-            ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})
-            --将脚本状态置为运行
-            return tonumber(a9getCommandbody_resp)
-        elseif a9getCommandbody_resp == "7" then
+        elseif a9getCommandbody_resp == 7 then
             toast("接收到模式转换指令，停止赛事模式，主模式改为多人刷包", 1)
             mSleep(1000)
             log4j("🎮接收到模式转换指令，停止赛事模式，主模式改为多人刷包")
@@ -212,10 +200,11 @@ function getHttpsCommand()
             mode = "多人刷包"
             PVPwithoutPack = 0
             savePowerF()
-            ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})
-            --将脚本状态置为运行
-            return tonumber(a9getCommandbody_resp)
         end
+        if not (a9getCommandbody_resp == 1 and runningState == false) then
+            ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
+        end
+        return a9getCommandbody_resp
     end
 end
 function httpsGet(content)
@@ -508,13 +497,13 @@ function wait_time(minutes)
         closeApp(gameBid)
     end
     --minutes是数字型
-    toast("等" .. tostring(minutes) .. "分钟", 1)
+    log4j("等" .. tostring(minutes) .. "分钟", 1)
     --循环minutes * 6次，每次等10秒，共minutes * 60秒也就是minutes分钟
     for _ = 1, minutes * 6 do
         mSleep(10 * 1000) --等10秒
     end
     getHttpsCommand() --https请求获取运行指令
-    toast(tostring(minutes) .. "分钟到", 1)
+    log4j(tostring(minutes) .. "分钟到", 1)
     makeGameFront()
 end
 function back()
@@ -836,7 +825,7 @@ function switchAccount(account, passwd)
 end
 function shouldStop(nomorepack)
     --开完最后一个包可能不会立刻停止，因为12个奖杯只需要少于12局即可完成，代码中写12是为稳定起见 //针对SE：连续开4个包但没补充应该停止
-    if (mode == "多人刷包" and PVPwithoutPack >= 12) or (model == "SE" and mode == "多人刷包" and packWithoutRestore >= 4) or nomorepack then
+    if (mode == "多人刷包" and PVPwithoutPack >= 12) or (model == "SE" and mode == "多人刷包" and (packWithoutRestore >= 4 or nomorepack)) then
         log4j("🈚 " .. accountnum .. "没有多人包可刷")
         --将账号accountnum在数据库中状态改为刷包关闭
         ts.httpsGet(apiUrl .. "a9accountDone?udid=" .. ts.system.udid() .. "&account=" .. nowaccount, {}, {})
@@ -1341,7 +1330,19 @@ function toDailyGame_SE()
     --TODO:检查是否在赛事入口
     tap(929, 474) --点击右侧赛事标签
     --tap(469, 589) --点击下方赛事标签
-    mSleep(2000)
+    mSleep(3000)
+    --检查是不是有奖励能领
+    if (isColor(345, 352, 0xfb004f, 90) and isColor(343, 388, 0xfe0054, 90) and isColor(792, 351, 0xfb004f, 90) and isColor(791, 389, 0xfc0053, 90) and isColor(500, 364, 0xffffff, 90) and isColor(716, 368, 0xffffff, 90) and isColor(559, 625, 0xc3fb12, 90) and isColor(634, 627, 0xc3fb12, 90) and isColor(556, 369, 0x000000, 90)) then
+        --领奖励
+        tap(570, 505)
+        mSleep(2000)
+        tap(570, 505)
+        mSleep(3000)
+        tap(368, 496)
+        tap(896, 592)
+        mSleep(3000)
+        return -1
+    end
     for _ = 1, 4, 1 do
         moveTo(100, 500, 520, 500, 20) --从左往右划
     end
