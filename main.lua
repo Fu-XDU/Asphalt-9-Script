@@ -1338,8 +1338,11 @@ function toDailyGame_SE()
         mSleep(2000)
         tap(570, 505)
         mSleep(3000)
-        tap(368, 496)
-        tap(896, 592)
+        if (isColor(75, 576, 0xffffff, 90) and isColor(260, 571, 0xffffff, 90) and isColor(79, 613, 0xffffff, 90) and isColor(254, 613, 0xffffff, 90) and isColor(272, 617, 0x010924, 90) and isColor(273, 611, 0x000321, 90)) then
+            tap(1075,590) --是巅峰赛奖励
+        else
+            tap(368, 496) --俱乐部奖励
+        end
         mSleep(3000)
         return -1
     end
