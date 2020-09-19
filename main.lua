@@ -487,10 +487,12 @@ function wait_when_Parallel_read_detected()
         toast("账号被顶", 1)
         mSleep(1000)
         toast("等待" .. tostring(timeout_parallelRead) .. "分钟", 1)
-        wait_time(timeout_parallelRead)
+        stop = wait_time(timeout_parallelRead) --stop==-2停止 stop==-1正常
         log4j("等待完成")
         toast("等待完成", 1)
+        return stop
     end
+    return -1
 end
 function wait_time(minutes)
     if minutes >= 5 then
@@ -502,9 +504,15 @@ function wait_time(minutes)
     for _ = 1, minutes * 6 do
         mSleep(10 * 1000) --等10秒
     end
-    getHttpsCommand() --https请求获取运行指令
-    log4j(tostring(minutes) .. "分钟到", 1)
-    makeGameFront()
+    --https请求获取运行指令
+    if getHttpsCommand() == 4 then
+        return -2
+    else
+        log4j(tostring(minutes) .. "分钟到", 1)
+        makeGameFront()
+        return -1
+    end
+
 end
 function back()
     if model == "SE" then
@@ -547,12 +555,12 @@ function actAfterNoFuelNTicket()
         backHome()
         return -1
     elseif switch == "等30分钟" or switch == "等60分钟" then
-        if switch == "等30分钟" then
-            wait_time(30)
-        elseif switch == "等60分钟" then
-            wait_time(60)
-        end
         changecar = false
+        if switch == "等30分钟" then
+            return wait_time(30)
+        elseif switch == "等60分钟" then
+            return wait_time(60)
+        end
         return -1
     end
 end
@@ -1339,7 +1347,7 @@ function toDailyGame_SE()
         tap(570, 505)
         mSleep(3000)
         if (isColor(75, 576, 0xffffff, 90) and isColor(260, 571, 0xffffff, 90) and isColor(79, 613, 0xffffff, 90) and isColor(254, 613, 0xffffff, 90) and isColor(272, 617, 0x010924, 90) and isColor(273, 611, 0x000321, 90)) then
-            tap(1075,590) --是巅峰赛奖励
+            tap(1075, 590) --是巅峰赛奖励
         else
             tap(368, 496) --俱乐部奖励
         end
@@ -1566,10 +1574,9 @@ function worker_SE(place)
         mSleep(2000)
         state = -1
     elseif place == 16 then
-        wait_when_Parallel_read_detected()
+        state = wait_when_Parallel_read_detected()
         tap(970, 215) --关闭
         mSleep(2000)
-        state = -1
     elseif place == 17 then
         toast("匹配中", 1)
         state = -6
@@ -2063,10 +2070,9 @@ function worker_i68(place)
         mSleep(2000)
         state = -1
     elseif place == 16 then
-        wait_when_Parallel_read_detected()
+        state = wait_when_Parallel_read_detected()
         tap(1140, 252) --关闭
         mSleep(2000)
-        state = -1
     elseif place == 17 then
         toast("匹配中", 1)
         state = -6
