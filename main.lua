@@ -30,10 +30,13 @@ function prepare()
     setAutoLockTime(0)
     checkScreenSize()
     networkState()
+    starttime=os.time()
     ShowUI()
-    savePowerF()
+    period=os.time()-starttime-2--period应该>115
+    --dialog(period)
     initTable()
     startGame()
+    savePowerF()
     paraArgu()
 end
 ---为程序主函数---
@@ -95,6 +98,9 @@ function beforeUserExit()
     log4j("⏹脚本被手动终止")
 end
 ---通用处理函数[不区分设备型号]---
+function saveSettings()
+    --TODO:存储用户本次设置选项
+end
 function savePowerF()
     if savePower == "开" then
         toast("降低屏幕亮度", 1)
@@ -392,15 +398,15 @@ function ShowUI()
     UILabel(1, "赛事是否选车", 15, "left", "38,38,38")
     UIRadio(1, "chooseCarorNot", "是,否", "0")
     UILabel(1, "赛事用车位置选择（赛事模式）", 15, "left", "38,38,38")
-    UIRadio(1, "upordown", "中间上,中间下,右上（被寻车满星时）", "0")
+    UIRadio(1, "carplace", "中间上,中间下,左上,左下,右上（被寻车满星时）", "0")
     UILabel(1, "赛事选车是否返回一次（被寻车满星时）", 15, "left", "38,38,38")
     UIRadio(1, "backifallstar", "是,否", "0")
     UILabel(1, "传奇是否刷多人", 15, "left", "38,38,38")
     UIRadio(1, "PVPatBest", "是,否", "0")
     UILabel(1, "节能模式", 15, "left", "38,38,38")
     UIRadio(1, "savePower", "开,关", "0")
-    UILabel(1, "多人选低一段车辆（白金及以上）", 15, "left", "38,38,38")
-    UIRadio(1, "lowerCar", "开,关", "0")
+    UILabel(1, "多人选低一段车辆（白银及以上）", 15, "left", "38,38,38")
+    UIRadio(1, "lowerCar", "开,关", "1")
     UILabel(1, "赛事没油是否换车", 15, "left", "38,38,38")
     UIRadio(1, "changeCar", "开,关", "0")
     UILabel(1, "赛事没油是否看广告(建议配合插件VideoAdsSpeed开20倍使用)", 15, "left", "38,38,38")
@@ -944,12 +950,16 @@ function selectCarAtGame()
                 back()
                 mSleep(1000)
             end
-            if upordown == "中间上" then
+            if carplace == "中间上" then
                 tap(580, 270)
-            elseif upordown == "中间下" then
+            elseif carplace == "中间下" then
                 tap(580, 420)
-            elseif upordown == "右上（被寻车满星时）" then
+            elseif carplace == "右上（被寻车满星时）" then
                 tap(900, 270)
+            elseif carplace == "左上" then
+                tap(360, 230)
+            elseif carplace == "左下" then
+                tap(220, 500)
             end
         end
     elseif model == "i68" then
@@ -961,14 +971,18 @@ function selectCarAtGame()
                 mSleep(1000)
             end
             if chooseCarorNot == "是" then
-                if upordown == "中间上" then
+                if carplace == "中间上" then
                     tap(660, 320)
-                elseif upordown == "中间下" then
+                elseif carplace == "中间下" then
                     tap(660, 462)
-                elseif upordown == "右上（被寻车满星时）" then
+                elseif carplace == "右上（被寻车满星时）" then
                     for i = 1325, 1000, -30 do
                         tap(i, 320)
                     end
+                elseif carplace == "左上" then
+                    tap(280,330)
+                elseif carplace == "左下" then
+                    tap(260, 600)
                 end
             end
         end
@@ -1404,13 +1418,13 @@ function gametoCarbarn_SE()
         end
     else
         if changeCar == "开" and not changecar then
-            if upordown == "中间下" then
+            if carplace == "中间下" then
                 downwithoutoil = true
             else
                 upwithoutoil = true
             end
             if not (upwithoutoil and downwithoutoil) then
-                if upordown == "中间下" then
+                if carplace == "中间下" then
                     tap(440, 320) --向左选车
                 else
                     tap(1070, 320) --向右选车
@@ -1908,13 +1922,13 @@ function gametoCarbarn_i68()
         end
     else
         if changeCar == "开" and not changecar then
-            if upordown == "中间下" then
+            if carplace == "中间下" then
                 downwithoutoil = true
             else
                 upwithoutoil = true
             end
             if not (upwithoutoil and downwithoutoil) then
-                if upordown == "中间下" then
+                if carplace == "中间下" then
                     tap(510, 380) --向左选车
                 else
                     tap(1250, 380) --向右选车
