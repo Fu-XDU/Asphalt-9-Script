@@ -1,5 +1,7 @@
 require "TSLib"
 local ts = require("ts")
+local sz = require("sz")
+local json = sz.json
 init(1)
 apiUrl = "https://yourdomin.cn/api/"
 gameBid = "com.Aligames.kybc9"
@@ -24,16 +26,23 @@ watchAds = ""
 PVPwithoutPack, packWithoutRestore = 0, 0 --开过最近的一个PVP包后完成PVP局数,连着开了多少个包但是没有补充
 accountnum, nowaccount = "", "" --当前运行的账号,当前运行的账号+密码
 switchaccountfun = true --是否打开多人刷包切换账号的功能
+udid = ts.system.udid()
+settings = ""--用户设置
 ---前置准备函数---
 function prepare()
     unlockedDevice()
     setAutoLockTime(0)
     checkScreenSize()
     networkState()
-    starttime=os.time()
+    starttime = os.time()
     ShowUI()
-    period=os.time()-starttime-2--period应该>115
-    --dialog(period)
+    period = os.time() - starttime - 2--period>115认为没有点确定，无人为操作，脚本远程启动
+    --获取上次的设置(远端设置)，然后对比这次的设置，若改动，就用改过的并在远端保存此次改过的设置，若无改动，就判断是不是period>115脚本远程启动，如果是就使用远端设置，远端设置可以提前获取。
+    if period > 115 then
+        refreshSettings(getSettings())
+    else
+        saveSettings()
+    end
     initTable()
     startGame()
     savePowerF()
@@ -89,17 +98,36 @@ end
 ---结束处理函数---
 function after()
     log4j("⏹脚本停止运行")
-    --sendEmail(email, "[A9]脚本停止运行" .. getDeviceName(), readFile(root .. "A9log.txt"))
     closeApp(gameBid) --关闭游戏
     lockDevice()
 end
 function beforeUserExit()
-    ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})
+    ts.httpsGet(apiUrl .. "a9control?udid=" .. udid .. "&command=1", {}, {})
     log4j("⏹脚本被手动终止")
 end
 ---通用处理函数[不区分设备型号]---
 function saveSettings()
-    --TODO:存储用户本次设置选项
+    --存储用户本次设置选项
+    body_send = { ["udid"] = udid, ["settings"] = settings }
+    ts.httpsPost(apiUrl .. "a9saveSettings", {}, body_send)
+end
+function getSettings()
+    --存储用户本次设置选项
+    newsettings = settings
+    a9getSettings_code, a9getSettingsheader_resp, newsettings = ts.httpsGet(apiUrl .. "a9getSettings?udid=" .. udid, {}, {})
+    if a9getSettings_code == 200 then
+        newsettings = strSplit(ToStringEx(json.decode(newsettings)[1]))
+    end
+    return newsettings
+end
+function refreshSettings(newsettings)
+    if not settings == newsettings then
+        settingsTable = strSplit(strSplit(ToStringEx(json.decode(settings)[1]), "=")[2], "|")
+        newsettingsTable = strSplit(strSplit(ToStringEx(json.decode(newsettings)[1]), "=")[2], "|")
+        for key, value in pairs(newsettingstable) do
+            --TODO:修改新设置
+        end
+    end
 end
 function savePowerF()
     if savePower == "开" then
@@ -149,7 +177,7 @@ function paraArgu()
 end
 function getHttpsCommand()
     :: getCommand ::
-    a9getCommandcode, a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet(apiUrl .. "a9getCommand?udid=" .. ts.system.udid(), {}, {})
+    a9getCommandcode, a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet(apiUrl .. "a9getCommand?udid=" .. udid, {}, {})
     if a9getCommandcode == 200 then
         a9getCommandbody_resp = tonumber(a9getCommandbody_resp)
         if a9getCommandbody_resp == 0 then
@@ -208,13 +236,12 @@ function getHttpsCommand()
             savePowerF()
         end
         if not (a9getCommandbody_resp == 1 and runningState == false) then
-            ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})--将脚本状态置为运行
+            ts.httpsGet(apiUrl .. "a9control?udid=" .. udid .. "&command=1", {}, {})--将脚本状态置为运行
         end
         return a9getCommandbody_resp
     end
 end
 function httpsGet(content)
-    udid = ts.system.udid()
     header_send = {}
     body_send = {}
     ts.setHttpsTimeOut(5) --安卓不支持设置超时时间
@@ -357,6 +384,8 @@ function sendEmail(reciver, topic, content)
     if reciver == "" then
         toast("未指定邮箱", 1)
         return 0
+    else
+        reciver = reciver .. "@qq.com"
     end
     if type(content) == "table" then
         content = TableToStr(content)
@@ -443,6 +472,7 @@ function ShowUI()
     UILabel(2, "远程日志功能，可以访问网址https://yourdomin.cn/api/a9log?udid=" .. ts.system.udid() .. "查看本日脚本日志，远程监控脚本运行情况。", 15, "left", "38,38,38")
     UILabel(2, "如果有脚本无法识别的界面，请联系QQ群1028746490群主。如果需要购买脚本授权码也请联系上述QQ群群主。", 20, "left", "38,38,38")
     UIShow()
+    settings = mode .. "|" .. switch .. "|" .. path .. "|" .. gamenum .. "|" .. chooseCarorNot .. "|" .. carplace .. "|" .. backifallstar .. "|" .. PVPatBest .. "|" .. savePower .. "|" .. lowerCar .. "|" .. changeCar .. "|" .. watchAds .. "|" .. timeout_backPVE .. "|" .. skipcar .. "|" .. timeout_parallelRead .. "|" .. email
 end
 function startGame()
     log4j("脚本开始")
@@ -980,7 +1010,7 @@ function selectCarAtGame()
                         tap(i, 320)
                     end
                 elseif carplace == "左上" then
-                    tap(280,330)
+                    tap(280, 330)
                 elseif carplace == "左下" then
                     tap(260, 600)
                 end
