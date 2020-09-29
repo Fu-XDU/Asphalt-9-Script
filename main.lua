@@ -926,7 +926,6 @@ function chooseCar()
     if not switchToSuitableCar() then
         return false
     end
-    checkAutoMobile()
     beginGame()
     return true
 end
@@ -989,7 +988,7 @@ function selectCarAtGame()
             elseif carplace == "左上" then
                 tap(360, 230)
             elseif carplace == "左下" then
-                tap(220, 500)
+                tap(250, 420)
             end
         end
     elseif model == "i68" then
@@ -1031,14 +1030,14 @@ function carCanUse()
 end
 function checkAutoMobile()
     if model == "SE" then
-        if (isColor(1058, 508, 0xfc0001, 85) and isColor(1053, 508, 0xef0103, 85) and isColor(1065, 508, 0xef0103, 85) and isColor(1057, 515, 0xff0000, 85) and isColor(1047, 523, 0xf00103, 85) and isColor(1062, 521, 0xe60205, 85)) then
+        if (isColor(188, 94, 0xbf0408, 90) and isColor(196, 94, 0xe90203, 90) and isColor(191, 97, 0xf30101, 90) and isColor(186, 103, 0xc40303, 90) and isColor(196, 102, 0xca0302, 90) and isColor(186, 107, 0xe70203, 90) and isColor(193, 107, 0xd30405, 90)) then
             --toast("开启自动驾驶",1);
-            tap(1060, 510)
+            tap(128, 100)
         end
     elseif model == "i68" then
-        if (isColor(1237, 595, 0xf20102, 85) and isColor(1250, 595, 0xf20102, 85) and isColor(1242, 602, 0xfe0000, 85) and isColor(1250, 612, 0xf80101, 85)) then
+        if (isColor(221, 112, 0xf10002, 90) and isColor(229, 112, 0xfa0000, 90) and isColor(221, 114, 0xfc0000, 90) and isColor(228, 114, 0xfe0000, 90) and isColor(224, 118, 0xfe0000, 90) and isColor(217, 120, 0xd90605, 90) and isColor(229, 120, 0xdd0a08, 90) and isColor(219, 126, 0xf40001, 90) and isColor(228, 127, 0xe70d0c, 90) and isColor(231, 129, 0xef0b08, 90)) then
             --toast("开启自动驾驶",1);
-            tap(1242, 602)
+            tap(138, 118)
         end
     end
     mSleep(500)
@@ -1258,8 +1257,9 @@ function toPVP_SE()
     return 0
 end
 function waitBegin_SE()
+    mSleep(5000)
     timer = 0
-    while (getColor(170, 100) ~= 0x14bde9 and timer < 35) do
+    while (not (isColor(37, 94, 0xfefefe, 90) and isColor(36, 103, 0xfefefe, 90) and isColor(46, 99, 0xffffff, 90) and isColor(54, 100, 0xffffff, 90) and isColor(60, 100, 0xffffff, 90) and isColor(68, 99, 0xffffff, 90) and isColor(74, 99, 0xffffff, 90) and isColor(104, 99, 0x3daaef, 90) and isColor(112, 99, 0x3ca8ec, 90) and isColor(153, 100, 0x3daaee, 90)) and timer < 35) do
         mSleep(2000)
         timer = timer + 1
         toast("开局中," .. tostring(timer) .. "/35", 0.5)
@@ -1287,7 +1287,9 @@ function waitBegin_SE()
 end
 function autoMobile_SE()
     toast("接管比赛", 1)
-    while (getColor(170, 100) == 0x14bde9) do
+    checkAutoMobile()
+    --TODO:下面这个while也需要修改
+    while (isColor(188, 95, 0xc1f717, 90) and isColor(195, 95, 0xc2f815, 90) and isColor(187, 101, 0xc2f914, 90) and isColor(194, 101, 0xc2f914, 90)) do
         mSleep(500)
         tap(950, 400)
         mSleep(500)
@@ -1436,7 +1438,6 @@ function gametoCarbarn_SE()
     :: beginAtGame ::
     mSleep(4000)
     if ads or carCanUse() then
-        checkAutoMobile()
         tap(1095, 548)
         mSleep(2000)
         --检查是不是有票
@@ -1822,8 +1823,9 @@ function toPVP_i68()
 end
 function waitBegin_i68()
     --done
+    mSleep(5000)
     timer = 0
-    while (getColor(204, 122) ~= 0x14bde9 and timer < 35) do
+    while (not (isColor(44, 111, 0xffffff, 90) and isColor(59, 109, 0xffffff, 90) and isColor(81, 111, 0xffffff, 90) and isColor(93, 110, 0xffffff, 90) and isColor(108, 118, 0xffffff, 90) and isColor(122, 117, 0x3daaee, 90) and isColor(142, 120, 0x3daaee, 90) and isColor(156, 117, 0x3daaef, 90) and isColor(171, 118, 0x3daaee, 90) and isColor(184, 118, 0x3daaef, 90)) and timer < 35) do
         mSleep(2000)
         timer = timer + 1
         toast("开局中," .. tostring(timer) .. "/35", 0.5)
@@ -1854,7 +1856,8 @@ end
 function autoMobile_i68()
     --done
     toast("接管比赛", 1)
-    while (getColor(200, 120) == 0x14bde9) do
+    checkAutoMobile()
+    while (isColor(221, 111, 0xbff414, 90) and isColor(232, 111, 0xbef316, 90) and isColor(220, 119, 0xc3fa14, 90) and isColor(228, 119, 0xc1fa0e, 90) and isColor(226, 128, 0xbcee12, 90) and isColor(214, 128, 0xb4e513, 90)) do
         mSleep(500)
         tap(1130, 600)
         mSleep(500)
@@ -1939,8 +1942,6 @@ function gametoCarbarn_i68()
     selectCarAtGame()
     :: beginAtGame ::
     if ads or carCanUse() then
-        --检查自动驾驶
-        checkAutoMobile()
         beginGame()
         mSleep(2000)
         --检查是不是有票
