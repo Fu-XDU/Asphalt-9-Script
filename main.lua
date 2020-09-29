@@ -1156,7 +1156,7 @@ function checkPlace_SE()
     elseif getColor(115, 25) == 0xff0054 then
         checkplacetimes = 0
         return 2 --游戏结算界面
-    elseif getColor(170, 100) == 0x14bde9 then
+    elseif (isColor(37, 94, 0xfefefe, 90) and isColor(36, 103, 0xfefefe, 90) and isColor(46, 99, 0xffffff, 90) and isColor(54, 100, 0xffffff, 90) and isColor(60, 100, 0xffffff, 90) and isColor(68, 99, 0xffffff, 90) and isColor(74, 99, 0xffffff, 90) and isColor(104, 99, 0x3daaef, 90) and isColor(112, 99, 0x3ca8ec, 90) and isColor(153, 100, 0x3daaee, 90)) then
         checkplacetimes = 0
         return 3 --游戏中
     elseif (isColor(60, 26, 0xff0052, 85) and isColor(153, 29, 0xfe0052, 85) and isColor(209, 59, 0xffffff, 85) and isColor(282, 57, 0xffffff, 85) and isColor(355, 65, 0xffffff, 85) and isColor(454, 63, 0xffffff, 85) and isColor(515, 61, 0xffffff, 85) and isColor(629, 45, 0xffffff, 85)) then
@@ -1754,7 +1754,7 @@ function checkPlace_i68()
     elseif (isColor(160, 4, 0xff0054, 85) and isColor(147, 18, 0xff0054, 85)) then
         checkplacetimes = 0
         return 2 --游戏结算界面
-    elseif (isColor(204, 120, 0x14bde9, 85)) then
+    elseif (isColor(44, 111, 0xffffff, 90) and isColor(59, 109, 0xffffff, 90) and isColor(81, 111, 0xffffff, 90) and isColor(93, 110, 0xffffff, 90) and isColor(108, 118, 0xffffff, 90) and isColor(122, 117, 0x3daaee, 90) and isColor(142, 120, 0x3daaee, 90) and isColor(156, 117, 0x3daaef, 90) and isColor(171, 118, 0x3daaee, 90) and isColor(184, 118, 0x3daaef, 90)) then
         checkplacetimes = 0
         return 3 --游戏中
     elseif (isColor(60, 26, 0xff0052, 85) and isColor(153, 29, 0xfe0052, 85) and isColor(209, 59, 0xffffff, 85) and isColor(282, 57, 0xffffff, 85) and isColor(355, 65, 0xffffff, 85) and isColor(454, 63, 0xffffff, 85) and isColor(515, 61, 0xffffff, 85) and isColor(629, 45, 0xffffff, 85)) then
