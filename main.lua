@@ -116,17 +116,74 @@ function getSettings()
     newsettings = settings
     a9getSettings_code, a9getSettingsheader_resp, newsettings = ts.httpsGet(apiUrl .. "a9getSettings?udid=" .. udid, {}, {})
     if a9getSettings_code == 200 then
-        newsettings = strSplit(ToStringEx(json.decode(newsettings)[1]))
+        newsettings = strSplit(ToStringEx(json.decode(newsettings)[1]), "=")[2]
     end
     return newsettings
 end
 function refreshSettings(newsettings)
-    if not settings == newsettings then
-        settingsTable = strSplit(strSplit(ToStringEx(json.decode(settings)[1]), "=")[2], "|")
-        newsettingsTable = strSplit(strSplit(ToStringEx(json.decode(newsettings)[1]), "=")[2], "|")
-        for key, value in pairs(newsettingstable) do
-            --TODO:修改新设置
+    if not (settings == newsettings) then
+        settingsTable = strSplit(settings, "|")
+        newsettingsTable = strSplit(newsettings, "|")
+        refreshSettingslog = ""
+        for key, value in pairs(newsettingsTable) do
+            if not (settingsTable[key] == newsettingsTable[key]) then
+                if (key == 1) then
+                    supermode = value
+                    mode = value
+                    refreshSettingslog = refreshSettingslog .. "主模式更改为" .. value .. " "
+                elseif (key == 2) then
+                    switch = value
+                    mode = supermode
+                    refreshSettingslog = refreshSettingslog .. "没油没票后动作(赛事模式)更改为" .. value .. " "
+                elseif (key == 3) then
+                    path = value
+                    refreshSettingslog = refreshSettingslog .. "路线选择(所有模式)更改为" .. value .. " "
+                elseif (key == 4) then
+                    gamenum = value
+                    validateGame = false
+                    refreshSettingslog = refreshSettingslog .. "赛事位置选择更改为" .. value .. " "
+                elseif (key == 5) then
+                    chooseCarorNot = value
+                    refreshSettingslog = refreshSettingslog .. "赛事是否选车更改为" .. value .. " "
+                elseif (key == 6) then
+                    carplace = value
+                    refreshSettingslog = refreshSettingslog .. "赛事用车位置选择(赛事模式)更改为" .. value .. " "
+                elseif (key == 7) then
+                    backifallstar = value
+                    refreshSettingslog = refreshSettingslog .. "赛事选车是否返回一次(被寻车满星时)更改为" .. value .. " "
+                elseif (key == 8) then
+                    PVPatBest = value
+                    refreshSettingslog = refreshSettingslog .. "传奇是否刷多人更改为" .. value .. " "
+                elseif (key == 9) then
+                    savePower = value
+                    refreshSettingslog = refreshSettingslog .. "节能模式更改为" .. value .. " "
+                elseif (key == 10) then
+                    lowerCar = value
+                    refreshSettingslog = refreshSettingslog .. "多人选低一段车辆(白银及以上)更改为" .. value .. " "
+                elseif (key == 11) then
+                    changeCar = value
+                    refreshSettingslog = refreshSettingslog .. "赛事没油是否换车更改为" .. value .. " "
+                elseif (key == 12) then
+                    watchAds = value
+                    refreshSettingslog = refreshSettingslog .. "赛事没油是否看广告更改为" .. value .. " "
+                elseif (key == 13) then
+                    timeout_backPVE = value
+                    refreshSettingslog = refreshSettingslog .. "需要过多久返回赛事模式或寻车模式更改为" .. value .. " "
+                elseif (key == 14) then
+                    skipcar = value
+                    refreshSettingslog = refreshSettingslog .. "多人跳车更改为" .. value .. " "
+                elseif (key == 15) then
+                    timeout_parallelRead = value
+                    refreshSettingslog = refreshSettingslog .. "顶号重连更改为" .. value .. " "
+                elseif (key == 16) then
+                    email = value
+                    refreshSettingslog = refreshSettingslog .. "邮箱更改为" .. value .. "@qq.com"
+                end
+            end
         end
+        log4j(refreshSettingslog)
+        paraArgu()
+        settings = newsettings
     end
 end
 function savePowerF()
@@ -163,6 +220,7 @@ function paraArgu()
     math.randomseed(tostring(os.time()):reverse():sub(1, 7)) --随机数初始化
     timeout_backPVE = tonumber(timeout_backPVE) --需要过多久返回赛事模式或寻车模式
     timeout_parallelRead = tonumber(timeout_parallelRead) --顶号重连时间
+    gamenum = tonumber(gamenum)
     skipcar = tonumber(skipcar)
     if path == "左" then
         path = -1
@@ -176,6 +234,7 @@ function paraArgu()
     supermode = mode
 end
 function getHttpsCommand()
+    refreshSettings(getSettings())
     :: getCommand ::
     a9getCommandcode, a9getCommandheader_resp, a9getCommandbody_resp = ts.httpsGet(apiUrl .. "a9getCommand?udid=" .. udid, {}, {})
     if a9getCommandcode == 200 then
@@ -199,41 +258,9 @@ function getHttpsCommand()
             runningState = true
             receive_starting_command = true
             savePowerF()
-        elseif a9getCommandbody_resp == 2 then
-            toast("接收到模式转换指令，停止赛事模式，主模式改为多人刷声望", 1)
-            mSleep(1000)
-            log4j("🎮接收到模式转换指令，停止赛事模式，主模式改为多人刷声望")
-            supermode = "多人刷声望"
-            mode = "多人刷声望"
-            savePowerF()
-        elseif a9getCommandbody_resp == 3 then
-            toast("接收到模式转换指令，开始赛事模式", 1)
-            log4j("🎮接收到模式转换指令，开始赛事模式")
-            supermode = "赛事模式"
-            mode = "赛事模式"
-            savePowerF()
-            --将脚本状态置为运行
         elseif a9getCommandbody_resp == 4 then
             toast("接收到脚本停止指令，脚本停止", 1)
             log4j("接收到脚本停止指令，脚本停止")
-        elseif a9getCommandbody_resp == 5 then
-            toast("赛事没油没票后改为等待60分钟", 1)
-            switch = "等60分钟"
-            mode = supermode
-            log4j("🎮赛事没油没票后改为等待60分钟")
-        elseif a9getCommandbody_resp == 6 then
-            toast("赛事没油没票后改为多人刷声望", 1)
-            switch = "多人刷声望"
-            mode = supermode
-            log4j("🎮赛事没油没票后改为多人刷声望")
-        elseif a9getCommandbody_resp == 7 then
-            toast("接收到模式转换指令，停止赛事模式，主模式改为多人刷包", 1)
-            mSleep(1000)
-            log4j("🎮接收到模式转换指令，停止赛事模式，主模式改为多人刷包")
-            supermode = "多人刷包"
-            mode = "多人刷包"
-            PVPwithoutPack = 0
-            savePowerF()
         end
         if not (a9getCommandbody_resp == 1 and runningState == false) then
             ts.httpsGet(apiUrl .. "a9control?udid=" .. udid .. "&command=1", {}, {})--将脚本状态置为运行
@@ -446,7 +473,7 @@ function ShowUI()
     UIEdit(1, "skipcar", "内容", "0", 15, "center", "38,38,38", "number")
     UILabel(1, "顶号重连（分钟）", 15, "left", "38,38,38")
     UIEdit(1, "timeout_parallelRead", "内容", "30", 15, "center", "38,38,38", "number")
-    UILabel(1, "接收日志的邮箱", 15, "left", "38,38,38")
+    UILabel(1, "接收日志的QQ邮箱的QQ号", 15, "left", "38,38,38")
     UIEdit(1, "email", "邮箱地址（选填）", "", 15, "left", "38,38,38", "default")
     UILabel(1, "详细说明请向左滑查看第二页", 20, "left", "255,30,2")
     UILabel(2, "本脚本目前适用设备为iPhone 5S/SE/6/6s/7/8/iPod Touch5G(6G)，iPad与Plus设备均不支持。", 15, "left", "38,38,38")
@@ -731,7 +758,6 @@ function toCarbarn()
     return 1 --可以进入车库选车并开始PVP
 end
 function chooseGame()
-    gamenum = tonumber(gamenum)
     if model == "SE" then
         if gamenum <= 7 then
             tap(138 + 160 * (gamenum - 1), 500)
@@ -1288,7 +1314,6 @@ end
 function autoMobile_SE()
     toast("接管比赛", 1)
     checkAutoMobile()
-    --TODO:下面这个while也需要修改
     while (isColor(188, 95, 0xc1f717, 90) and isColor(195, 95, 0xc2f815, 90) and isColor(187, 101, 0xc2f914, 90) and isColor(194, 101, 0xc2f914, 90)) do
         mSleep(500)
         tap(950, 400)
@@ -1857,7 +1882,7 @@ function autoMobile_i68()
     --done
     toast("接管比赛", 1)
     checkAutoMobile()
-    while (isColor(221, 111, 0xbff414, 90) and isColor(232, 111, 0xbef316, 90) and isColor(220, 119, 0xc3fa14, 90) and isColor(228, 119, 0xc1fa0e, 90) and isColor(226, 128, 0xbcee12, 90) and isColor(214, 128, 0xb4e513, 90)) do
+    while (isColor(221, 111, 0xbff414, 90) and isColor(232, 111, 0xbef316, 90) and isColor(220, 119, 0xc3fa14, 90) and isColor(228, 119, 0xc1fa0e, 90) and isColor(226, 128, 0xbcee12, 90) and isColor(214, 128, 0xb4e513, 90)) or (isColor(122, 118, 0x3faaed, 85) and isColor(131, 119, 0x3daaef, 85) and isColor(141, 120, 0x3ea9ed, 85) and isColor(155, 120, 0x3ca5e9, 85) and isColor(166, 126, 0x3caaed, 85) and isColor(180, 127, 0x3eabe8, 85)) do
         mSleep(500)
         tap(1130, 600)
         mSleep(500)
