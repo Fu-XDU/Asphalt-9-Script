@@ -121,7 +121,7 @@ function getSettings()
     return newsettings
 end
 function refreshSettings(newsettings)
-    if not (settings == newsettings) then
+    if not (settings == newsettings) and not (newsettings == nil)then
         settingsTable = strSplit(settings, "|")
         newsettingsTable = strSplit(newsettings, "|")
         refreshSettingslog = ""
