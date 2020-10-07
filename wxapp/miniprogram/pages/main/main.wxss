@@ -1,0 +1,5 @@
+/* miniprogram/pages/main/main.wxss */
+.button-sp-area{
+  margin: 0 auto;
+  width: 60%;
+}

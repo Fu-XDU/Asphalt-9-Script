@@ -1,0 +1,27 @@
+<!--miniprogram/pages/main/main.wxml-->
+<view>
+  <van-notify id="van-notify" />
+  <van-field value="{{udid}}" center clearable label="设备UDID" place:holder="请输入设备UDID" border="{{false}}"
+    use-button-slot bind:input="handleInput" id="udid">
+    <van-button slot="button" size="small" type="primary" bind:click="getClipboard">粘贴</van-button>
+  </van-field>
+  <van-button type="primary" size="large" bind:click="query">查询</van-button>
+</view>
+<view wx:if="{{showSettings}}">
+  <demo-block wx:for-items="{{settings}}" wx:key="title" title="{{item.title}}" padding>
+    <van-radio-group id="{{item.title}}" wx:for-items="{{item.options.index}}" value="{{item.index}}" wx:key="index"
+      wx:for-item="index" bind:change="onChange">
+      <van-radio name="{{index}}" checked-color="#07c160">{{item.options.value[index]}}</van-radio>
+    </van-radio-group>
+    <view wx:if="{{item.value}}">
+      <van-field value="{{item.value}}" center clearable label="数字" place:holder="数字" border="{{false}}" type="number"
+        bind:input="handleInput" id="{{item.title}}"></van-field>
+    </view>
+  </demo-block>
+  <button class="button-sp-area" type="primary" plain="true" bindtap="submit">提交</button>
+</view>
+<view wx:else>
+  <van-divider contentPosition="center">本脚本适用狂野飙车9iOS国服</van-divider>
+  <van-divider contentPosition="center">适用于iPhone 5S/SE/6/6s/7/8/iPod Touch5G(6G)</van-divider>
+  <van-divider contentPosition="center">更多信息请加群1028746490了解</van-divider>
+</view>

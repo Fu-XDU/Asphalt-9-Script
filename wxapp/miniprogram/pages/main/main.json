@@ -1,0 +1,13 @@
+{
+  "usingComponents": {
+    "van-field": "../../components/Vant-Weapp/field/index",
+    "van-button": "../../components/Vant-Weapp/button/index",
+    "van-radio": "../../components/Vant-Weapp/radio/index",
+    "van-radio-group": "../../components/Vant-Weapp/radio-group/index",
+    "demo-block":"../../components/demo-block/",
+    "van-divider": "../../components/Vant-Weapp/divider/index",
+    "van-notify": "../../components/Vant-Weapp/notify/index"
+  },
+  "navigationBarTitleText": "总控",
+  "enablePullDownRefresh": false
+}
