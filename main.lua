@@ -1161,9 +1161,9 @@ function checkPlace_SE()
     elseif (isColor(92, 129, 0xf00252, 85) and isColor(97, 129, 0xf20252, 85) and isColor(104, 129, 0xf50153, 85) and isColor(116, 130, 0xea0352, 85) and isColor(128, 127, 0xf1014b, 85) and isColor(158, 128, 0xdb0244, 85) and isColor(761, 96, 0xd9d6d6, 85) and isColor(827, 101, 0x3887d7, 85) and isColor(906, 101, 0x4e443b, 85) and isColor(971, 100, 0x9015fb, 85)) then
         checkplacetimes = 0
         return 3.1 --在多人车库
-    elseif (isColor(1069, 75, 0xffffff, 85) and isColor(1087, 74, 0xffffff, 85) and isColor(1077, 83, 0xffffff, 85) and isColor(1068, 93, 0xffffff, 85) and isColor(1087, 93, 0xffffff, 85)) then
+    elseif (isColor(1069, 75, 0xffffff, 85) and isColor(1087, 74, 0xffffff, 85) and isColor(1077, 83, 0xffffff, 85) and isColor(1068, 93, 0xffffff, 85) and isColor(1087, 93, 0xffffff, 85)) or (isColor(575, 76, 0xffffff, 90) and isColor(588, 77, 0xffffff, 90) and isColor(582, 83, 0xffffff, 90) and isColor(574, 90, 0xffffff, 90) and isColor(589, 91, 0xffffff, 90) and isColor(568, 82, 0x848484, 90) and isColor(602, 84, 0x848484, 90) and isColor(582, 70, 0x848484, 90) and isColor(582, 100, 0x848484, 90)) then
         checkplacetimes = 0
-        return 25 --广告播放完成
+        return 25 --广告播放完成,后面的or是广告错位了
     elseif getColor(5, 5) == 0x101f3b then
         checkplacetimes = 0
         return 0 --在大厅
@@ -1256,6 +1256,11 @@ function checkPlace_SE()
         --多人赛季奖励
         checkplacetimes = 0
         return 31
+    elseif (isColor(367, 217, 0xffffff, 90) and isColor(767, 224, 0x474747, 90) and isColor(1075, 60, 0x333333, 90) and isColor(735, 407, 0xff7026, 90) and isColor(390, 414, 0xff7026, 90)) then
+        --防沉迷，22-8点禁止登陆
+        checkplacetimes = 0
+        return 32
+
     elseif getColor(5, 5) == 0xffffff then
         return -1 --不在大厅，不在多人
     else
@@ -1722,8 +1727,8 @@ function worker_SE(place)
         tap(370, 530)
         mSleep(500)
         state = -1
-    elseif place == 30 then
-        --服务器维护中，脚本停止
+    elseif place == 30 or place == 32 then
+        --服务器维护中(30)，防沉迷(32)，脚本停止
         state = -2
     elseif place == 31 then
         --多人赛季奖励
