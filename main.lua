@@ -121,7 +121,7 @@ function getSettings()
     return newsettings
 end
 function refreshSettings(newsettings)
-    if not (settings == newsettings) and not (newsettings == nil)then
+    if not (settings == newsettings) and not (newsettings == nil) then
         settingsTable = strSplit(settings, "|")
         newsettingsTable = strSplit(newsettings, "|")
         refreshSettingslog = ""
@@ -1294,6 +1294,9 @@ function waitBegin_SE()
         mSleep(2000)
         timer = timer + 1
         toast("开局中," .. tostring(timer) .. "/35", 0.5)
+        if timer % 5 == 0 and isFrontApp(gameBid) == 0 then
+            timer = 35
+        end
         if (isColor(959, 206, 0xfff8fb, 85) and isColor(980, 228, 0xfffbff, 85) and isColor(959, 226, 0xffffff, 85) and isColor(981, 205, 0xfffeff, 85) and isColor(969, 216, 0xfffeff, 85) and isColor(938, 213, 0xff0053, 85) and isColor(993, 207, 0xff0054, 85) and isColor(981, 238, 0xff0054, 85)) then
             tap(970, 220)
             mSleep(2000)
@@ -1859,6 +1862,9 @@ function waitBegin_i68()
         mSleep(2000)
         timer = timer + 1
         toast("开局中," .. tostring(timer) .. "/35", 0.5)
+        if timer % 5 == 0 and isFrontApp(gameBid) == 0 then
+            timer = 35 --开局不在游戏，直接开局失败
+        end
         --网络不好没匹配到人被提示，undone
         if (isColor(959, 206, 0xfff8fb, 85) and isColor(980, 228, 0xfffbff, 85) and isColor(959, 226, 0xffffff, 85) and isColor(981, 205, 0xfffeff, 85) and isColor(969, 216, 0xfffeff, 85) and isColor(938, 213, 0xff0053, 85) and isColor(993, 207, 0xff0054, 85) and isColor(981, 238, 0xff0054, 85)) then
             tap(970, 220)
