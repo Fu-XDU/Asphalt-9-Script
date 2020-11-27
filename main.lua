@@ -1474,9 +1474,9 @@ function gametoCarbarn_SE()
         tap(1095, 548)
         mSleep(2000)
         --检查是不是有票
-        if (isColor(257, 448, 0xc3fb12, 85) and isColor(508, 453, 0xc3fb12, 85) and isColor(250, 488, 0xc2fb12, 85) and isColor(509, 492, 0xc4fb12, 85)) then
+        if (isColor(462, 154, 0xffffff, 90) and isColor(465, 164, 0xffffff, 90) and isColor(478, 163, 0xffffff, 90) and isColor(509, 163, 0xffffff, 90) and isColor(543, 160, 0xffffff, 90) and isColor(572, 160, 0xffffff, 90) and isColor(585, 168, 0xfafafb, 90)) then
             toast("没票", 1)
-            tap(970, 160)
+            tap(1030, 160)
             --去多人or生涯
             return actAfterNoFuelNTicket()
         end
