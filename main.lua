@@ -1770,9 +1770,9 @@ function checkPlace_i68()
     elseif (isColor(896, 112, 0xce7345, 85) and isColor(985, 113, 0x6c7889, 85) and isColor(1059, 119, 0xbd9158, 85) and isColor(1144, 118, 0xbcb3d5, 85) and isColor(1230, 116, 0x6d6c63, 85)) then
         checkplacetimes = 0
         return 3.1 --在多人车库
-    elseif (isColor(89, 643, 0xffffff, 85) and isColor(335, 645, 0xffffff, 85) and isColor(362, 708, 0x000822, 85) and isColor(1021, 648, 0xffffff, 85) and isColor(1234, 646, 0xffffff, 85) and isColor(1260, 704, 0x000821, 85)) then
+    elseif (isColor(89, 643, 0xffffff, 85) and isColor(335, 645, 0xffffff, 85) and isColor(362, 708, 0x000822, 85) and isColor(1021, 648, 0xffffff, 85) and isColor(1234, 646, 0xffffff, 85) and isColor(1260, 704, 0x000821, 85)) or (isColor(481, 653, 0xc3fb12, 90) and isColor(827, 647, 0xc3fb12, 90) and isColor(448, 703, 0xc4fb12, 90) and isColor(879, 705, 0xc3fb12, 90) and isColor(766, 673, 0xc4fb12, 90) and isColor(556, 673, 0xc3fb12, 90) and isColor(705, 673, 0xc3fb12, 90)) then
         checkplacetimes = 0
-        return 1 --在多人
+        return 1 --在多人;or后面的是保时捷赛季新增的
     elseif (isColor(89, 679, 0xc5fb12, 85) and isColor(246, 680, 0xc3fb12, 85) and isColor(81, 703, 0xc2fb0f, 85) and isColor(253, 700, 0xc3fa12, 85)) then
         checkplacetimes = 0
         return 5 --在赛事
@@ -1981,7 +1981,7 @@ function gametoCarbarn_i68()
         beginGame()
         mSleep(2000)
         --检查是不是有票
-        if (isColor(546, 169, 0xf4f5f6, 85) and isColor(561, 180, 0xffffff, 85) and isColor(561, 192, 0xffffff, 85) and isColor(601, 189, 0xffffff, 85) and isColor(669, 169, 0xfcfcfc, 85) and isColor(1112, 187, 0xff0053, 85) and isColor(1168, 186, 0xff0054, 85) and isColor(1139, 160, 0xff0054, 85) and isColor(1139, 206, 0xfe0054, 85) and isColor(1139, 183, 0xffffff, 85)) then
+        if (isColor(545, 174, 0xffffff, 90) and isColor(561, 186, 0xffffff, 90) and isColor(607, 190, 0xffffff, 90) and isColor(633, 192, 0xffffff, 90) and isColor(668, 187, 0xffffff, 90) and isColor(693, 187, 0xffffff, 90) and isColor(685, 208, 0xffffff, 90) and isColor(638, 207, 0xffffff, 90)) then
             toast("没票", 1)
             tap(1140, 180)
             --去多人or生涯
