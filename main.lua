@@ -1260,7 +1260,10 @@ function checkPlace_SE()
         --防沉迷，22-8点禁止登陆
         checkplacetimes = 0
         return 32
-
+    elseif (isColor(84, 169, 0xffffff, 90) and isColor(77, 175, 0xffffff, 90) and isColor(105, 173, 0xffffff, 90) and isColor(109, 193, 0xffffff, 90) and isColor(154, 180, 0xffffff, 90) and isColor(182, 185, 0xffffff, 90) and isColor(140, 152, 0xf11262, 90) and isColor(66, 152, 0xf11363, 90)) then
+        --每日任务，够6个领15蓝币那个
+        checkplacetimes = 0
+        return 33
     elseif getColor(5, 5) == 0xffffff then
         return -1 --不在大厅，不在多人
     else
@@ -1737,6 +1740,11 @@ function worker_SE(place)
         --多人赛季奖励
         toast("多人赛季奖励", 1)
         tap(1000, 570)
+        state = -1
+    elseif place == 33 then
+        --每日任务，够6个领15蓝币那个
+        toast("每日任务", 1)
+        tap(1075,100)
         state = -1
     elseif place == 404 then
         toast("不知道在哪", 1)
