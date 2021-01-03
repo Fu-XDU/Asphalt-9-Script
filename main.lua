@@ -807,7 +807,7 @@ function checkAndGetPackage()
             packWithoutRestore = packWithoutRestore + 1
             PVPwithoutPack = 0
         end
-        if ((isColor(178, 503, 0xb9e816, 85) and isColor(173, 500, 0xbae916, 85) and isColor(175, 506, 0xc3fb12, 85) and isColor(147, 506, 0xbba7bb, 85) and isColor(128, 508, 0xe5dde5, 85) and isColor(127, 500, 0xfdfcfd, 85)) and
+        --[[if ((isColor(178, 503, 0xb9e816, 85) and isColor(173, 500, 0xbae916, 85) and isColor(175, 506, 0xc3fb12, 85) and isColor(147, 506, 0xbba7bb, 85) and isColor(128, 508, 0xe5dde5, 85) and isColor(127, 500, 0xfdfcfd, 85)) and
                 not (isColor(80, 453, 0x1d071e, 85) and isColor(211, 455, 0x241228, 85) and isColor(84, 473, 0x241128, 85) and isColor(201, 472, 0x221226, 85) and isColor(228, 482, 0x676769, 85))) then
             if tonumber(os.date("%H")) ~= 7 then
                 log4j("补充多人包")
@@ -820,6 +820,9 @@ function checkAndGetPackage()
         end
         if (isColor(229, 481, 0x676868, 85) and isColor(124, 459, 0x5a585e, 85) and isColor(91, 448, 0x2f212e, 85) and isColor(147, 463, 0x626266, 85) and isColor(172, 456, 0x2a1c2d, 85)) then
             nomorepack = true
+        end--]]
+        if tonumber(os.date("%H")) ~= 7 then
+            tap(153, 462) --尝试补充多人包
         end
     elseif model == "i68" then
         tap(668, 576)
@@ -895,7 +898,7 @@ function switchAccount(account, passwd)
 end
 function shouldStop(nomorepack)
     --开完最后一个包可能不会立刻停止，因为12个奖杯只需要少于12局即可完成，代码中写12是为稳定起见 //针对SE：连续开4个包但没补充应该停止
-    if (mode == "多人刷包" and PVPwithoutPack >= 12) or (model == "SE" and mode == "多人刷包" and (packWithoutRestore >= 4 or nomorepack)) then
+    if (mode == "多人刷包" and PVPwithoutPack >= 12) or (model == "SE" and mode == "多人刷包" and (packWithoutRestore >= 4 or nomorepack or PVPwithoutPack >= 12)) then
         log4j("🈚 " .. accountnum .. "没有多人包可刷")
         --将账号accountnum在数据库中状态改为刷包关闭
         ts.httpsGet(apiUrl .. "a9accountDone?udid=" .. ts.system.udid() .. "&account=" .. nowaccount, {}, {})
@@ -1141,7 +1144,6 @@ function chooseClassCar()
         end
     end
 end
-
 ---iPhone 5S/SE 设备处理函数---
 function checkPlace_SE()
     if checkplacetimes > 2 then
@@ -1563,7 +1565,7 @@ function worker_SE(place)
         if mode == "多人刷声望" then
             state = 0
         elseif mode == "多人刷包" then
-            back()
+            back() --back一下是因为懒得写新逻辑了，直接toPVP()好了
             state = toPVP()
         elseif mode == "赛事模式" then
             back()
@@ -1734,17 +1736,21 @@ function worker_SE(place)
         mSleep(500)
         state = -1
     elseif place == 30 or place == 32 then
-        --服务器维护中(30)，防沉迷(32)，脚本停止
+        --服务器维护中，脚本停止
+        log4j("服务器维护中")
         state = -2
     elseif place == 31 then
         --多人赛季奖励
         toast("多人赛季奖励", 1)
         tap(1000, 570)
         state = -1
+    elseif place == 32 then
+        --防沉迷
+        state = antiAddiction()
     elseif place == 33 then
         --每日任务，够6个领15蓝币那个
         toast("每日任务", 1)
-        tap(1075,100)
+        tap(1075, 100)
         state = -1
     elseif place == 404 then
         toast("不知道在哪", 1)
@@ -1752,6 +1758,17 @@ function worker_SE(place)
         state = -1
     end
     receive_starting_command = false
+end
+function antiAddiction()
+    hour = tonumber(os.date("%H"))
+    if hour < 8 then
+        log4j("防沉迷时间，等待今日8点")
+        wait_time(math.ceil((os.time({ year = tonumber(os.date("%Y")), month = tonumber(os.date("%m")), day = tonumber(os.date("%d")), hour = 8, min = 00, sec = 00 }) - os.time()) / 60))
+    elseif hour >= 22 then
+        log4j("防沉迷时间，等待明日8点")
+        wait_time(math.ceil((os.time({ year = tonumber(os.date("%Y")), month = tonumber(os.date("%m")), day = tonumber(os.date("%d")), hour = 23, min = 59, sec = 59 }) - os.time()) / 60) + 8 * 60)
+    end
+    return -1
 end
 ---iPhone 6/6S/7/8 设备处理函数---
 function checkPlace_i68()
