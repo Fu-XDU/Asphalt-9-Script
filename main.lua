@@ -1261,6 +1261,10 @@ function checkPlace_SE()
         --防沉迷，22-8点禁止登陆
         checkplacetimes = 0
         return 32
+    elseif (isColor(367, 239, 0xffffff, 90) and isColor(370, 274, 0xffffff, 90) and isColor(363, 275, 0x474747, 90) and isColor(487, 274, 0x474747, 90) and isColor(515, 280, 0xffffff, 90) and isColor(503, 280, 0xffffff, 90) and isColor(620, 296, 0x474747, 90) and isColor(469, 432, 0xff7026, 90) and isColor(642, 446, 0xff7026, 90) and isColor(751, 443, 0xff7026, 90)) then
+        --防沉迷，今天游戏时长已到
+        checkplacetimes = 0
+        return 32
     elseif (isColor(84, 169, 0xffffff, 90) and isColor(77, 175, 0xffffff, 90) and isColor(105, 173, 0xffffff, 90) and isColor(109, 193, 0xffffff, 90) and isColor(154, 180, 0xffffff, 90) and isColor(182, 185, 0xffffff, 90) and isColor(140, 152, 0xf11262, 90) and isColor(66, 152, 0xf11363, 90)) then
         --每日任务，够6个领15蓝币那个
         checkplacetimes = 0
@@ -1763,7 +1767,7 @@ function antiAddiction()
     if hour < 8 then
         log4j("防沉迷时间，等待今日8点")
         wait_time(math.ceil((os.time({ year = tonumber(os.date("%Y")), month = tonumber(os.date("%m")), day = tonumber(os.date("%d")), hour = 8, min = 00, sec = 00 }) - os.time()) / 60))
-    elseif hour >= 22 then
+    else
         log4j("防沉迷时间，等待明日8点")
         wait_time(math.ceil((os.time({ year = tonumber(os.date("%Y")), month = tonumber(os.date("%m")), day = tonumber(os.date("%d")), hour = 23, min = 59, sec = 59 }) - os.time()) / 60) + 8 * 60)
     end
