@@ -551,7 +551,6 @@ function wait_when_Parallel_read_detected()
         mSleep(1000)
         toast("等待" .. tostring(timeout_parallelRead) .. "分钟", 1)
         stop = wait_time(timeout_parallelRead) --stop==-2停止 stop==-1正常
-        log4j("等待完成")
         toast("等待完成", 1)
         return stop
     end
@@ -1730,12 +1729,12 @@ function worker_SE(place)
         mSleep(5000)
         state = -1
     elseif place == 29 then
-        --俱乐部达成新里程累
+        --俱乐部达成新里程杯
         mSleep(500)
         tap(370, 530)
         mSleep(500)
         state = -1
-    elseif place == 30 or place == 32 then
+    elseif place == 30 then
         --服务器维护中，脚本停止
         log4j("服务器维护中")
         state = -2
