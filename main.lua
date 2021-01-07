@@ -806,8 +806,13 @@ function checkAndGetPackage()
             packWithoutRestore = packWithoutRestore + 1
             PVPwithoutPack = 0
         end
-        --[[if ((isColor(178, 503, 0xb9e816, 85) and isColor(173, 500, 0xbae916, 85) and isColor(175, 506, 0xc3fb12, 85) and isColor(147, 506, 0xbba7bb, 85) and isColor(128, 508, 0xe5dde5, 85) and isColor(127, 500, 0xfdfcfd, 85)) and
-                not (isColor(80, 453, 0x1d071e, 85) and isColor(211, 455, 0x241228, 85) and isColor(84, 473, 0x241128, 85) and isColor(201, 472, 0x221226, 85) and isColor(228, 482, 0x676769, 85))) then
+        --VIP用户多人包可补充界面为灰色
+        VIPrestoreButtonDisabled = (isColor(86, 452, 0x010f17, 90) and isColor(134, 452, 0x05121a, 90) and isColor(175, 454, 0x09161e, 90) and isColor(205, 450, 0x06121b, 90) and isColor(199, 467, 0x051219, 90) and isColor(157, 467, 0x010f15, 90) and isColor(123, 466, 0x07141c, 90) and isColor(92, 466, 0x011018, 90) and isColor(96, 478, 0x021019, 90) and isColor(220, 479, 0x09161f, 90))
+        VIPcanRestore = (isColor(113, 498, 0xdce1e4, 90) and isColor(113, 504, 0xa9b7be, 90) and isColor(105, 504, 0xebeef0, 90) and isColor(105, 501, 0xf7f9f9, 90) and isColor(124, 498, 0xd0d7dc, 90) and isColor(124, 503, 0xd0d7dc, 90) and isColor(134, 503, 0xfefefe, 90) and isColor(137, 503, 0xfafbfb, 90) and isColor(137, 507, 0xebeef0, 90)) and not VIPrestoreButtonDisabled
+        othersrestoreButtonDisabled = true --TODO:普通用户多人包可补充界面为灰色
+        otherscanRestore = (isColor(120, 500, 0xfcfdfd, 90) and isColor(123, 500, 0xfcfdfd, 90) and isColor(128, 500, 0xffffff, 90) and isColor(128, 506, 0xdce2e5, 90) and isColor(125, 506, 0xafbdc3, 90) and isColor(143, 506, 0xf2f4f5, 90) and isColor(147, 505, 0xedf0f2, 90) and isColor(151, 500, 0xe9edee, 90) and isColor(154, 511, 0xfafbfa, 90)) and not othersrestoreButtonDisabled
+        canRestore = VIPcanRestore or otherscanRestore
+        if canRestore then
             if tonumber(os.date("%H")) ~= 7 then
                 log4j("补充多人包")
                 packWithoutRestore = 0
@@ -817,9 +822,9 @@ function checkAndGetPackage()
                 log4j("可补充多人包，早7点不补充")
             end
         end
-        if (isColor(229, 481, 0x676868, 85) and isColor(124, 459, 0x5a585e, 85) and isColor(91, 448, 0x2f212e, 85) and isColor(147, 463, 0x626266, 85) and isColor(172, 456, 0x2a1c2d, 85)) then
+        if VIPrestoreButtonDisabled or othersrestoreButtonDisabled then
             nomorepack = true
-        end--]]
+        end
         if tonumber(os.date("%H")) ~= 7 then
             tap(153, 462) --尝试补充多人包
         end
@@ -1873,7 +1878,7 @@ function toPVP_i68()
     if checkAndGetPackage() == -2 then
         return -2
     end
-    tap(758, 688)
+    tap(699, 331)
     mSleep(2000)
     place = checkPlace()
     if place ~= 1 then
