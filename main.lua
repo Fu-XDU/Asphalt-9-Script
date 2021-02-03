@@ -28,6 +28,7 @@ accountnum, nowaccount = "", "" --当前运行的账号,当前运行的账号+�
 switchaccountfun = true --是否打开多人刷包切换账号的功能
 udid = ts.system.udid()
 settings = ""--用户设置
+noAds, restartTimes = 0, 0 --连续回油没广告次数，连续重启次数
 ---前置准备函数---
 function prepare()
     unlockedDevice()
@@ -97,13 +98,13 @@ function main()
 end
 ---结束处理函数---
 function after()
-    log4j("⏹脚本停止运行")
+    log4l("⏹脚本停止运行")
     closeApp(gameBid) --关闭游戏
     lockDevice()
 end
 function beforeUserExit()
     ts.httpsGet(apiUrl .. "a9control?udid=" .. udid .. "&command=1", {}, {})
-    log4j("⏹脚本被手动终止")
+    log4l("⏹脚本被手动终止")
 end
 ---通用处理函数[不区分设备型号]---
 function saveSettings()
@@ -181,7 +182,7 @@ function refreshSettings(newsettings)
                 end
             end
         end
-        log4j(refreshSettingslog)
+        log4l(refreshSettingslog)
         paraArgu()
         settings = newsettings
     end
@@ -241,7 +242,7 @@ function getHttpsCommand()
         a9getCommandbody_resp = tonumber(a9getCommandbody_resp)
         if a9getCommandbody_resp == 0 then
             if runningState == true then
-                log4j("⏸接收到暂停指令，脚本暂停运行")
+                log4l("⏸接收到暂停指令，脚本暂停运行")
                 runningState = false
                 toast("接收到暂停指令，脚本暂停运行", 1)
                 closeApp(gameBid) --关闭游戏
@@ -254,13 +255,13 @@ function getHttpsCommand()
             goto getCommand
         elseif a9getCommandbody_resp == 1 and runningState == false then
             toast("接收到开始指令，脚本开始运行", 1)
-            log4j("▶️接收到开始指令，脚本开始运行")
+            log4l("▶️接收到开始指令，脚本开始运行")
             runningState = true
             receive_starting_command = true
             savePowerF()
         elseif a9getCommandbody_resp == 4 then
             toast("接收到脚本停止指令，脚本停止", 1)
-            log4j("接收到脚本停止指令，脚本停止")
+            log4l("接收到脚本停止指令，脚本停止")
         end
         if not (a9getCommandbody_resp == 1 and runningState == false) then
             ts.httpsGet(apiUrl .. "a9control?udid=" .. udid .. "&command=1", {}, {})--将脚本状态置为运行
@@ -383,7 +384,10 @@ function initTable()
         initTable() --每次初始化内容都要再运行initTable()检查
     end
 end
-function log4j(content)
+function log4l(content)
+    if content ~= "游戏重启" then
+        restartTimes = 0
+    end
     t = batteryStatus()
     charging = ""
     if t.charging == 1 then
@@ -404,7 +408,7 @@ function log4j(content)
     else
         --没有文件就创建文件，初始化内容,再写入内容
         initTable()
-        log4j(content)
+        log4l(content)
     end
 end
 function sendEmail(reciver, topic, content)
@@ -502,7 +506,7 @@ function ShowUI()
     settings = mode .. "|" .. switch .. "|" .. path .. "|" .. gamenum .. "|" .. chooseCarorNot .. "|" .. carplace .. "|" .. backifallstar .. "|" .. PVPatBest .. "|" .. savePower .. "|" .. lowerCar .. "|" .. changeCar .. "|" .. watchAds .. "|" .. timeout_backPVE .. "|" .. skipcar .. "|" .. timeout_parallelRead .. "|" .. email
 end
 function startGame()
-    log4j("脚本开始")
+    log4l("脚本开始")
     toast("脚本开始", 3)
     makeGameFront()
     ts.httpsGet(apiUrl .. "a9control?udid=" .. ts.system.udid() .. "&command=1", {}, {})
@@ -538,15 +542,17 @@ function uploadSnap()
 end
 function restartApp()
     uploadSnap()
-    log4j("游戏重启")
+    log4l("游戏重启")
     closeApp(gameBid) --关闭游戏
     mSleep(5000)
     runApp(gameBid) --打开游戏
     mSleep(5000)
+    restartTimes = restartTimes + 1
+    noAds = 0
 end
 function wait_when_Parallel_read_detected()
     if receive_starting_command == false then
-        log4j("账号被顶，等待" .. tostring(timeout_parallelRead) .. "分钟")
+        log4l("账号被顶，等待" .. tostring(timeout_parallelRead) .. "分钟")
         toast("账号被顶", 1)
         mSleep(1000)
         toast("等待" .. tostring(timeout_parallelRead) .. "分钟", 1)
@@ -561,7 +567,7 @@ function wait_time(minutes)
         closeApp(gameBid)
     end
     --minutes是数字型
-    log4j("等" .. tostring(minutes) .. "分钟", 1)
+    log4l("等" .. tostring(minutes) .. "分钟", 1)
     --循环minutes * 6次，每次等10秒，共minutes * 60秒也就是minutes分钟
     for _ = 1, minutes * 6 do
         mSleep(10 * 1000) --等10秒
@@ -570,7 +576,7 @@ function wait_time(minutes)
     if getHttpsCommand() == 4 then
         return -2
     else
-        log4j(tostring(minutes) .. "分钟到", 1)
+        log4l(tostring(minutes) .. "分钟到", 1)
         makeGameFront()
         return -1
     end
@@ -602,10 +608,10 @@ function recordPVPnPVE()
     if mode == "多人刷声望" or mode == "多人刷包" then
         PVPwithoutPack = PVPwithoutPack + 1
         PVPTimes = PVPTimes + 1
-        log4j("完成" .. tostring(PVPTimes) .. "局多人")
+        log4l("完成" .. tostring(PVPTimes) .. "局多人")
     elseif mode == "赛事模式" then
         PVETimes = PVETimes + 1
-        log4j("🚗 完成" .. tostring(PVETimes) .. "局赛事")
+        log4l("🚗 完成" .. tostring(PVETimes) .. "局赛事")
     end
 end
 function actAfterNoFuelNTicket()
@@ -634,6 +640,14 @@ function watchAd()
     elseif model == "i68" then
         tap(862, 509)
     end
+    mSleep(3000)
+    haveAds = checkPlace()
+    if haveAds == 34 then
+        worker(haveAds)
+        noAds = noAds + 1
+        return -2
+    end
+    noAds = 0
     if watchAds == "开(有20倍广告加速)" then
         mSleep(10000)
     elseif watchAds == "开(没有广告加速)" then
@@ -795,7 +809,7 @@ function checkAndGetPackage()
     if model == "SE" then
         if (not isColor(649, 472, 0x091624, 85)) then
             toast("领取多人包", 1)
-            log4j("🎁 开多人包")
+            log4l("🎁 开多人包")
             mSleep(700)
             tap(570, 470)
             mSleep(2000)
@@ -814,12 +828,12 @@ function checkAndGetPackage()
         canRestore = VIPcanRestore or otherscanRestore
         if canRestore then
             if tonumber(os.date("%H")) ~= 7 then
-                log4j("补充多人包")
+                log4l("补充多人包")
                 packWithoutRestore = 0
                 tap(153, 462)
                 mSleep(1000)
             else
-                log4j("可补充多人包，早7点不补充")
+                log4l("可补充多人包，早7点不补充")
             end
         end
         if VIPrestoreButtonDisabled or othersrestoreButtonDisabled then
@@ -832,7 +846,7 @@ function checkAndGetPackage()
         tap(668, 576)
         mSleep(2000)
         if checkPlace() == 7 then
-            log4j("🎁 开多人包")
+            log4l("🎁 开多人包")
             receivePrizeAtGame()
             PVPwithoutPack = 0
             mSleep(10000)
@@ -897,17 +911,17 @@ function switchAccount(account, passwd)
         keypress(passwd[i])
     end
     tap(580, 257) --点击登陆
-    log4j("登陆账号" .. accountnum)
+    log4l("登陆账号" .. accountnum)
     mSleep(10000)
 end
 function shouldStop(nomorepack)
     --开完最后一个包可能不会立刻停止，因为12个奖杯只需要少于12局即可完成，代码中写12是为稳定起见 //针对SE：连续开4个包但没补充应该停止
     if (mode == "多人刷包" and PVPwithoutPack >= 12) or (model == "SE" and mode == "多人刷包" and (packWithoutRestore >= 4 or nomorepack or PVPwithoutPack >= 12)) then
-        log4j("🈚 " .. accountnum .. "没有多人包可刷")
+        log4l("🈚 " .. accountnum .. "没有多人包可刷")
         --将账号accountnum在数据库中状态改为刷包关闭
         ts.httpsGet(apiUrl .. "a9accountDone?udid=" .. ts.system.udid() .. "&account=" .. nowaccount, {}, {})
         if supermode == "赛事模式" and switch == "多人刷包" then
-            log4j("赛事没油没票改为等30分钟")
+            log4l("赛事没油没票改为等30分钟")
             switch = "等30分钟"
             mode = supermode
             return false
@@ -926,7 +940,7 @@ function shouldStop(nomorepack)
         --没有账号可以切换，脚本应该停止
         return true
     elseif savePower == "开" and lowPower() then
-        log4j("电量低，脚本停止")
+        log4l("电量低，脚本停止")
         return true
     elseif getHttpsCommand() == 4 then
         return true
@@ -934,7 +948,7 @@ function shouldStop(nomorepack)
     return false
 end
 function receivePrizeFromGL()
-    log4j("🎁 领取来自gameloft的礼物")
+    log4l("🎁 领取来自gameloft的礼物")
     if model == "SE" then
         tap(1015, 582)
         mSleep(5000)
@@ -1150,9 +1164,6 @@ function chooseClassCar()
 end
 ---iPhone 5S/SE 设备处理函数---
 function checkPlace_SE()
-    if checkplacetimes > 2 then
-        toast("检测界面," .. tostring(checkplacetimes) .. "/" .. tostring(checkplacetimesout), 1)
-    end
     if (isColor(53, 64, 0xfb1264, 85) and isColor(151, 65, 0xfb1264, 85) and isColor(55, 102, 0xfb1264, 85) and isColor(153, 102, 0xfb1264, 85) and isColor(47, 225, 0xef1363, 85) and isColor(72, 225, 0xf91264, 85) and isColor(107, 225, 0xfa1264, 85) and isColor(145, 225, 0xf21364, 85) and isColor(85, 540, 0xffffff, 85) and isColor(1052, 552, 0xffffff, 85)) then
         checkplacetimes = 0
         return 26 --公告
@@ -1274,6 +1285,14 @@ function checkPlace_SE()
         --每日任务，够6个领15蓝币那个
         checkplacetimes = 0
         return 33
+    elseif (isColor(707, 427, 0xe60656, 90) and isColor(713, 427, 0xc50c57, 90) and isColor(725, 427, 0xb90f57, 90) and isColor(735, 428, 0xdb0856, 90) and isColor(746, 428, 0xf50255, 90) and isColor(747, 434, 0xe10655, 90) and isColor(764, 424, 0xf70255, 90) and isColor(781, 424, 0xf20355, 90) and isColor(747, 449, 0xf9fafb, 90) and isColor(756, 448, 0xe1e4e9, 90)) then
+        --赛车回油目前无广告
+        checkplacetimes = 0
+        return 34
+    elseif (isColor(850, 128, 0x000000, 90) and isColor(897, 116, 0x000000, 90) and isColor(927, 162, 0x000000, 90) and isColor(996, 176, 0x000000, 90) and isColor(1019, 117, 0x000a10, 90) and isColor(975, 108, 0xff0054, 90) and isColor(1006, 112, 0xff0054, 90) and isColor(973, 134, 0xff0054, 90) and isColor(989, 126, 0xffffff, 90) and isColor(998, 135, 0xfef8fa, 90)) then
+        --可以领取赛季通行证奖励
+        checkplacetimes = 0
+        return 35
     elseif getColor(5, 5) == 0xffffff then
         return -1 --不在大厅，不在多人
     else
@@ -1374,14 +1393,14 @@ function backFromLines_SE()
 end
 function Login_SE()
     if (isColor(521, 298, 0x333333, 85) and isColor(502, 298, 0x333333, 85) and isColor(487, 298, 0x333333, 85) and isColor(469, 297, 0x333333, 85) and isColor(452, 298, 0x333333, 85) and isColor(435, 297, 0x333333, 85) and isColor(418, 297, 0x333333, 85) and isColor(399, 296, 0x333333, 85) and isColor(385, 296, 0x333333, 85)) then
-        log4j("登录")
+        log4l("登录")
         tap(559, 397)
         mSleep(2000)
         return -1
     else
         if ts.system.udid() == "yourudid" then
             toast("无密码,自动输入", 1)
-            log4j("自动输入密码")
+            log4l("自动输入密码")
             mSleep(1000)
             tap(380, 300)
             mSleep(1000)
@@ -1394,7 +1413,7 @@ function Login_SE()
             return -1
         else
             toast("无密码,脚本退出", 1)
-            log4j("无密码,脚本终止")
+            log4l("无密码,脚本终止")
             mSleep(1000)
             return -2
         end
@@ -1511,11 +1530,11 @@ function gametoCarbarn_SE()
             end
         end
         if watchAds ~= "关" then
-            watchAd()
-            tap(1077, 83)
-            --关闭广告
-            mSleep(2000)
-            ads = true
+            if watchAd() == -1 then
+                tap(1077, 83)--关闭广告
+                mSleep(2000)
+                ads = true
+            end
             goto beginAtGame
         end
         --去多人or生涯
@@ -1627,7 +1646,7 @@ function worker_SE(place)
         state = -1
     elseif place == 9 then
         toast("解锁或升星", 1)
-        log4j("🔓 🌟车辆解锁或升星")
+        log4l("🔓 🌟车辆解锁或升星")
         tap(390, 570)
         mSleep(2000)
         state = -1
@@ -1638,13 +1657,13 @@ function worker_SE(place)
         state = -1
     elseif place == 11 then
         toast("段位升级", 1)
-        log4j("⬆️段位升级")
+        log4l("⬆️段位升级")
         tap(1000, 580) --继续
         mSleep(2000)
         state = -1
     elseif place == 12 then
         toast("声望升级", 1)
-        log4j("⬆️声望升级")
+        log4l("⬆️声望升级")
         mSleep(1000)
         tap(570, 590) --确定
         mSleep(2000)
@@ -1696,7 +1715,7 @@ function worker_SE(place)
         state = -1
     elseif place == 21 then
         toast("段位降级", 1)
-        log4j("⬇️段位降级")
+        log4l("⬇️段位降级")
         tap(563, 471) --确定
         mSleep(2000)
         state = -1
@@ -1745,7 +1764,7 @@ function worker_SE(place)
         state = -1
     elseif place == 30 then
         --服务器维护中，脚本停止
-        log4j("服务器维护中")
+        log4l("服务器维护中")
         state = -2
     elseif place == 31 then
         --多人赛季奖励
@@ -1760,6 +1779,16 @@ function worker_SE(place)
         toast("每日任务", 1)
         tap(1075, 100)
         state = -1
+    elseif place == 34 then
+        --赛车回油目前无广告
+        toast("目前无广告", 1)
+        tap(887, 190)
+        state = -1
+    elseif place == 35 then
+        --可以领取赛季通行证奖励
+        log4l("可以领取赛季通行证奖励")
+        tap(990, 127)
+        state = -1
     elseif place == 404 then
         toast("不知道在哪", 1)
         mSleep(1000)
@@ -1770,19 +1799,16 @@ end
 function antiAddiction()
     hour = tonumber(os.date("%H"))
     if hour < 8 then
-        log4j("防沉迷时间，等待今日8点")
+        log4l("防沉迷时间，等待今日8点")
         wait_time(math.ceil((os.time({ year = tonumber(os.date("%Y")), month = tonumber(os.date("%m")), day = tonumber(os.date("%d")), hour = 8, min = 00, sec = 00 }) - os.time()) / 60))
     else
-        log4j("防沉迷时间，等待明日8点")
+        log4l("防沉迷时间，等待明日8点")
         wait_time(math.ceil((os.time({ year = tonumber(os.date("%Y")), month = tonumber(os.date("%m")), day = tonumber(os.date("%d")), hour = 23, min = 59, sec = 59 }) - os.time()) / 60) + 8 * 60)
     end
     return -1
 end
 ---iPhone 6/6S/7/8 设备处理函数---
 function checkPlace_i68()
-    if checkplacetimes > 2 then
-        toast("检测界面," .. tostring(checkplacetimes) .. "/" .. tostring(checkplacetimesout), 1)
-    end
     if (isColor(1266, 74, 0xffffff, 85) and isColor(1285, 74, 0xffffff, 85) and isColor(1275, 83, 0xffffff, 85) and isColor(1267, 92, 0xffffff, 85) and isColor(1285, 92, 0xffffff, 85)) then
         checkplacetimes = 0
         return 25 --广告播放完毕
@@ -1957,21 +1983,21 @@ function backFromLines_i68()
     end
     mSleep(5000)
     --toast("比赛完成",1);
-    if supermode == "赛事模式" and mode == "多人刷声望" or mode == "多人刷包" then
+    if supermode == "赛事模式" and (mode == "多人刷声望" or mode == "特殊赛事" or mode == "多人刷包") then
         checkTimeOut()
     end
 end
 function Login_i68()
     --done
     if (isColor(482, 353, 0x333333, 85) and isColor(498, 353, 0x333333, 85) and isColor(517, 353, 0x333333, 85) and isColor(535, 353, 0x333333, 85) and isColor(550, 353, 0x333333, 85) and isColor(568, 352, 0x333333, 85) and isColor(584, 354, 0x333333, 85) and isColor(515, 444, 0xfe8b40, 85) and isColor(769, 444, 0xfe8b40, 85) and isColor(874, 444, 0xfe8b40, 85)) then
-        log4j("登录")
+        log4l("登录")
         tap(660, 450)
         mSleep(5000)
         return -1
     else
         if ts.system.udid() == "udid" then
             toast("无密码,自动输入", 1)
-            log4j("无密码,自动输入")
+            log4l("无密码,自动输入")
             mSleep(1000)
             tap(490, 350)
             mSleep(1000)
@@ -1984,7 +2010,7 @@ function Login_i68()
             return -1
         else
             toast("无密码,脚本退出", 1)
-            log4j("无密码,脚本退出")
+            log4l("无密码,脚本退出")
             mSleep(1000)
             return -2
         end
@@ -2039,11 +2065,11 @@ function gametoCarbarn_i68()
         end
         toast("没油了", 1)
         if watchAds ~= "关" then
-            watchAd()
-            tap(1276, 83)
-            --关闭广告
-            mSleep(2000)
-            ads = true
+            if watchAd() == -1 then
+                tap(1276, 83) --关闭广告
+                mSleep(2000)
+                ads = true
+            end
             goto beginAtGame
         end
         --去多人or生涯
@@ -2156,13 +2182,13 @@ function worker_i68(place)
         state = -1
     elseif place == 11 then
         toast("段位升级", 1)
-        log4j("⬆️段位升级")
+        log4l("⬆️段位升级")
         tap(1175, 680) --继续
         mSleep(2000)
         state = -1
     elseif place == 12 then
         toast("声望升级", 1)
-        log4j("⬆️声望升级")
+        log4l("⬆️声望升级")
         tap(660, 660) --确定
         mSleep(2000)
         state = -1
@@ -2218,7 +2244,7 @@ function worker_i68(place)
         state = -1
     elseif place == 21 then
         toast("段位降级", 1)
-        log4j("⬇️段位降级")
+        log4l("⬇️段位降级")
         tap(660, 550) --稍后查看
         mSleep(1000)
         state = -1
@@ -2246,9 +2272,22 @@ function worker(place)
     elseif model == "i68" then
         worker_i68(place)
     end
+    if noAds >= 20 then
+        log4l("连续20次回油无广告，不再看广告")
+        watchAds = "关"
+        noAds = 0
+    end
+    if restartTimes >= 5 then
+        log4l("游戏连续重启5次，可能有无法识别界面")
+        state = -2
+        restartTimes = 0
+    end
 end
 function checkPlace()
     makeGameFront()
+    if checkplacetimes > 2 then
+        toast("检测界面," .. tostring(checkplacetimes) .. "/" .. tostring(checkplacetimesout), 1)
+    end
     if model == "SE" then
         return checkPlace_SE()
     elseif model == "i68" then
