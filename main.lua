@@ -1081,12 +1081,11 @@ function checkAutoMobile()
             tap(128, 100)
         end
     elseif model == "i68" then
-        if (isColor(221, 112, 0xf10002, 90) and isColor(229, 112, 0xfa0000, 90) and isColor(221, 114, 0xfc0000, 90) and isColor(228, 114, 0xfe0000, 90) and isColor(224, 118, 0xfe0000, 90) and isColor(217, 120, 0xd90605, 90) and isColor(229, 120, 0xdd0a08, 90) and isColor(219, 126, 0xf40001, 90) and isColor(228, 127, 0xe70d0c, 90) and isColor(231, 129, 0xef0b08, 90)) then
+        if (isColor(220, 114, 0xcb1319, 90) and isColor(225, 114, 0xbf191f, 90) and isColor(223, 121, 0xfb0101, 90) and isColor(230, 120, 0xd50e0d, 90)) then
             --toast("开启自动驾驶",1);
-            tap(138, 118)
+            tap(230, 120)
         end
     end
-    mSleep(500)
 end
 function switchToSuitableCar()
     skip = 1
@@ -1165,7 +1164,7 @@ end
 function checkPlace_SE()
     if (isColor(53, 64, 0xfb1264, 85) and isColor(151, 65, 0xfb1264, 85) and isColor(55, 102, 0xfb1264, 85) and isColor(153, 102, 0xfb1264, 85) and isColor(47, 225, 0xef1363, 85) and isColor(72, 225, 0xf91264, 85) and isColor(107, 225, 0xfa1264, 85) and isColor(145, 225, 0xf21364, 85) and isColor(85, 540, 0xffffff, 85) and isColor(1052, 552, 0xffffff, 85)) then
         checkplacetimes = 0
-        return 26 --公告
+        return 26 --游戏公告栏，左上角显示为"最新动态"四个字
     elseif (isColor(688, 391, 0xfe8b40, 85) and isColor(395, 392, 0xfe8b40, 85) and isColor(479, 399, 0xfe8b40, 85) and isColor(494, 371, 0xfe8b40, 85) and isColor(787, 420, 0xfe8b40, 85) and isColor(819, 366, 0xfe8b40, 85)) then
         checkplacetimes = 0
         return -2 --在登录界面
@@ -1248,7 +1247,7 @@ function checkPlace_SE()
         return 22 --失去资格
     elseif (isColor(950, 91, 0xff0056, 90) and isColor(955, 96, 0xff0056, 90) and isColor(961, 102, 0xfd0255, 90) and isColor(968, 96, 0xff0054, 90) and isColor(973, 91, 0xff0055, 90) and isColor(952, 112, 0xff0054, 90) and isColor(957, 107, 0xfe0053, 90) and isColor(967, 107, 0xfa0054, 90) and isColor(970, 111, 0xfd0056, 90)) then
         checkplacetimes = 0
-        return 23 --弹窗广告
+        return 23 --弹窗广告，右上角有叉号的那种
     elseif (isColor(76, 51, 0xf8004c, 85) and isColor(76, 69, 0xf40153, 85) and isColor(282, 54, 0xff0054, 85) and isColor(282, 62, 0xf00253, 85) and isColor(282, 68, 0xff0054, 85) and isColor(125, 552, 0x828786, 85) and isColor(67, 584, 0x000921, 85) and isColor(1099, 611, 0x000d21, 85) and isColor(1099, 568, 0xc4fb11, 85)) then
         checkplacetimes = 0
         return 24 --获得了新红币界面
@@ -1325,13 +1324,15 @@ end
 function waitBegin_SE()
     mSleep(5000)
     timer = 0
-    while (not (isColor(37, 94, 0xfefefe, 90) and isColor(36, 103, 0xfefefe, 90) and isColor(46, 99, 0xffffff, 90) and isColor(54, 100, 0xffffff, 90) and isColor(60, 100, 0xffffff, 90) and isColor(68, 99, 0xffffff, 90) and isColor(74, 99, 0xffffff, 90) and isColor(104, 99, 0x3daaef, 90) and isColor(112, 99, 0x3ca8ec, 90) and isColor(153, 100, 0x3daaee, 90)) and timer < 35) do
+    --当检测界面不在游戏且检测次数少于35
+    while (checkPlace_SE() ~= 3 and timer < 35) do
         mSleep(2000)
         timer = timer + 1
         toast("开局中," .. tostring(timer) .. "/35", 0.5)
         if timer % 5 == 0 and isFrontApp(gameBid) == 0 then
             timer = 35
         end
+        --网络不好没匹配到人被提示
         if (isColor(959, 206, 0xfff8fb, 85) and isColor(980, 228, 0xfffbff, 85) and isColor(959, 226, 0xffffff, 85) and isColor(981, 205, 0xfffeff, 85) and isColor(969, 216, 0xfffeff, 85) and isColor(938, 213, 0xff0053, 85) and isColor(993, 207, 0xff0054, 85) and isColor(981, 238, 0xff0054, 85)) then
             tap(970, 220)
             mSleep(2000)
@@ -1340,6 +1341,7 @@ function waitBegin_SE()
     end
     if timer >= 35 then
         toast("开局异常", 1)
+        --如果还在匹配界面且左上有返回
         if (isColor(540, 312, 0x01b9e3, 85) and isColor(635, 307, 0x01b8e3, 85) and isColor(596, 273, 0x01718b, 85) and isColor(581, 350, 0x03b9e3, 85) and isColor(564, 308, 0xffffff, 85) and isColor(658, 314, 0xffffff, 85) and isColor(682, 291, 0xdfdfdf, 85) and isColor(17, 50, 0xffffff, 85) and isColor(70, 14, 0xffffff, 85)) then
             back()
             return -1
@@ -1357,7 +1359,8 @@ end
 function autoMobile_SE()
     toast("接管比赛", 1)
     checkAutoMobile()
-    while (isColor(188, 95, 0xc1f717, 90) and isColor(195, 95, 0xc2f815, 90) and isColor(187, 101, 0xc2f914, 90) and isColor(194, 101, 0xc2f914, 90)) do
+    --检测界面在游戏
+    while checkPlace_SE() == 3 do
         mSleep(500)
         tap(950, 400)
         mSleep(500)
@@ -1476,11 +1479,11 @@ function toDailyGame_SE()
 end
 function toSpecialEvent_SE()
     toast("进入特殊赛事", 1)
-    --
     --[[if (isColor( 555,  537, 0xf9004b, 85) and isColor( 556,  540, 0xfe0054, 85)) then
         tap(929,474);--在赛事就直接进入
         goto DailyGame;
-    end]] for _ = 1, 20, 1 do
+    end]]
+    for _ = 1, 20, 1 do
         moveTo(360, 235, 600, 235, 20) --从左往右划
         if (isColor(19, 537, 0xfc0051, 85) and isColor(19, 540, 0xff0054, 85) and isColor(19, 539, 0xff0054, 85)) then
             break
@@ -1735,7 +1738,7 @@ function worker_SE(place)
         mSleep(2000)
         state = -1
     elseif place == 23 then
-        tap(960, 100) --关闭弹窗广告
+        tap(960, 100) --关闭右上角有叉的弹窗广告
         mSleep(500)
         state = -1
     elseif place == 24 then
@@ -1867,7 +1870,7 @@ function checkPlace_i68()
     elseif (isColor(160, 4, 0xff0054, 85) and isColor(147, 18, 0xff0054, 85)) then
         checkplacetimes = 0
         return 2 --游戏结算界面
-    elseif (isColor(44, 111, 0xffffff, 90) and isColor(59, 109, 0xffffff, 90) and isColor(81, 111, 0xffffff, 90) and isColor(93, 110, 0xffffff, 90) and isColor(108, 118, 0xffffff, 90) and isColor(122, 117, 0x3daaee, 90) and isColor(142, 120, 0x3daaee, 90) and isColor(156, 117, 0x3daaef, 90) and isColor(171, 118, 0x3daaee, 90) and isColor(184, 118, 0x3daaef, 90)) then
+    elseif (isColor(44, 110, 0xffffff, 90) and isColor(44, 115, 0xffffff, 90) and isColor(55, 126, 0xffffff, 90) and isColor(104, 119, 0xffffff, 90) and isColor(113, 118, 0xffffff, 90) and isColor(121, 117, 0x419fdb, 90) and isColor(143, 120, 0x3daaee, 90) and isColor(164, 120, 0x3ca6e9, 90) and isColor(186, 118, 0x3da8ec, 90) and isColor(180, 114, 0x3da6e8, 90)) then
         checkplacetimes = 0
         return 3 --游戏中
     elseif (isColor(60, 26, 0xff0052, 85) and isColor(153, 29, 0xfe0052, 85) and isColor(209, 59, 0xffffff, 85) and isColor(282, 57, 0xffffff, 85) and isColor(355, 65, 0xffffff, 85) and isColor(454, 63, 0xffffff, 85) and isColor(515, 61, 0xffffff, 85) and isColor(629, 45, 0xffffff, 85)) then
@@ -1911,9 +1914,9 @@ function checkPlace_i68()
     elseif (isColor(591, 187, 0xfcfcfc, 85) and isColor(605, 187, 0xdfe0e3, 85) and isColor(623, 190, 0xffffff, 85) and isColor(632, 190, 0xfafafb, 85) and isColor(641, 191, 0xffffff, 85) and isColor(651, 191, 0xf5f6f6, 85) and isColor(707, 191, 0xe6e7e9, 85) and isColor(730, 552, 0xffffff, 85) and isColor(761, 569, 0x010722, 85)) then
         checkplacetimes = 0
         return 21 --段位降级
-    elseif (isColor(1117, 103, 0xf0075a, 85) and isColor(1127, 113, 0xfb004c, 85) and isColor(1137, 103, 0xed0457, 85) and isColor(1119, 121, 0xf3005a, 85)) then
+    elseif (isColor(62, 83, 0xfb1264, 90) and isColor(181, 80, 0xfb1264, 90) and isColor(66, 118, 0xfb1264, 90) and isColor(178, 121, 0xfb1264, 90) and isColor(268, 634, 0xffffff, 90) and isColor(87, 633, 0xffffff, 90) and isColor(253, 672, 0xffffff, 90) and isColor(1088, 644, 0xffffff, 90) and isColor(1270, 674, 0xffffff, 90) and isColor(1271, 635, 0xffffff, 90)) then
         checkplacetimes = 0
-        return 22 --广告弹窗
+        return 22 --游戏公告栏，左上角显示为"最新动态"四个字
     end
     return 404
 end
@@ -1935,10 +1938,10 @@ function toPVP_i68()
     return 0
 end
 function waitBegin_i68()
-    --done
     mSleep(5000)
     timer = 0
-    while (not (isColor(44, 111, 0xffffff, 90) and isColor(59, 109, 0xffffff, 90) and isColor(81, 111, 0xffffff, 90) and isColor(93, 110, 0xffffff, 90) and isColor(108, 118, 0xffffff, 90) and isColor(122, 117, 0x3daaee, 90) and isColor(142, 120, 0x3daaee, 90) and isColor(156, 117, 0x3daaef, 90) and isColor(171, 118, 0x3daaee, 90) and isColor(184, 118, 0x3daaef, 90)) and timer < 35) do
+    --当检测界面不在游戏且检测次数少于35
+    while (checkPlace_i68() ~= 3 and timer < 35) do
         mSleep(2000)
         timer = timer + 1
         toast("开局中," .. tostring(timer) .. "/35", 0.5)
@@ -1970,10 +1973,10 @@ function waitBegin_i68()
     end
 end
 function autoMobile_i68()
-    --done
     toast("接管比赛", 1)
     checkAutoMobile()
-    while (isColor(221, 111, 0xbff414, 90) and isColor(232, 111, 0xbef316, 90) and isColor(220, 119, 0xc3fa14, 90) and isColor(228, 119, 0xc1fa0e, 90) and isColor(226, 128, 0xbcee12, 90) and isColor(214, 128, 0xb4e513, 90)) or (isColor(122, 118, 0x3faaed, 85) and isColor(131, 119, 0x3daaef, 85) and isColor(141, 120, 0x3ea9ed, 85) and isColor(155, 120, 0x3ca5e9, 85) and isColor(166, 126, 0x3caaed, 85) and isColor(180, 127, 0x3eabe8, 85)) do
+    --检测界面在游戏
+    while checkPlace_i68() == 3 do
         mSleep(500)
         tap(1130, 600)
         mSleep(500)
@@ -1994,7 +1997,6 @@ function autoMobile_i68()
     mSleep(2000)
 end
 function backFromLines_i68()
-    --done
     --从赛道回到多人界面
     color = getColor(140, 20)
     while (color == 0xff0054) do
@@ -2009,7 +2011,6 @@ function backFromLines_i68()
     end
 end
 function Login_i68()
-    --done
     if (isColor(482, 353, 0x333333, 85) and isColor(498, 353, 0x333333, 85) and isColor(517, 353, 0x333333, 85) and isColor(535, 353, 0x333333, 85) and isColor(550, 353, 0x333333, 85) and isColor(568, 352, 0x333333, 85) and isColor(584, 354, 0x333333, 85) and isColor(515, 444, 0xfe8b40, 85) and isColor(769, 444, 0xfe8b40, 85) and isColor(874, 444, 0xfe8b40, 85)) then
         log4l("登录")
         tap(660, 450)
@@ -2051,7 +2052,6 @@ function toDailyGame_i68()
     return -1
 end
 function gametoCarbarn_i68()
-    --done
     upwithoutoil, downwithoutoil, changecar, ads = false, false, false, false
     tap(1260, 690)
     mSleep(2000)
@@ -2270,7 +2270,7 @@ function worker_i68(place)
         mSleep(1000)
         state = -1
     elseif place == 22 then
-        tap(1127, 113)
+        tap(1165, 652)
         mSleep(500)
         state = -1
     elseif place == 25 then
