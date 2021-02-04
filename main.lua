@@ -1550,7 +1550,7 @@ function gametoCarbarn_SE()
     --如果提示已经满足所有奖励条件
     if checkPlace() == 36 then
         worker(36)
-        return -1
+        return -2
     end
     --如果等待失败
     if waitBegin() == -1 then
