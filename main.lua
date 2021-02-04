@@ -52,18 +52,18 @@ end
 ---为程序主函数---
 function main()
     prepare()
-    :: flag ::
+    :: begin ::
     worker(checkPlace())
     if state ~= -1 then
         checkplacetimes = 0
     end
     if state == -1 then
         checkplacetimes = checkplacetimes + 1
-        goto flag
+        goto begin
     elseif state == -2 then
         goto stop
     elseif state == -3 then
-        goto flag
+        goto begin
     elseif state == -4 then
         goto backFromLines
     elseif state == -5 then
@@ -71,27 +71,26 @@ function main()
     elseif state == -6 then
         goto waitBegin
     end
-    state = toCarbarn()
-    --state=-1 0 1 分别对应停止 中断再识别 继续
+    state = toCarbarn()--此处的state=-1 0 1 分别对应停止 中断再识别 继续
     if state == 0 then
-        goto flag
+        goto begin
     elseif state == -1 then
         goto stop
     end
     :: chooseCar ::
     if not chooseCar() then
-        goto flag --选车出错了
+        goto begin --选车出错了
     end
     :: waitBegin ::
     if waitBegin() == -1 then
-        goto flag
+        goto begin
     end
     :: autoMobile ::
     autoMobile()
     :: backFromLines ::
     backFromLines()
     if not shouldStop(false) then
-        goto flag
+        goto begin
     end
     :: stop ::
     after()
@@ -1247,7 +1246,7 @@ function checkPlace_SE()
     elseif (isColor(19, 21, 0xff0054, 85) and isColor(223, 17, 0xff0054, 85) and isColor(18, 235, 0xff0054, 85) and isColor(231, 241, 0xff0054, 85) and isColor(178, 155, 0xffffff, 85) and isColor(409, 157, 0xffffff, 85) and isColor(454, 131, 0xffffff, 85) and isColor(1017, 562, 0xc3fb12, 85) and isColor(1074, 593, 0xc3fb11, 85) and isColor(1085, 607, 0x000b1f, 85)) then
         checkplacetimes = 0
         return 22 --失去资格
-    elseif (isColor(961, 97, 0xff0054, 85) and isColor(967, 91, 0xfd0054, 85) and isColor(955, 89, 0xf60252, 85) and isColor(955, 103, 0xfd0155, 85) and isColor(971, 105, 0xf80151, 85) and isColor(961, 97, 0xff0054, 85)) then
+    elseif (isColor(950, 91, 0xff0056, 90) and isColor(955, 96, 0xff0056, 90) and isColor(961, 102, 0xfd0255, 90) and isColor(968, 96, 0xff0054, 90) and isColor(973, 91, 0xff0055, 90) and isColor(952, 112, 0xff0054, 90) and isColor(957, 107, 0xfe0053, 90) and isColor(967, 107, 0xfa0054, 90) and isColor(970, 111, 0xfd0056, 90)) then
         checkplacetimes = 0
         return 23 --弹窗广告
     elseif (isColor(76, 51, 0xf8004c, 85) and isColor(76, 69, 0xf40153, 85) and isColor(282, 54, 0xff0054, 85) and isColor(282, 62, 0xf00253, 85) and isColor(282, 68, 0xff0054, 85) and isColor(125, 552, 0x828786, 85) and isColor(67, 584, 0x000921, 85) and isColor(1099, 611, 0x000d21, 85) and isColor(1099, 568, 0xc4fb11, 85)) then
@@ -1293,6 +1292,10 @@ function checkPlace_SE()
         --可以领取赛季通行证奖励
         checkplacetimes = 0
         return 35
+    elseif (isColor(585, 203, 0xffffff, 90) and isColor(626, 208, 0xffffff, 90) and isColor(666, 196, 0xffffff, 90) and isColor(786, 205, 0xffffff, 90) and isColor(835, 201, 0xf90154, 90) and isColor(865, 203, 0xfc0155, 90) and isColor(896, 208, 0xf70154, 90) and isColor(736, 279, 0xfb1264, 90) and isColor(756, 278, 0xfb1264, 90) and isColor(721, 468, 0xffffff, 90)) then
+        --你已经满足所有奖励条件
+        checkplacetimes = 0
+        return 36
     elseif getColor(5, 5) == 0xffffff then
         return -1 --不在大厅，不在多人
     else
@@ -1541,6 +1544,12 @@ function gametoCarbarn_SE()
         return actAfterNoFuelNTicket()
     end
     mSleep(3000)
+    --如果提示已经满足所有奖励条件
+    if checkPlace() == 36 then
+        worker(36)
+        return -1
+    end
+    --如果等待失败
     if waitBegin() == -1 then
         return -1
     end
@@ -1616,6 +1625,7 @@ function worker_SE(place)
         receivePrizeFromGL()
         state = -1
     elseif place == 5 then
+        --在赛事
         if mode == "赛事模式" then
             state = chooseGame()
             validateGame = true
@@ -1725,7 +1735,7 @@ function worker_SE(place)
         mSleep(2000)
         state = -1
     elseif place == 23 then
-        tap(963, 97) --关闭弹窗广告
+        tap(960, 100) --关闭弹窗广告
         mSleep(500)
         state = -1
     elseif place == 24 then
@@ -1764,7 +1774,7 @@ function worker_SE(place)
         state = -1
     elseif place == 30 then
         --服务器维护中，脚本停止
-        log4l("服务器维护中")
+        log4l("🔧服务器维护中")
         state = -2
     elseif place == 31 then
         --多人赛季奖励
@@ -1786,9 +1796,20 @@ function worker_SE(place)
         state = -1
     elseif place == 35 then
         --可以领取赛季通行证奖励
-        log4l("可以领取赛季通行证奖励")
+        log4l("🎁可以领取赛季通行证奖励")
         tap(990, 127)
         state = -1
+    elseif place == 36 then
+        --你已经满足所有奖励条件
+        log4l("🈚️赛事已刷完")
+        tap(874, 477)
+        if switch == "多人刷包" then
+            supermode, mode = "多人刷包", "多人刷包"
+            log4l("主模式改为多人刷包")
+            state = -1
+        else
+            state = -2
+        end
     elseif place == 404 then
         toast("不知道在哪", 1)
         mSleep(1000)
