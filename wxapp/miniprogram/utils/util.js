@@ -43,9 +43,26 @@ const networkError = function () {
     showCancel: false
   })
 }
+const login = function () {
+  return new Promise((resolve, reject) => {
+    wx.cloud.callFunction({
+      name: "login",
+      data: {},
+      success(res) {
+        //console.log("用户登录成功")
+        resolve(res)
+      },
+      fail(err) {
+        reject(err)
+        networkError(err);
+      }
+    })
+  })
+}
 module.exports = {
   httpsGet: httpsGet,
   httpsPost: httpsPost,
   networkError: networkError,
-  json2Form: json2Form
+  json2Form: json2Form,
+  login: login
 }

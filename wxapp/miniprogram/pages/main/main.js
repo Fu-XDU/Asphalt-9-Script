@@ -129,18 +129,39 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    try {
-      var value = wx.getStorageSync('udid')
-      if (value) {
-        //console.log("获取缓存成功",value)
-        this.setData({
-          udid: value
-        })
-        this.query()
+    const _this=this
+    util.login().then((res) => {
+      app.globalData.openid = res.result.openid
+      try {
+        var value = wx.getStorageSync('udid')
+        if (value) {
+          console.log("获取缓存成功", value)
+          _this.setData({
+            udid: value
+          })
+          _this.query()
+        } else {
+          wx.cloud.database().collection('udid').where({
+            openid: app.globalData.openid
+          }).get({
+            success: function (result) {
+              if (result.data.length > 0) {
+                console.log("从数据库查询到数据",result)
+                _this.setData({
+                  udid: result.data[0].udid
+                })
+                _this.query()
+              }
+            },
+            fail(err) {
+              util.networkError(err);
+            }
+          })
+        }
+      } catch (e) {
+        console.error("获取缓存失败", e)
       }
-    } catch (e) {
-      console.log("获取缓存失败", e)
-    }
+    })
   },
 
   /**
@@ -217,7 +238,30 @@ Page({
       showSettings: true
     })
   },
+  saveudid: function () {
+    try {
+      wx.setStorage({
+        key: "udid",
+        data: this.data.udid
+      })
+    } catch (e) {
+      console.error("设置本地缓存失败", e)
+    }
+    wx.cloud.callFunction({
+      name: "saveudid",
+      data: {
+        openid: app.globalData.openid,
+        udid: this.data.udid
+      },
+      success(res) {
+        //console.log(res)
+      },
+    })
+  },
   query: function () {
+    if(!!!this.data.udid){
+      return
+    }
     if (this.data.udid.length != 40) {
       //console.info("无此udid,格式错误")
       Notify({
@@ -229,19 +273,16 @@ Page({
       })
       return
     }
-    try {
-      wx.setStorage({
-        key: "udid",
-        data: this.data.udid
-      })
-    } catch (e) {
-      console.error("设置本地缓存失败", e)
-    }
     util.httpsGet("a9getSettings?udid=" + this.data.udid).then((res) => {
       if (res.data.length > 0) {
         //console.info("获取设置成功",res.data[0])
         this.data.oldSettings = res.data[0].settings
         this.saveSettings(res.data[0].settings.split("|"))
+        this.saveudid()
+        wx.pageScrollTo({
+          scrollTop: 100,
+          duration: 300
+        })
         Notify({
           message: '查询成功',
           background: '#07C160',
