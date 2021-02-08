@@ -822,9 +822,9 @@ function checkAndGetPackage()
         --VIP用户多人包可补充界面为灰色
         VIPrestoreButtonDisabled = (isColor(86, 452, 0x010f17, 90) and isColor(134, 452, 0x05121a, 90) and isColor(175, 454, 0x09161e, 90) and isColor(205, 450, 0x06121b, 90) and isColor(199, 467, 0x051219, 90) and isColor(157, 467, 0x010f15, 90) and isColor(123, 466, 0x07141c, 90) and isColor(92, 466, 0x011018, 90) and isColor(96, 478, 0x021019, 90) and isColor(220, 479, 0x09161f, 90))
         VIPcanRestore = (isColor(113, 498, 0xdce1e4, 90) and isColor(113, 504, 0xa9b7be, 90) and isColor(105, 504, 0xebeef0, 90) and isColor(105, 501, 0xf7f9f9, 90) and isColor(124, 498, 0xd0d7dc, 90) and isColor(124, 503, 0xd0d7dc, 90) and isColor(134, 503, 0xfefefe, 90) and isColor(137, 503, 0xfafbfb, 90) and isColor(137, 507, 0xebeef0, 90)) and not VIPrestoreButtonDisabled
-        othersrestoreButtonDisabled = true --TODO:普通用户多人包可补充界面为灰色
-        otherscanRestore = (isColor(120, 500, 0xfcfdfd, 90) and isColor(123, 500, 0xfcfdfd, 90) and isColor(128, 500, 0xffffff, 90) and isColor(128, 506, 0xdce2e5, 90) and isColor(125, 506, 0xafbdc3, 90) and isColor(143, 506, 0xf2f4f5, 90) and isColor(147, 505, 0xedf0f2, 90) and isColor(151, 500, 0xe9edee, 90) and isColor(154, 511, 0xfafbfa, 90)) and not othersrestoreButtonDisabled
-        canRestore = VIPcanRestore or otherscanRestore
+        poorrestoreButtonDisabled = true --TODO:普通用户多人包可补充界面为灰色
+        poorcanRestore = (isColor(120, 500, 0xfcfdfd, 90) and isColor(123, 500, 0xfcfdfd, 90) and isColor(128, 500, 0xffffff, 90) and isColor(128, 506, 0xdce2e5, 90) and isColor(125, 506, 0xafbdc3, 90) and isColor(143, 506, 0xf2f4f5, 90) and isColor(147, 505, 0xedf0f2, 90) and isColor(151, 500, 0xe9edee, 90) and isColor(154, 511, 0xfafbfa, 90)) and not poorrestoreButtonDisabled
+        canRestore = VIPcanRestore or poorcanRestore
         if canRestore then
             if tonumber(os.date("%H")) ~= 7 then
                 log4l("补充多人包")
@@ -834,10 +834,11 @@ function checkAndGetPackage()
             else
                 log4l("可补充多人包，早7点不补充")
             end
+            return 1
         end
-        if VIPrestoreButtonDisabled or othersrestoreButtonDisabled then
+        --[[if VIPrestoreButtonDisabled or poorrestoreButtonDisabled then
             nomorepack = true
-        end
+        end]]--
         if tonumber(os.date("%H")) ~= 7 then
             tap(153, 462) --尝试补充多人包
         end
@@ -1032,9 +1033,9 @@ function selectCarAtGame()
             elseif carplace == "右上（被寻车满星时）" then
                 tap(900, 270)
             elseif carplace == "左上" then
-                tap(360, 230)
+                tap(286, 268)
             elseif carplace == "左下" then
-                tap(250, 420)
+                tap(219, 496)
             end
         end
     elseif model == "i68" then
@@ -1248,7 +1249,7 @@ function checkPlace_SE()
     elseif (isColor(950, 91, 0xff0056, 90) and isColor(955, 96, 0xff0056, 90) and isColor(961, 102, 0xfd0255, 90) and isColor(968, 96, 0xff0054, 90) and isColor(973, 91, 0xff0055, 90) and isColor(952, 112, 0xff0054, 90) and isColor(957, 107, 0xfe0053, 90) and isColor(967, 107, 0xfa0054, 90) and isColor(970, 111, 0xfd0056, 90)) then
         checkplacetimes = 0
         return 23 --弹窗广告，右上角有叉号的那种
-    elseif (isColor(76, 51, 0xf8004c, 85) and isColor(76, 69, 0xf40153, 85) and isColor(282, 54, 0xff0054, 85) and isColor(282, 62, 0xf00253, 85) and isColor(282, 68, 0xff0054, 85) and isColor(125, 552, 0x828786, 85) and isColor(67, 584, 0x000921, 85) and isColor(1099, 611, 0x000d21, 85) and isColor(1099, 568, 0xc4fb11, 85)) then
+    elseif (isColor(77, 52, 0xee0048, 90) and isColor(77, 66, 0xf40152, 90) and isColor(93, 53, 0xf10253, 90) and isColor(94, 58, 0xee0252, 90) and isColor(104, 60, 0xe80352, 90) and isColor(104, 69, 0xf50254, 90) and isColor(123, 58, 0xfe0054, 90) and isColor(123, 66, 0xec0353, 90) and isColor(128, 58, 0xf70153, 90) and isColor(123, 53, 0xf60153, 90)) then
         checkplacetimes = 0
         return 24 --获得了新红币界面
     elseif (isColor(365, 82, 0xffffff, 85) and isColor(410, 100, 0xffffff, 85) and isColor(464, 98, 0xffffff, 85) and isColor(508, 98, 0xffffff, 85) and isColor(553, 99, 0xffffff, 85) and isColor(584, 55, 0xffffff, 85) and isColor(665, 55, 0xffffff, 85) and isColor(723, 57, 0xffffff, 85) and isColor(743, 61, 0xffffff, 85) and isColor(745, 95, 0xffffff, 85)) then
