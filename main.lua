@@ -786,10 +786,20 @@ function chooseGame()
         end
     elseif model == "i68" then
         --done
-        if gamenum <= 7 then
+        if gamenum <= 6 then
             tap(170 + 200 * (gamenum - 1), 500)
             mSleep(1000)
             tap(170 + 200 * (gamenum - 1), 500)
+        elseif gamenum == 7 then
+            tap(1287, 590)
+            mSleep(1000)
+            tap(1287, 590)
+        elseif gamenum == 8 then
+            moveTo(1250, 500, 1050, 500, 20)
+            mSleep(1000)
+            tap(1287, 590)
+            mSleep(1000)
+            tap(1287, 590)
         else
             for _ = 1, gamenum - 7, 1 do
                 moveTo(1250, 500, 1095, 500, 20)
@@ -1031,7 +1041,9 @@ function selectCarAtGame()
             elseif carplace == "中间下" then
                 tap(580, 420)
             elseif carplace == "右上（被寻车满星时）" then
-                tap(900, 270)
+                for i = 800, 1050, 30 do
+                    tap(i, 320)
+                end
             elseif carplace == "左上" then
                 tap(286, 268)
             elseif carplace == "左下" then
@@ -1052,7 +1064,7 @@ function selectCarAtGame()
                 elseif carplace == "中间下" then
                     tap(660, 462)
                 elseif carplace == "右上（被寻车满星时）" then
-                    for i = 1325, 1000, -30 do
+                    for i = 1000, 1325, 30 do
                         tap(i, 320)
                     end
                 elseif carplace == "左上" then
