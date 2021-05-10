@@ -106,6 +106,11 @@ function beforeUserExit()
     log4l("⏹脚本被手动终止")
 end
 ---通用处理函数[不区分设备型号]---
+function drift(second)
+    touchDown(150, 550);
+    mSleep(second * 1000);
+    touchUp(150, 550);
+end
 function saveSettings()
     --存储用户本次设置选项
     body_send = { ["udid"] = udid, ["settings"] = settings }
@@ -453,7 +458,7 @@ function ShowUI()
     UILabel(1, "路线选择（所有模式）", 15, "left", "38,38,38")
     UIRadio(1, "path", "左,中,右,随机", "0")
     UILabel(1, "赛事位置选择", 15, "left", "38,38,38")
-    UIRadio(1, "gamenum", "1,2,3,4,5,6,7,8,9,10,11,12", "0")
+    UIRadio(1, "gamenum", "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22", "0")
     UILabel(1, "赛事是否选车", 15, "left", "38,38,38")
     UIRadio(1, "chooseCarorNot", "是,否", "0")
     UILabel(1, "赛事用车位置选择（赛事模式）", 15, "left", "38,38,38")
@@ -772,42 +777,36 @@ end
 function chooseGame()
     if model == "SE" then
         if gamenum <= 7 then
-            tap(138 + 160 * (gamenum - 1), 500)
+            tap(145 + 165 * (gamenum - 1), 500)
             mSleep(1000)
-            tap(138 + 160 * (gamenum - 1), 500)
+            tap(145 + 165 * (gamenum - 1), 500)
         else
             for _ = 1, gamenum - 7, 1 do
-                moveTo(610, 500, 470, 500, 20)
+                moveTo(610, 500, 483, 500, 20)
                 mSleep(500)
             end
-            tap(138 + 160 * 6, 500)
+            tap(145 + 165 * 6, 500)
             mSleep(1000)
-            tap(138 + 160 * 6, 500)
+            tap(145 + 165 * 6, 500)
         end
     elseif model == "i68" then
-        --done
-        if gamenum <= 6 then
-            tap(170 + 200 * (gamenum - 1), 500)
+        if gamenum == 1 then
+            tap(170, 570)
             mSleep(1000)
-            tap(170 + 200 * (gamenum - 1), 500)
-        elseif gamenum == 7 then
-            tap(1287, 590)
+            tap(170, 590)
+        end
+        if gamenum > 1 and gamenum <= 6 then
+            tap(372 + 194 * (gamenum - 2), 570)
             mSleep(1000)
-            tap(1287, 590)
-        elseif gamenum == 8 then
-            moveTo(1250, 500, 1050, 500, 20)
-            mSleep(1000)
-            tap(1287, 590)
-            mSleep(1000)
-            tap(1287, 590)
+            tap(372 + 194 * (gamenum - 2), 570)
         else
-            for _ = 1, gamenum - 7, 1 do
+            for _ = 0, gamenum - 7, 1 do
                 moveTo(1250, 500, 1095, 500, 20)
                 mSleep(500)
             end
-            tap(170 + 200 * 6, 500)
+            tap(1300, 570)
             mSleep(1000)
-            tap(170 + 200 * 6, 500)
+            tap(1300, 570)
         end
     end
     mSleep(2000)
@@ -855,11 +854,14 @@ function checkAndGetPackage()
     elseif model == "i68" then
         tap(668, 576)
         mSleep(2000)
-        if checkPlace() == 7 then
+        place = checkPlace()
+        if place == 7 then
             log4l("🎁 开多人包")
             receivePrizeAtGame()
             PVPwithoutPack = 0
             mSleep(10000)
+        elseif place == 1 then
+            back()
         end
         if tonumber(os.date("%H")) ~= 7 then
             tap(176, 545) --尝试补充多人包
@@ -1371,6 +1373,7 @@ function waitBegin_SE()
 end
 function autoMobile_SE()
     toast("接管比赛", 1)
+    _time = os.time()
     checkAutoMobile()
     --检测界面在游戏
     while checkPlace_SE() == 3 do
@@ -1866,7 +1869,7 @@ function checkPlace_i68()
     elseif (isColor(896, 112, 0xce7345, 85) and isColor(985, 113, 0x6c7889, 85) and isColor(1059, 119, 0xbd9158, 85) and isColor(1144, 118, 0xbcb3d5, 85) and isColor(1230, 116, 0x6d6c63, 85)) then
         checkplacetimes = 0
         return 3.1 --在多人车库
-    elseif (isColor(89, 643, 0xffffff, 85) and isColor(335, 645, 0xffffff, 85) and isColor(362, 708, 0x000822, 85) and isColor(1021, 648, 0xffffff, 85) and isColor(1234, 646, 0xffffff, 85) and isColor(1260, 704, 0x000821, 85)) or (isColor(481, 653, 0xc3fb12, 90) and isColor(827, 647, 0xc3fb12, 90) and isColor(448, 703, 0xc4fb12, 90) and isColor(879, 705, 0xc3fb12, 90) and isColor(766, 673, 0xc4fb12, 90) and isColor(556, 673, 0xc3fb12, 90) and isColor(705, 673, 0xc3fb12, 90)) then
+    elseif (isColor(89, 643, 0xffffff, 85) and isColor(335, 645, 0xffffff, 85) and isColor(362, 708, 0x000822, 85) and isColor(1021, 648, 0xffffff, 85) and isColor(1234, 646, 0xffffff, 85) and isColor(1260, 704, 0x000821, 85)) or (isColor(481, 653, 0xc3fb12, 90) and isColor(827, 647, 0xc3fb12, 90) and isColor(448, 703, 0xc4fb12, 90) and isColor(879, 705, 0xc3fb12, 90) and isColor(766, 673, 0xc4fb12, 90) and isColor(556, 673, 0xc3fb12, 90) and isColor(705, 673, 0xc3fb12, 90)) or (isColor(294, 665, 0xffffff, 90) and isColor(531, 674, 0xc2fb12, 90) and isColor(851, 676, 0xc2fb12, 90) and isColor(1020, 673, 0xffffff, 90) and isColor(1233, 673, 0xffffff, 90)) then
         checkplacetimes = 0
         return 1 --在多人;or后面的是保时捷赛季新增的
     elseif (isColor(89, 679, 0xc5fb12, 85) and isColor(246, 680, 0xc3fb12, 85) and isColor(81, 703, 0xc2fb0f, 85) and isColor(253, 700, 0xc3fa12, 85)) then
@@ -1937,11 +1940,11 @@ function toPVP_i68()
     toast("进入多人", 1)
     mSleep(4000)
     slideToPVP()
-    --TODO:检查是否在多人入口
+    --检查是否在多人入口
     if checkAndGetPackage() == -2 then
         return -2
     end
-    tap(699, 331)
+    tap(785, 285)
     mSleep(2000)
     place = checkPlace()
     if place ~= 1 then

@@ -36,8 +36,8 @@ Page({
       'gamenum': {
         title: "赛事位置选择",
         options: {
-          value: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
-          index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+          value: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22"],
+          index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
         },
         index: 0
       },
@@ -129,7 +129,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    const _this=this
+    const _this = this
     util.login().then((res) => {
       app.globalData.openid = res.result.openid
       try {
@@ -146,7 +146,7 @@ Page({
           }).get({
             success: function (result) {
               if (result.data.length > 0) {
-                console.log("从数据库查询到数据",result)
+                console.log("从数据库查询到数据", result)
                 _this.setData({
                   udid: result.data[0].udid
                 })
@@ -259,7 +259,7 @@ Page({
     })
   },
   query: function () {
-    if(!!!this.data.udid){
+    if (!!!this.data.udid) {
       return
     }
     if (this.data.udid.length != 40) {
