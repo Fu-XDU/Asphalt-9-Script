@@ -20,6 +20,7 @@ validateGame = false --是否已知处在正确的赛事位置
 runningState = true --脚本运行状态
 receive_starting_command = false --如果是true那么检测到账号被顶就不再等待
 changecar = false --PVE是否已经换车
+PVPchooseCar = true --多人是否选车
 model = "" --设备型号
 chooseHighStageCarClass = 1 --改成1的话，使用新多人选车方案
 watchAds = ""
@@ -148,7 +149,7 @@ function refreshSettings(newsettings)
                     validateGame = false
                     refreshSettingslog = refreshSettingslog .. "赛事位置选择更改为" .. value .. " "
                 elseif (key == 5) then
-                    chooseCarorNot = value
+                    PVEchooseCar = value
                     refreshSettingslog = refreshSettingslog .. "赛事是否选车更改为" .. value .. " "
                 elseif (key == 6) then
                     carplace = value
@@ -235,6 +236,21 @@ function paraArgu()
         path = 1
     elseif path == "随机" then
         path = 2
+    end
+    if PVEchooseCar == "是" then
+        PVEchooseCar = true
+    else
+        PVEchooseCar = false
+    end
+    if PVPchooseCar == "是" then
+        PVPchooseCar = true
+    else
+        PVPchooseCar = false
+    end
+    if restartAfterAds == "是" then
+        restartAfterAds = true
+    else
+        restartAfterAds = false
     end
     supermode = mode
 end
@@ -460,11 +476,15 @@ function ShowUI()
     UILabel(1, "赛事位置选择", 15, "left", "38,38,38")
     UIRadio(1, "gamenum", "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22", "0")
     UILabel(1, "赛事是否选车", 15, "left", "38,38,38")
-    UIRadio(1, "chooseCarorNot", "是,否", "0")
+    UIRadio(1, "PVEchooseCar", "是,否", "0")
     UILabel(1, "赛事用车位置选择（赛事模式）", 15, "left", "38,38,38")
     UIRadio(1, "carplace", "中间上,中间下,左上,左下,右上（被寻车满星时）", "0")
     UILabel(1, "赛事选车是否返回一次（被寻车满星时）", 15, "left", "38,38,38")
     UIRadio(1, "backifallstar", "是,否", "0")
+    UILabel(1, "多人是否选车", 15, "left", "38,38,38")
+    UIRadio(1, "PVPchooseCar", "是,否", "0")
+    UILabel(1, "多人类型（如果有）", 15, "left", "38,38,38")
+    UIRadio(1, "PVPtype", "上,下", "0")
     UILabel(1, "传奇是否刷多人", 15, "left", "38,38,38")
     UIRadio(1, "PVPatBest", "是,否", "0")
     UILabel(1, "节能模式", 15, "left", "38,38,38")
@@ -475,6 +495,8 @@ function ShowUI()
     UIRadio(1, "changeCar", "开,关", "0")
     UILabel(1, "赛事没油是否看广告(建议配合插件VideoAdsSpeed开20倍使用)", 15, "left", "38,38,38")
     UIRadio(1, "watchAds", "开(有20倍广告加速),关,开(没有广告加速)", "0")
+    UILabel(1, "广告后是否重启游戏", 15, "left", "38,38,38")
+    UIRadio(1, "restartAfterAds", "是,否", "1")
     UILabel(1, "需要过多久返回赛事模式或寻车模式（分钟）", 15, "left", "38,38,38")
     UIEdit(1, "timeout_backPVE", "内容", "60", 15, "center", "38,38,38", "number")
     UILabel(1, "多人跳车（填0不跳）", 15, "left", "38,38,38")
@@ -507,7 +529,7 @@ function ShowUI()
     UILabel(2, "远程日志功能，可以访问网址https://yourdomin.cn/api/a9log?udid=" .. ts.system.udid() .. "查看本日脚本日志，远程监控脚本运行情况。", 15, "left", "38,38,38")
     UILabel(2, "如果有脚本无法识别的界面，请联系QQ群1028746490群主。如果需要购买脚本授权码也请联系上述QQ群群主。", 20, "left", "38,38,38")
     UIShow()
-    settings = mode .. "|" .. switch .. "|" .. path .. "|" .. gamenum .. "|" .. chooseCarorNot .. "|" .. carplace .. "|" .. backifallstar .. "|" .. PVPatBest .. "|" .. savePower .. "|" .. lowerCar .. "|" .. changeCar .. "|" .. watchAds .. "|" .. timeout_backPVE .. "|" .. skipcar .. "|" .. timeout_parallelRead .. "|" .. email
+    settings = mode .. "|" .. switch .. "|" .. path .. "|" .. gamenum .. "|" .. PVEchooseCar .. "|" .. carplace .. "|" .. backifallstar .. "|" .. PVPatBest .. "|" .. savePower .. "|" .. lowerCar .. "|" .. changeCar .. "|" .. watchAds .. "|" .. timeout_backPVE .. "|" .. skipcar .. "|" .. timeout_parallelRead .. "|" .. email
 end
 function startGame()
     log4l("脚本开始")
@@ -755,16 +777,18 @@ function lowPower()
     return t.charging == 0 and tonumber(t.level) <= 20
 end
 function toCarbarn()
-    getStage()
-    if stage == 4 and PVPatBest == "否" then
-        if supermode == "多人刷声望" then
-            toast("脚本停止", 1)
-            return -1
-            --传奇段位且不在传奇刷多人并且主模式是赛事模式时
-        elseif supermode == "赛事模式" then
-            mode = "赛事模式" --将现在的模式改为赛事模式
-            switch = "等30分钟" --赛事没油改为等30分钟
-            return 0
+    if PVPchooseCar == true then
+        getStage()
+        if stage == 4 and PVPatBest == "否" then
+            if supermode == "多人刷声望" then
+                toast("脚本停止", 1)
+                return -1
+                --传奇段位且不在传奇刷多人并且主模式是赛事模式时
+            elseif supermode == "赛事模式" then
+                mode = "赛事模式" --将现在的模式改为赛事模式
+                switch = "等30分钟" --赛事没油改为等30分钟
+                return 0
+            end
         end
     end
     if model == "SE" then
@@ -815,7 +839,7 @@ end
 function checkAndGetPackage()
     nomorepack = false
     if model == "SE" then
-        if (not isColor(649, 472, 0x091624, 85)) then
+        if (isColor(531, 99, 0xfdfff6, 90) and isColor(567, 108, 0xfcfff4, 90) and isColor(615, 109, 0xfcfff5, 90) and isColor(736, 539, 0xff0054, 90)) then
             toast("领取多人包", 1)
             log4l("🎁 开多人包")
             mSleep(700)
@@ -978,12 +1002,32 @@ function receivePrizeFromGL()
 end
 function chooseCar()
     mSleep(2500)
-    chooseCarStage()
-    mSleep(1500)
-    chooseClassCar()
-    mSleep(3000)
-    if not switchToSuitableCar() then
-        return false
+    if PVPchooseCar then
+        chooseCarStage()
+        mSleep(1500)
+        chooseClassCar()
+        mSleep(3000)
+        if not switchToSuitableCar() then
+            return false
+        end
+    end
+    if PVPchooseCar == false then
+        if carCanUse() == false and watchAds ~= "关" then
+            if watchAd() == -1 then
+                if model == "SE" then
+                    tap(1077, 83) --关闭广告
+                elseif model == "i68" then
+                    tap(1276, 83) --关闭广告
+                end
+                mSleep(2000)
+                if restartAfterAds then
+                    closeApp(gameBid) --关闭游戏
+                    mSleep(5000)
+                    runApp(gameBid) --打开游戏
+                    mSleep(5000)
+                end
+            end
+        end
     end
     beginGame()
     return true
@@ -1031,7 +1075,7 @@ function slideToPVP()
 end
 function selectCarAtGame()
     if model == "SE" then
-        if chooseCarorNot == "是" then
+        if PVEchooseCar then
             if backifallstar == "是" then
                 tap(580, 270)
                 mSleep(2000)
@@ -1053,14 +1097,14 @@ function selectCarAtGame()
             end
         end
     elseif model == "i68" then
-        if chooseCarorNot == "是" then
+        if PVEchooseCar then
             if backifallstar == "是" then
                 tap(660, 320)
                 mSleep(2500)
                 back()
                 mSleep(1000)
             end
-            if chooseCarorNot == "是" then
+            if PVEchooseCar then
                 if carplace == "中间上" then
                     tap(660, 320)
                 elseif carplace == "中间下" then
@@ -1327,7 +1371,11 @@ function toPVP_SE()
     if checkAndGetPackage() == -2 then
         return -2
     end
-    tap(660, 600) --进入多人
+    if PVPtype == "上" then
+        tap(857, 292)--进入多人
+    elseif PVPtype == "下" then
+        tap(827, 330)--进入多人
+    end
     mSleep(1500)
     place = checkPlace() --检查不是是在多人内部
     if place ~= 1 then
@@ -1556,6 +1604,13 @@ function gametoCarbarn_SE()
                 tap(1077, 83)--关闭广告
                 mSleep(2000)
                 ads = true
+                if restartAfterAds then
+                    closeApp(gameBid) --关闭游戏
+                    mSleep(5000)
+                    runApp(gameBid) --打开游戏
+                    mSleep(15000)
+                    return -1
+                end
             end
             goto beginAtGame
         end
@@ -1944,7 +1999,11 @@ function toPVP_i68()
     if checkAndGetPackage() == -2 then
         return -2
     end
-    tap(785, 285)
+    if PVPtype == "上" then
+        tap(983, 340)--进入多人
+    elseif PVPtype == "下" then
+        tap(994, 394)--进入多人
+    end
     mSleep(2000)
     place = checkPlace()
     if place ~= 1 then
@@ -2106,6 +2165,13 @@ function gametoCarbarn_i68()
                 tap(1276, 83) --关闭广告
                 mSleep(2000)
                 ads = true
+                if restartAfterAds then
+                    closeApp(gameBid) --关闭游戏
+                    mSleep(5000)
+                    runApp(gameBid) --打开游戏
+                    mSleep(15000)
+                    return -1
+                end
             end
             goto beginAtGame
         end
