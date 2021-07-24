@@ -12,16 +12,18 @@ Page({
       'mode': {
         title: "模式选择",
         options: {
-          value: ["多人刷声望", "赛事模式", "多人刷包"],
-          index: [0, 1, 2]
+          //value: ["多人刷声望", "赛事模式", "多人刷包"],
+          value: ["多人刷声望", "赛事模式"],
+          index: [0, 1]
         },
         index: 0
       },
       'switch': {
         title: "没油没票后动作(赛事模式)",
         options: {
-          value: ["多人刷声望", "多人刷包", "等30分钟", "等60分钟"],
-          index: [0, 1, 2, 3]
+          //value: ["多人刷声望", "多人刷包", "等30分钟", "等60分钟"],
+          value: ["多人刷声望", "等30分钟", "等60分钟"],
+          index: [0, 1, 2]
         },
         index: 0
       },
@@ -62,6 +64,7 @@ Page({
         options: {
           value: ["是", "否"],
           index: [0, 1]
+          
         },
         index: 0
       },
@@ -262,7 +265,7 @@ Page({
     if (!!!this.data.udid) {
       return
     }
-    if (this.data.udid.length != 40) {
+    if (this.data.udid.length !== 40) {
       //console.info("无此udid,格式错误")
       Notify({
         message: '未查询到设备',
@@ -304,7 +307,7 @@ Page({
     })
   },
   handleInput: function (e) {
-    if (e.target.id == "udid")
+    if (e.target.id === "udid")
       this.data.udid = e.detail
     else {
       this.data.settings[this.getkey(this.data.settings, e.target.id)].value = e.detail
@@ -335,7 +338,7 @@ Page({
   },
   submit: function () {
     var presentSettings = this.presentSettings()
-    if (presentSettings == this.data.oldSettings) {
+    if (presentSettings === this.data.oldSettings) {
       wx.showModal({
         title: '更新成功',
         content: '脚本会在游戏单局结束或恢复运行时修改其设置',
@@ -348,7 +351,7 @@ Page({
       settings: presentSettings
     }
     util.httpsPost("a9saveSettings", util.json2Form(data)).then((res) => {
-      if (res.statusCode != 200) {
+      if (res.statusCode !== 200) {
         util.networkError()
       } else {
         wx.showModal({
@@ -361,7 +364,7 @@ Page({
   },
   getkey: function (dic, value) {
     for (var key in dic)
-      if (dic[key].title == value)
+      if (dic[key].title === value)
         return key
   },
   onChange: function (e) {

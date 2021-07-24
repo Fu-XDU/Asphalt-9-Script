@@ -50,7 +50,7 @@ function prepare()
     savePowerF()
     paraArgu()
 end
----为程序主函数---
+---程序主函数---
 function main()
     prepare()
     :: begin ::
@@ -468,9 +468,9 @@ function ShowUI()
     UILabel(1, "详细说明，远程控制和远程日志查看请向左滑查看第二页", 20, "left", "255,30,2")
     UILabel(1, "购买脚本授权码请联系QQ群1028746490群主", 20, "left", "255,30,2")
     UILabel(1, "模式选择", 15, "left", "38,38,38")
-    UIRadio(1, "mode", "多人刷声望,赛事模式,多人刷包", "0") --记录最初设置 | 特殊赛事保留
+    UIRadio(1, "mode", "多人刷声望,赛事模式", "0") --记录最初设置 | 特殊赛事保留
     UILabel(1, "没油没票后动作（赛事模式）", 15, "left", "38,38,38")
-    UIRadio(1, "switch", "多人刷声望,多人刷包,等30分钟,等60分钟", "0")
+    UIRadio(1, "switch", "多人刷声望,等30分钟,等60分钟", "0")
     UILabel(1, "路线选择（所有模式）", 15, "left", "38,38,38")
     UIRadio(1, "path", "左,中,右,随机", "0")
     UILabel(1, "赛事位置选择", 15, "left", "38,38,38")
@@ -509,7 +509,7 @@ function ShowUI()
     UILabel(2, "本脚本目前适用设备为iPhone 5S/SE/6/6s/7/8/iPod Touch5G(6G)，iPad与Plus设备均不支持。", 15, "left", "38,38,38")
     UILabel(2, "刷赛事模式需要先用所需车辆手动完成一局再启动脚本。", 15, "left", "255,30,2")
     UILabel(2, "多人刷声望:脚本自动刷多人获得声望。", 15, "left", "38,38,38")
-    UILabel(2, "多人刷包:脚本自动刷多人包，确保开始时有包可刷。当连续完成12局PVP且12局中未开包时认为刷完，刷完脚本自动停止。", 15, "left", "38,38,38")
+    --UILabel(2, "多人刷包:脚本自动刷多人包，确保开始时有包可刷。当连续完成12局PVP且12局中未开包时认为刷完，刷完脚本自动停止。", 15, "left", "38,38,38")
     UILabel(2, "脚本运行前需手动开启自动驾驶。", 15, "left", "38,38,38")
     UILabel(2, "没油没票后动作:刷赛事用完油和票之后的动作，选择去刷多人会在指定时间后返回。", 15, "left", "38,38,38")
     UILabel(2, "赛事位置选择:选择刷第几个赛事。", 15, "left", "38,38,38")
@@ -526,7 +526,7 @@ function ShowUI()
     UILabel(2, "XXX=4 终止脚本运行，此操作不可逆", 15, "left", "38,38,38")
     UILabel(2, "XXX=5 赛事没油没票后改为等待60分钟", 15, "left", "38,38,38")
     UILabel(2, "XXX=6 赛事没油没票后改为多人刷声望", 15, "left", "38,38,38")
-    UILabel(2, "远程日志功能，可以访问网址https://yourdomin.cn/api/a9log?udid=" .. ts.system.udid() .. "查看本日脚本日志，远程监控脚本运行情况。", 15, "left", "38,38,38")
+    UILabel(2, "远程日志功能，可以访问网址https://yourdomin.cn/api/a9log?udid=" .. ts.system.udid() .. "查看本日脚本日志。", 15, "left", "38,38,38")
     UILabel(2, "如果有脚本无法识别的界面，请联系QQ群1028746490群主。如果需要购买脚本授权码也请联系上述QQ群群主。", 20, "left", "38,38,38")
     UIShow()
     settings = mode .. "|" .. switch .. "|" .. path .. "|" .. gamenum .. "|" .. PVEchooseCar .. "|" .. carplace .. "|" .. backifallstar .. "|" .. PVPatBest .. "|" .. savePower .. "|" .. lowerCar .. "|" .. changeCar .. "|" .. watchAds .. "|" .. timeout_backPVE .. "|" .. skipcar .. "|" .. timeout_parallelRead .. "|" .. email
@@ -701,75 +701,52 @@ function backHome()
 end
 function getStage()
     if model == "SE" then
-        if isColor(328, 328, 0xf1cb30, 85) then
+        SE_X, SE_Y = 355, 305
+        if isColor(SE_X, SE_Y, 0xf1cb30, 85) then
             stage = 2 --黄金段位
-        elseif isColor(328, 328, 0x96b2d4, 85) then
+        elseif isColor(SE_X, SE_Y, 0x96b2d4, 85) then
             stage = 1 --白银段位
-        elseif isColor(328, 328, 0xd88560, 85) then
+        elseif isColor(SE_X, SE_Y, 0xd88560, 85) then
             stage = 0 --青铜段位
-        elseif isColor(328, 328, 0x9365f8, 85) then
+        elseif isColor(SE_X, SE_Y, 0x9365f8, 85) then
             stage = 3 --白金段位
-        elseif (isColor(320, 309, 0xf5e2a4, 85) and isColor(334, 309, 0xf5e2a4, 85) and isColor(323, 324, 0xf4e1a4, 85) and isColor(334, 323, 0xf5e2a4, 85) and isColor(328, 327, 0xf5e2a4, 85)) then
+        elseif isColor(SE_X, SE_Y, 0xf5e2a4, 85) then
             stage = 4 --传奇段位
-        elseif (isColor(322, 308, 0x00bbe8, 85) and isColor(335, 308, 0x00bbe8, 85) and isColor(334, 323, 0x00bbe8, 85) and isColor(320, 321, 0x00bbe8, 85)) then
+        else
             stage = -2 --没有段位
-            --toast("没有段位",1);
         end
     elseif model == "i68" then
         --Undone
-        if isColor(385, 379, 0xf1cb30, 85) then
-            --toast("黄金段位",1);
+        i86_X, i86_Y = 430, 355
+        if isColor(i86_X, i86_Y, 0xf1cb30, 85) then
             stage = 2 --黄金段位
-        elseif isColor(385, 379, 0x96b3d3, 85) then
-            --toast("白银段位",1);
+        elseif isColor(i86_X, i86_Y, 0x96b3d3, 85) then
             stage = 1 --白银段位
-        elseif isColor(385, 379, 0xd88560, 85) then
-            --toast("青铜段位",1);
+        elseif isColor(i86_X, i86_Y, 0xd88560, 85) then
             stage = 0 --青铜段位
-        elseif isColor(385, 379, 0x9365f8, 85) then
-            --toast("白金段位",1);
+        elseif isColor(i86_X, i86_Y, 0x9365f8, 85) then
             stage = 3 --白金段位
-        elseif (isColor(320, 309, 0xf5e2a4, 85) and isColor(334, 309, 0xf5e2a4, 85) and isColor(323, 324, 0xf4e1a4, 85) and isColor(334, 323, 0xf5e2a4, 85) and isColor(328, 327, 0xf5e2a4, 85)) then
-            --toast("传奇段位",1);
+        elseif isColor(i86_X, i86_Y, 0xf5e2a4, 85) then
             stage = 4 --传奇段位
-        elseif (isColor(322, 308, 0x00bbe8, 85) and isColor(335, 308, 0x00bbe8, 85) and isColor(334, 323, 0x00bbe8, 85) and isColor(320, 321, 0x00bbe8, 85)) then
+        else
             stage = -2 --没有段位
-            --toast("没有段位",1);
         end
     end
 end
 function chooseCarStage()
-    virtalstage = 0
+    virtalStage = 0
     if lowerCar == "开" then
-        virtalstage = stage - 1
+        virtalStage = stage - 1
     else
-        virtalstage = stage
+        virtalStage = stage
     end
-    if model == "SE" then
-        if virtalstage <= 0 then
-            tap(760 + chooseHighStageCarClass * 70, 100)
-        elseif virtalstage == 1 then
-            tap(830 + chooseHighStageCarClass * 70, 100)
-        elseif virtalstage == 2 then
-            tap(900 + chooseHighStageCarClass * 75, 100)
-        elseif virtalstage == 3 then
-            tap(975 + chooseHighStageCarClass * 75, 100)
-        elseif virtalstage == 4 then
-            tap(1050, 100)
-        end
-    elseif model == "i68" then
-        if virtalstage <= 0 then
-            tap(900 + chooseHighStageCarClass * 80, 100)
-        elseif virtalstage == 1 then
-            tap(980 + chooseHighStageCarClass * 80, 100)
-        elseif virtalstage == 2 then
-            tap(1060 + chooseHighStageCarClass * 80, 100)
-        elseif virtalstage == 3 then
-            tap(1140 + chooseHighStageCarClass * 100, 100)
-        elseif virtalstage == 4 then
-            tap(1240, 100)
-        end
+    baseList = { SE = { 760, 830, 900, 975, 975 }, i68 = { 900, 980, 1060, 1140, 1140 } }
+    offset = { SE = 70, i68 = 80 }
+    if virtalStage <= 0 then
+        virtalStage = 1
     end
+    --TODO:如果是传奇段位，就选三菱
+    tap(baseList[model][virtalStage + 1] + chooseHighStageCarClass * offset[model], 100)
 end
 function lowPower()
     t = batteryStatus()
@@ -781,10 +758,12 @@ function toCarbarn()
         getStage()
         if stage == 4 and PVPatBest == "否" then
             if supermode == "多人刷声望" then
+                log4l("传奇段位不跑多人")
                 toast("脚本停止", 1)
                 return -1
                 --传奇段位且不在传奇刷多人并且主模式是赛事模式时
             elseif supermode == "赛事模式" then
+                log4l("传奇段位不跑多人，脚本改为赛事模式，等30分钟")
                 mode = "赛事模式" --将现在的模式改为赛事模式
                 switch = "等30分钟" --赛事没油改为等30分钟
                 return 0
@@ -792,9 +771,9 @@ function toCarbarn()
         end
     end
     if model == "SE" then
-        tap(500, 580) --进入车库
+        tap(720, 570) --进入车库
     elseif model == "i68" then
-        tap(883, 691) --进入车库
+        tap(845, 670) --进入车库
     end
     return 1 --可以进入车库选车并开始PVP
 end
@@ -1046,6 +1025,7 @@ function receivePrizeAtGame()
     return -1
 end
 function beginGame()
+    checkAutoMobileBeforeBegin()
     if model == "SE" then
         tap(1090, 570)
     elseif model == "i68" then
@@ -1125,11 +1105,11 @@ function selectCarAtGame()
 end
 function carCanUse()
     if model == "SE" then
-        unlocked = isColor(160, 90, 0xfff078, 85) --已解锁为true
-        has_fuel = isColor(1090, 590, 0xc4fb11, 85) --有油为true
+        unlocked = isColor(160, 85, 0xffe833, 85) --已解锁为true
+        has_fuel = isColor(1090, 590, 0xc3fc11, 85) --有油为true
     elseif model == "i68" then
-        unlocked = isColor(188, 106, 0xffee65, 85) --已解锁为true
-        has_fuel = isColor(1278, 671, 0xc3fb12, 85) --有油为true
+        unlocked = isColor(185, 100, 0xffd313, 85) --已解锁为true
+        has_fuel = isColor(1255, 675, 0xc3fb12, 85) --有油为true
     end
     return unlocked and has_fuel
 end
@@ -1143,6 +1123,19 @@ function checkAutoMobile()
         if (isColor(220, 114, 0xcb1319, 90) and isColor(225, 114, 0xbf191f, 90) and isColor(223, 121, 0xfb0101, 90) and isColor(230, 120, 0xd50e0d, 90)) then
             --toast("开启自动驾驶",1);
             tap(230, 120)
+        end
+    end
+end
+function checkAutoMobileBeforeBegin()
+    if model == "SE" then
+        if (isColor(801, 587, 0xc3fb12, 90) and isColor(838, 588, 0xc3fb12, 90) and isColor(840, 608, 0xc3fb12, 90) and isColor(795, 607, 0xc3fb12, 90)) then
+            --toast("开启自动驾驶",1);
+            tap(760, 600)
+        end
+    elseif model == "i68" then
+        if (isColor(985, 700, 0xc3fb12, 85)) then
+            --toast("开启自动驾驶",1);
+            tap(890, 700)
         end
     end
 end
@@ -1241,7 +1234,7 @@ function checkPlace_SE()
     elseif getColor(5, 5) == 0x101f3b then
         checkplacetimes = 0
         return 0 --在大厅
-    elseif multiColor({ { 100, 560, 0xffffff }, { 270, 570, 0xffffff }, { 860, 560, 0xffffff }, { 1060, 560, 0xffffff } }, 90, false) == true then
+    elseif (isColor(240, 426, 0xffffff, 90) and isColor(406, 432, 0xffffff, 90) and isColor(247, 456, 0xffffff, 90) and isColor(412, 457, 0xffffff, 90) and isColor(306, 550, 0xffffff, 90) and isColor(525, 554, 0xffffff, 90) and isColor(735, 430, 0xffffff, 90) and isColor(880, 434, 0xffffff, 90) and isColor(294, 599, 0xffffff, 90) and isColor(887, 458, 0xffffff, 90)) then
         checkplacetimes = 0
         return 1 --在多人
     elseif (isColor(115, 625, 0xc3fb12, 85) or isColor(301, 625, 0xc3fb12, 85) or isColor(469, 625, 0xc3fb12, 85)) then
@@ -1265,9 +1258,9 @@ function checkPlace_SE()
     elseif (isColor(525, 33, 0xff0054, 85) and isColor(536, 33, 0xff0054, 85) and isColor(531, 41, 0xff0054, 85) and isColor(529, 52, 0xff0054, 85) and isColor(568, 33, 0xff0054, 85) and isColor(568, 44, 0xbe064c, 85) and isColor(567, 53, 0xc6054c, 85) and isColor(490, 81, 0xdadce0, 85) and isColor(556, 87, 0xe4e6e8, 85) and isColor(631, 85, 0xe6e8ea, 85)) then
         checkplacetimes = 0
         return 7 --领奖开包
-    elseif (isColor(211, 328, 0xe77423, 85) and isColor(366, 321, 0x4299e1, 85) and isColor(511, 310, 0xd8a200, 85) and isColor(657, 303, 0x5c17db, 85) and isColor(825, 289, 0x545454, 85) and isColor(960, 123, 0xfffeff, 85)) then
+    elseif (isColor(248, 391, 0xd88560, 90) and isColor(397, 387, 0x96b2d4, 90) and isColor(545, 374, 0xf1cb30, 90) and isColor(692, 359, 0x9365f8, 90) and isColor(866, 353, 0xf5e2a4, 90)) then
         checkplacetimes = 0
-        return 8 --多人联赛奖励界面
+        return 8 --多人联赛介绍界面
     elseif (isColor(597, 52, 0xff0054, 85) and isColor(596, 63, 0xff0054, 85) and isColor(523, 55, 0xff0054, 85) and isColor(535, 55, 0xff0054, 85) and isColor(567, 54, 0xff0054, 85) and isColor(557, 70, 0xff0054, 85) and isColor(254, 552, 0xffffff, 85) and isColor(522, 557, 0xffffff, 85) and isColor(250, 592, 0xffffff, 85) and isColor(526, 591, 0xffffff, 85)) or (isColor(522, 99, 0xffffff, 85) and isColor(439, 114, 0xffffff, 85) and isColor(560, 99, 0xffffff, 85) and isColor(621, 108, 0xffffff, 85) and isColor(634, 116, 0xffffff, 85) and isColor(678, 105, 0xffffff, 85) and isColor(687, 105, 0xffffff, 85) and isColor(269, 559, 0xffffff, 85) and isColor(505, 572, 0xffffff, 85)) then
         checkplacetimes = 0
         return 9 --赛车解锁或升星
@@ -1304,7 +1297,7 @@ function checkPlace_SE()
     elseif (isColor(19, 21, 0xff0054, 85) and isColor(223, 17, 0xff0054, 85) and isColor(18, 235, 0xff0054, 85) and isColor(231, 241, 0xff0054, 85) and isColor(178, 155, 0xffffff, 85) and isColor(409, 157, 0xffffff, 85) and isColor(454, 131, 0xffffff, 85) and isColor(1017, 562, 0xc3fb12, 85) and isColor(1074, 593, 0xc3fb11, 85) and isColor(1085, 607, 0x000b1f, 85)) then
         checkplacetimes = 0
         return 22 --失去资格
-    elseif (isColor(950, 91, 0xff0056, 90) and isColor(955, 96, 0xff0056, 90) and isColor(961, 102, 0xfd0255, 90) and isColor(968, 96, 0xff0054, 90) and isColor(973, 91, 0xff0055, 90) and isColor(952, 112, 0xff0054, 90) and isColor(957, 107, 0xfe0053, 90) and isColor(967, 107, 0xfa0054, 90) and isColor(970, 111, 0xfd0056, 90)) then
+    elseif (isColor(950, 91, 0xff0056, 90) and isColor(955, 96, 0xff0056, 90) and isColor(961, 102, 0xfd0255, 90) and isColor(968, 96, 0xff0054, 90) and isColor(973, 91, 0xff0055, 90) and isColor(952, 112, 0xff0054, 90) and isColor(957, 107, 0xfe0053, 90) and isColor(967, 107, 0xfa0054, 90) and isColor(970, 111, 0xfd0056, 90)) or (isColor(962, 97, 0xffffff, 90) and isColor(957, 92, 0xfcfdfa, 90) and isColor(954, 89, 0xfefefc, 90) and isColor(952, 106, 0xfcfdfa, 90) and isColor(971, 106, 0xfdfcfa, 90)) or (isColor(961, 101, 0xfdfdfd, 90) and isColor(969, 93, 0xfcfdfa, 90) and isColor(952, 92, 0xfefcfe, 90) and isColor(951, 111, 0xfdfcfd, 90) and isColor(970, 110, 0xfffbfe, 90)) or (isColor(954, 89, 0xfa0154, 90) and isColor(961, 97, 0xff0054, 90) and isColor(970, 88, 0xfd0155, 90) and isColor(951, 107, 0xfb0255, 90) and isColor(972, 107, 0xfb0253, 90)) then
         checkplacetimes = 0
         return 23 --弹窗广告，右上角有叉号的那种
     elseif (isColor(77, 52, 0xee0048, 90) and isColor(77, 66, 0xf40152, 90) and isColor(93, 53, 0xf10253, 90) and isColor(94, 58, 0xee0252, 90) and isColor(104, 60, 0xe80352, 90) and isColor(104, 69, 0xf50254, 90) and isColor(123, 58, 0xfe0054, 90) and isColor(123, 66, 0xec0353, 90) and isColor(128, 58, 0xf70153, 90) and isColor(123, 53, 0xf60153, 90)) then
@@ -1368,13 +1361,14 @@ function toPVP_SE()
         slideToPVP()
     end
     --TODO:检查是否在多人入口
-    if checkAndGetPackage() == -2 then
+    --检查多人包
+    --[[if checkAndGetPackage() == -2 then
         return -2
-    end
+    end]]--
     if PVPtype == "上" then
-        tap(857, 292)--进入多人
+        tap(871, 277)--进入多人
     elseif PVPtype == "下" then
-        tap(827, 330)--进入多人
+        tap(866, 321)--进入多人
     end
     mSleep(1500)
     place = checkPlace() --检查不是是在多人内部
@@ -1421,7 +1415,7 @@ function waitBegin_SE()
 end
 function autoMobile_SE()
     toast("接管比赛", 1)
-    _time = os.time()
+    --_time = os.time()
     checkAutoMobile()
     --检测界面在游戏
     while checkPlace_SE() == 3 do
@@ -1573,7 +1567,7 @@ function gametoCarbarn_SE()
     :: beginAtGame ::
     mSleep(4000)
     if ads or carCanUse() then
-        tap(1095, 548)
+        beginGame()
         mSleep(2000)
         --检查是不是有票
         if (isColor(462, 154, 0xffffff, 90) and isColor(465, 164, 0xffffff, 90) and isColor(478, 163, 0xffffff, 90) and isColor(509, 163, 0xffffff, 90) and isColor(543, 160, 0xffffff, 90) and isColor(572, 160, 0xffffff, 90) and isColor(585, 168, 0xfafafb, 90)) then
@@ -1924,9 +1918,9 @@ function checkPlace_i68()
     elseif (isColor(896, 112, 0xce7345, 85) and isColor(985, 113, 0x6c7889, 85) and isColor(1059, 119, 0xbd9158, 85) and isColor(1144, 118, 0xbcb3d5, 85) and isColor(1230, 116, 0x6d6c63, 85)) then
         checkplacetimes = 0
         return 3.1 --在多人车库
-    elseif (isColor(89, 643, 0xffffff, 85) and isColor(335, 645, 0xffffff, 85) and isColor(362, 708, 0x000822, 85) and isColor(1021, 648, 0xffffff, 85) and isColor(1234, 646, 0xffffff, 85) and isColor(1260, 704, 0x000821, 85)) or (isColor(481, 653, 0xc3fb12, 90) and isColor(827, 647, 0xc3fb12, 90) and isColor(448, 703, 0xc4fb12, 90) and isColor(879, 705, 0xc3fb12, 90) and isColor(766, 673, 0xc4fb12, 90) and isColor(556, 673, 0xc3fb12, 90) and isColor(705, 673, 0xc3fb12, 90)) or (isColor(294, 665, 0xffffff, 90) and isColor(531, 674, 0xc2fb12, 90) and isColor(851, 676, 0xc2fb12, 90) and isColor(1020, 673, 0xffffff, 90) and isColor(1233, 673, 0xffffff, 90)) then
+    elseif (isColor(285, 501, 0xffffff, 85) and isColor(473, 501, 0xffffff, 85) and isColor(297, 537, 0xffffff, 85) and isColor(470, 529, 0xffffff, 85) and isColor(362, 661, 0xffffff, 85) and isColor(612, 654, 0xffffff, 85) and isColor(475, 700, 0xffffff, 85) and isColor(880, 505, 0xffffff, 85) and isColor(1029, 505, 0xffffff, 85) and isColor(944, 537, 0xffffff, 85)) then
         checkplacetimes = 0
-        return 1 --在多人;or后面的是保时捷赛季新增的
+        return 1 --在多人
     elseif (isColor(89, 679, 0xc5fb12, 85) and isColor(246, 680, 0xc3fb12, 85) and isColor(81, 703, 0xc2fb0f, 85) and isColor(253, 700, 0xc3fa12, 85)) then
         checkplacetimes = 0
         return 5 --在赛事
@@ -1950,9 +1944,9 @@ function checkPlace_i68()
     elseif (isColor(617, 34, 0xea3358, 85) and isColor(699, 39, 0xea3358, 85) and isColor(701, 66, 0xe83258, 85) and isColor(1291, 716, 0x01061f, 85) and isColor(1264, 702, 0xffffff, 85)) then
         checkplacetimes = 0
         return 7 --领奖开包
-    elseif (isColor(1101, 119, 0xff0053, 85) and isColor(1123, 117, 0xff0053, 85) and isColor(1147, 147, 0xff0053, 85) and isColor(1160, 166, 0xff0054, 85) and isColor(1129, 170, 0xfa0052, 85) and isColor(1127, 143, 0xfffeff, 85)) then
+    elseif (isColor(295, 458, 0xd88560, 85) and isColor(465, 455, 0x96b2d4, 85) and isColor(639, 437, 0xf1cb30, 85) and isColor(812, 421, 0x9365f8, 85) and isColor(1013, 424, 0xf5e2a4, 85)) then
         checkplacetimes = 0
-        return 8 --多人联赛奖励界面
+        return 8 --多人联赛介绍界面
     elseif (isColor(616, 208, 0xfbde23, 85) and isColor(625, 224, 0xfec002, 85) and isColor(643, 226, 0xfee53d, 85) and isColor(629, 204, 0xfffef5, 85)) then
         checkplacetimes = 0
         return 9 --赛车解锁或升星
@@ -1995,14 +1989,15 @@ function toPVP_i68()
     toast("进入多人", 1)
     mSleep(4000)
     slideToPVP()
-    --检查是否在多人入口
-    if checkAndGetPackage() == -2 then
+    --TODO:检查是否在多人入口
+    --检查多人包
+    --[[if checkAndGetPackage() == -2 then
         return -2
-    end
+    end]]--
     if PVPtype == "上" then
-        tap(983, 340)--进入多人
+        tap(1205, 315)--进入多人
     elseif PVPtype == "下" then
-        tap(994, 394)--进入多人
+        tap(1210, 375)--进入多人
     end
     mSleep(2000)
     place = checkPlace()
