@@ -1138,6 +1138,7 @@ function checkAutoMobileBeforeBegin()
             tap(890, 700)
         end
     end
+    mSleep(1500)
 end
 function switchToSuitableCar()
     skip = 1
@@ -1982,6 +1983,9 @@ function checkPlace_i68()
     elseif (isColor(62, 83, 0xfb1264, 90) and isColor(181, 80, 0xfb1264, 90) and isColor(66, 118, 0xfb1264, 90) and isColor(178, 121, 0xfb1264, 90) and isColor(268, 634, 0xffffff, 90) and isColor(87, 633, 0xffffff, 90) and isColor(253, 672, 0xffffff, 90) and isColor(1088, 644, 0xffffff, 90) and isColor(1270, 674, 0xffffff, 90) and isColor(1271, 635, 0xffffff, 90)) then
         checkplacetimes = 0
         return 22 --游戏公告栏，左上角显示为"最新动态"四个字
+    elseif (isColor(1118, 110, 0xff0054, 90) and isColor(1127, 119, 0xff0054, 90) and isColor(1136, 110, 0xff0054, 90) and isColor(1119, 126, 0xfd0053, 90) and isColor(1134, 126, 0xff0054, 90) and isColor(1114, 132, 0xff0054, 90) and isColor(1140, 132, 0xff0054, 90) and isColor(1114, 106, 0xff0054, 90)) then
+        checkplacetimes = 0
+        return 23 --弹窗广告，右上角有叉号的那种
     end
     return 404
 end
@@ -2348,6 +2352,10 @@ function worker_i68(place)
         state = -1
     elseif place == 22 then
         tap(1165, 652)
+        mSleep(500)
+        state = -1
+    elseif place == 23 then
+        tap(1127, 119) --关闭右上角有叉的弹窗广告
         mSleep(500)
         state = -1
     elseif place == 25 then
