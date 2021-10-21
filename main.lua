@@ -1983,7 +1983,7 @@ function checkPlace_i68()
     elseif (isColor(62, 83, 0xfb1264, 90) and isColor(181, 80, 0xfb1264, 90) and isColor(66, 118, 0xfb1264, 90) and isColor(178, 121, 0xfb1264, 90) and isColor(268, 634, 0xffffff, 90) and isColor(87, 633, 0xffffff, 90) and isColor(253, 672, 0xffffff, 90) and isColor(1088, 644, 0xffffff, 90) and isColor(1270, 674, 0xffffff, 90) and isColor(1271, 635, 0xffffff, 90)) then
         checkplacetimes = 0
         return 22 --游戏公告栏，左上角显示为"最新动态"四个字
-    elseif (isColor(1118, 110, 0xff0054, 90) and isColor(1127, 119, 0xff0054, 90) and isColor(1136, 110, 0xff0054, 90) and isColor(1119, 126, 0xfd0053, 90) and isColor(1134, 126, 0xff0054, 90) and isColor(1114, 132, 0xff0054, 90) and isColor(1140, 132, 0xff0054, 90) and isColor(1114, 106, 0xff0054, 90)) then
+    elseif (isColor(1118, 110, 0xff0054, 90) and isColor(1127, 119, 0xff0054, 90) and isColor(1136, 110, 0xff0054, 90) and isColor(1119, 126, 0xfd0053, 90) and isColor(1134, 126, 0xff0054, 90) and isColor(1114, 132, 0xff0054, 90) and isColor(1140, 132, 0xff0054, 90) and isColor(1114, 106, 0xff0054, 90)) or (isColor(1115, 107, 0xfbfbfb, 90) and isColor(1124, 116, 0xfefefe, 90) and isColor(1127, 119, 0xfefefe, 90) and isColor(1138, 108, 0xfafbfb, 90) and isColor(1115, 131, 0xfefefe, 90) and isColor(1137, 129, 0xfefefe, 90)) then
         checkplacetimes = 0
         return 23 --弹窗广告，右上角有叉号的那种
     end
