@@ -1,0 +1,11 @@
+version: '3'
+services:
+  server:
+    build: .
+    volumes:
+      - data:/app/A9log/
+    ports:
+      - "8081:8081"
+
+volumes:
+  data:
