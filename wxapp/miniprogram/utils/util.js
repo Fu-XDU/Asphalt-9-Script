@@ -2,7 +2,7 @@ const httpsGet = function (url, data = {}) {
   return new Promise((resolve, reject) => {
     wx.request({
       method: "GET",
-      url: 'https://yourdomin.cn/api/' + url,
+      url: 'https://yourdomin.cn/a9api/' + url,
       data: data,
       success: function (res) {
         resolve(res)
@@ -18,7 +18,7 @@ const httpsPost = function (url, data = {}) {
     wx.request({
       header: {"Content-Type": "application/x-www-form-urlencoded"},
       method: "POST",
-      url: 'https://yourdomin.cn/api/' + url,
+      url: 'https://yourdomin.cn/a9api/' + url,
       data: data,
       success: function (res) {
         resolve(res)

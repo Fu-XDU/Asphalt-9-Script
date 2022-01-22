@@ -16,7 +16,7 @@ App({
     }
 
     this.globalData = {
-      apiUrl: 'https://yourdomin.cn/api/',
+      apiUrl: 'https://yourdomin.cn/a9api/',
       openid: undefined,
     }
   }

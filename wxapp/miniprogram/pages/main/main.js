@@ -279,8 +279,8 @@ Page({
     util.httpsGet("a9getSettings?udid=" + this.data.udid).then((res) => {
       if (res.data.length > 0) {
         //console.info("获取设置成功",res.data[0])
-        this.data.oldSettings = res.data[0].settings
-        this.saveSettings(res.data[0].settings.split("|"))
+        this.data.oldSettings = res.data
+        this.saveSettings(res.data.split("|"))
         this.saveudid()
         wx.pageScrollTo({
           scrollTop: 100,
