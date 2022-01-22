@@ -3,7 +3,7 @@ local ts = require("ts")
 local sz = require("sz")
 local json = sz.json
 init(1)
-apiUrl = "https://yourdomin.cn/api/"
+apiUrl = "https://yourdomin.cn/a9api/"
 gameBid = "com.Aligames.kybc9"
 root = userPath() .. "/res/"
 stage = -1 --段位
