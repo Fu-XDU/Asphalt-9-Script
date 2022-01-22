@@ -120,9 +120,9 @@ end
 function getSettings()
     --存储用户本次设置选项
     newsettings = settings
-    a9getSettings_code, a9getSettingsheader_resp, newsettings = ts.httpsGet(apiUrl .. "a9getSettings?udid=" .. udid, {}, {})
+    a9getSettings_code, a9getSettingsheader_resp, resp_settings = ts.httpsGet(apiUrl .. "a9getSettings?udid=" .. udid, {}, {})
     if a9getSettings_code == 200 then
-        newsettings = strSplit(ToStringEx(json.decode(newsettings)[1]), "=")[2]
+        newsettings = resp_settings
     end
     return newsettings
 end
