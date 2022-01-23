@@ -10,5 +10,7 @@ COPY --from=MAVEN_BUILD /build/target/a9script-0.0.1-SNAPSHOT.jar /app/
 RUN mkdir -p "/app/A9log"
 # 支持中文
 ENV LANG C.UTF-8
+# 修改时区
+ENV TZ Asia/Shanghai
 EXPOSE 8081
 ENTRYPOINT ["java","-jar","/app/a9script-0.0.1-SNAPSHOT.jar"]
