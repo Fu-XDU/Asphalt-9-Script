@@ -26,7 +26,7 @@ chooseHighStageCarClass = 1 --改成1的话，使用新多人选车方案
 watchAds = ""
 PVPwithoutPack, packWithoutRestore = 0, 0 --开过最近的一个PVP包后完成PVP局数,连着开了多少个包但是没有补充
 accountnum, nowaccount = "", "" --当前运行的账号,当前运行的账号+密码
-switchaccountfun = true --是否打开多人刷包切换账号的功能
+switchaccountfun = false --是否打开多人刷包切换账号的功能
 udid = ts.system.udid()
 settings = ""--用户设置
 noAds, restartTimes = 0, 0 --连续回油没广告次数，连续重启次数
@@ -609,13 +609,14 @@ function wait_time(minutes)
 
 end
 function back()
+    --[[
     if model == "SE" then
-        if (isColor(6, 7, 0xffffff, 85) and isColor(94, 5, 0xffffff, 85) and isColor(4, 92, 0xffffff, 85) and isColor(24, 74, 0xffffff, 85) and isColor(3, 59, 0xffffff, 85) and isColor(29, 26, 0x1b1b1b, 85) and isColor(36, 19, 0x212121, 85) and isColor(39, 36, 0x070707, 85)) then
-            tap(30, 30)
-        end
+        tap(30, 30)
     elseif model == "i68" then
         tap(30, 30)
     end
+    ]]--
+    tap(30, 30)
     mSleep(2000)
 end
 function checkTimeOut()
