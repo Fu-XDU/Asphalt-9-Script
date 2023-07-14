@@ -1,7 +1,8 @@
 version: '3'
 services:
   server:
-    build: .
+#    build: .
+    image: fuming/a9script:1.0.0
     volumes:
       - data:/app/A9log/
     ports:
